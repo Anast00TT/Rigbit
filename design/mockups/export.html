@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rigbit Экспорт</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0c0c0d;color:#eee;font-family:Roboto,system-ui,sans-serif}
+header{max-width:1240px;margin:0 auto;padding:32px 16px 0}
+header h1{margin:0 0 6px;font-size:26px;font-weight:700}
+header p{margin:0 0 8px;color:#a3a3ad;font-size:14px;line-height:1.55;max-width:820px}
+.grid{display:flex;flex-wrap:wrap;gap:44px 36px;justify-content:center;padding:28px 16px 64px;max-width:1300px;margin:0 auto}
+.cell{width:376px}
+.cap{margin-top:14px}
+.cap h3{margin:0 0 6px;font-size:16px;font-weight:500}
+.cap h3 em{font-style:normal;color:#77777f;margin-right:6px}
+.cap ul{margin:0;padding-left:18px;color:#9a9aa3;font-size:13px;line-height:1.55}
+
+.phone{--bg:#161616;--p1:#262626;--p2:#2E2E2E;--p3:#3A3A3A;--ln:#111;--tx:#E8E8E8;--tx2:#9E9E9E;--tx3:#666;--acc:#3D8BFD;
+  --exp:#46A758;--canvas:#F2F0EA;--mode:var(--exp);--warn:#E9A23B;
+  position:relative;width:376px;height:776px;border-radius:44px;border:8px solid #000;overflow:hidden;background:var(--bg);color:var(--tx);
+  box-shadow:0 0 0 1px #2a2a30,0 30px 60px rgba(0,0,0,.5)}
+svg{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.status{position:absolute;top:0;left:0;right:0;height:32px;background:var(--p1);display:flex;align-items:center;justify-content:space-between;padding:0 22px 0 26px;font-size:12.5px;font-weight:500}
+.cam{position:absolute;left:50%;top:7px;width:19px;height:19px;border-radius:50%;background:#000;transform:translateX(-50%)}
+.bar{position:absolute;top:32px;left:0;right:0;height:52px;background:var(--p1);display:flex;align-items:center;padding:0 4px}
+.ib{width:44px;height:48px;display:grid;place-items:center;flex:none}
+.ib svg{width:22px;height:22px}
+.ib.off{color:var(--tx3)}
+.sp{flex:1}
+.sep{width:1px;height:24px;background:var(--p3);margin:0 4px}
+.tabs{position:absolute;top:84px;left:0;right:0;height:48px;background:var(--p1);border-bottom:1px solid var(--ln);padding:4px 8px 8px}
+.seg{display:flex;height:36px;background:#1C1C1C;border-radius:8px;padding:3px}
+.seg span{flex:1 1 auto;display:flex;align-items:center;justify-content:center;font-size:13.5px;color:var(--tx2);font-weight:500;border-radius:6px;white-space:nowrap;padding:0 6px}
+.seg span.on{background:color-mix(in srgb,var(--mode) 32%,#2a2a2a);color:var(--tx);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--mode) 70%,transparent)}
+
+/* превью: холст и рамка кадра экспорта */
+.pv{position:absolute;top:136px;left:8px;right:8px;height:206px;background:#1E1E1E;border-radius:6px;box-shadow:inset 0 0 0 2px var(--mode);overflow:hidden}
+.pv .frame{position:absolute;left:50%;top:calc(50% - 20px);transform:translate(-50%,-50%);background:var(--canvas);box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.pv .frame.check{background:conic-gradient(#d9d9d9 25%,#f4f4f4 0 50%,#d9d9d9 0 75%,#f4f4f4 0) 0 0/14px 14px}
+.pv .frog{position:absolute;left:50%;top:calc(54% - 20px);transform:translate(-50%,-50%)}
+.pv .meta{position:absolute;left:10px;bottom:8px;font-size:12px;color:var(--tx2);background:rgba(20,20,20,.8);padding:4px 8px;border-radius:6px}
+.pv .play{position:absolute;right:8px;bottom:6px;width:44px;height:44px;border-radius:22px;background:rgba(20,20,20,.8);display:grid;place-items:center;color:var(--tx)}
+.pv .play svg{width:20px;height:20px}
+
+/* лист настроек */
+.sheet{position:absolute;top:350px;left:0;right:0;bottom:24px;background:var(--p1);border-top:1px solid var(--ln);padding:12px 12px 0;display:flex;flex-direction:column;gap:8px}
+.lbl{font-size:12px;color:var(--tx2);font-weight:500;margin:2px 4px 0}
+.presets{display:flex;gap:8px}
+.pr{flex:1 1 0;min-width:0;height:60px;border-radius:8px;background:var(--p2);padding:8px 10px;display:flex;flex-direction:column;justify-content:space-between}
+.pr b{font-size:13px;font-weight:500;white-space:nowrap}
+.pr i{font-style:normal;font-size:11px;color:var(--tx2);white-space:nowrap}
+.pr.on{box-shadow:inset 0 0 0 2px var(--mode);background:color-mix(in srgb,var(--mode) 14%,var(--p2))}
+.row{height:48px;display:flex;align-items:center;gap:12px;padding:0 4px}
+.row .k{width:92px;flex:none;font-size:14px;color:var(--tx2)}
+.row .v{flex:1;height:40px;border-radius:8px;background:var(--p2);display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-size:14px}
+.row .v svg{width:16px;height:16px;color:var(--tx2)}
+.mini{flex:1;display:flex;height:40px;background:#1C1C1C;border-radius:8px;padding:3px;gap:2px}
+.mini span{flex:1;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--tx2);border-radius:6px}
+.mini span.on{background:var(--p3);color:var(--tx)}
+.mini span.dim{color:var(--tx3)}
+.range{flex:1;position:relative;height:40px}
+.range .tr{position:absolute;left:8px;right:8px;top:19px;height:3px;background:var(--p3);border-radius:2px}
+.range .fill{position:absolute;top:19px;height:3px;background:var(--acc);border-radius:2px}
+.range .h{position:absolute;top:9px;width:22px;height:22px;border-radius:11px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.5)}
+.sw{width:28px;height:28px;border-radius:6px;border:2px solid var(--p3)}
+.warn{display:flex;gap:10px;align-items:flex-start;background:color-mix(in srgb,var(--warn) 14%,var(--p2));border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.4;color:#f0d9b5}
+.warn svg{width:18px;height:18px;flex:none;color:var(--warn);margin-top:1px}
+.go{margin-top:auto;margin-bottom:12px;height:52px;border-radius:10px;background:var(--mode);display:flex;align-items:center;justify-content:center;gap:10px;font-size:16px;font-weight:500;color:#fff}
+.go svg{width:20px;height:20px}
+.go.sec{background:var(--p2);color:var(--tx)}
+.btns{display:flex;gap:8px;margin-top:auto;margin-bottom:12px}
+.btns .go{margin:0;flex:1}
+
+/* прогресс */
+.prog{display:flex;flex-direction:column;gap:12px;padding:8px 4px}
+.prog .t{font-size:16px;font-weight:500}
+.prog .s{font-size:13px;color:var(--tx2)}
+.pbar{height:8px;border-radius:4px;background:var(--p3);overflow:hidden}
+.pbar div{height:100%;background:var(--mode);border-radius:4px}
+.done{display:flex;gap:12px;align-items:center;padding:8px 4px}
+.done .ok{width:44px;height:44px;border-radius:22px;background:color-mix(in srgb,var(--mode) 25%,var(--p2));display:grid;place-items:center;color:var(--mode);flex:none}
+.done .ok svg{width:24px;height:24px}
+.nav{position:absolute;bottom:0;left:0;right:0;height:24px;background:var(--bg);display:grid;place-items:center}
+.nav::after{content:"";width:110px;height:4px;border-radius:2px;background:#555}
+</style>
+</head>
+<body>
+<header>
+<h1>Экран экспорта</h1>
+<p>Режим «Экспорт» в стиле «Студия». Сверху превью с рамкой будущего видео (видно, как холст ляжет в 9:16 или в квадрат), под ним пресеты лентой, ниже несколько настроек и одна большая кнопка. Всё, что пресет задаёт сам, можно не трогать.</p>
+<p>Вопрос к тебе: MP4 и WebM требуют Android-плагина (design/export_research.md, MP4 ~2 дня, WebM с альфой ~5). Предлагаю первую версию экрана выпустить с рабочими GIF и PNG, а MP4/WebM показать серыми с подписью «скоро». Или сначала плагин?</p>
+</header>
+<div class="grid">
+
+<!-- 1. TikTok -->
+<div class="cell">
+<div class="phone">
+  <div class="status"><span>12:30</span><span>100%</span></div><div class="cam"></div>
+  <div class="bar">
+    <div class="ib"><svg viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/></svg></div>
+    <div class="ib"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg></div>
+    <div class="ib off"><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></svg></div>
+    <div class="sep"></div>
+    <div class="ib"><svg viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></svg></div>
+    <div class="sp"></div>
+    <div class="ib"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></div>
+  </div>
+  <div class="tabs"><div class="seg"><span>Риг</span><span>Анимация</span><span>Композинг</span><span class="on">Экспорт</span></div></div>
+  <div class="pv">
+    <div class="frame" style="width:82px;height:146px"></div>
+    <svg class="frog" width="64" height="76" viewBox="0 0 84 100"><ellipse cx="42" cy="64" rx="30" ry="30" fill="#7cc576" stroke="none"/><ellipse cx="42" cy="34" rx="34" ry="24" fill="#7cc576" stroke="none"/><circle cx="26" cy="20" r="9" fill="#fff" stroke="none"/><circle cx="58" cy="20" r="9" fill="#fff" stroke="none"/><circle cx="27" cy="21" r="4" fill="#222" stroke="none"/><circle cx="57" cy="21" r="4" fill="#222" stroke="none"/><ellipse cx="42" cy="68" rx="16" ry="18" fill="#e8f2cf" stroke="none"/></svg>
+    <div class="meta">1080×1920 · 30 fps · 2,0 с</div>
+    <div class="play"><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z" fill="currentColor"/></svg></div>
+  </div>
+  <div class="sheet">
+    <div class="lbl">Куда</div>
+    <div class="presets">
+      <div class="pr on"><b>TikTok</b><i>9:16</i></div>
+      <div class="pr"><b>Квадрат</b><i>1:1</i></div>
+      <div class="pr"><b>Стикер</b><i>Telegram</i></div>
+      <div class="pr"><b>GIF</b><i>цикл</i></div>
+    </div>
+    <div class="row"><span class="k">Формат</span><div class="mini"><span class="on">MP4</span><span>GIF</span><span>PNG</span><span>WebM</span></div></div>
+    <div class="row"><span class="k">Кадры/с</span><div class="mini"><span>12</span><span>24</span><span class="on">30</span><span>60</span></div></div>
+    <div class="row"><span class="k">Кадры</span><div class="range"><div class="tr"></div><div class="fill" style="left:8px;right:8px"></div><div class="h" style="left:0"></div><div class="h" style="right:0"></div></div></div>
+    <div class="row"><span class="k">Фон</span><div class="v"><span>Цвет холста</span><div class="sw" style="background:#F2F0EA"></div></div></div>
+    <div class="go"><svg viewBox="0 0 24 24"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>Экспортировать</div>
+  </div>
+  <div class="nav"></div>
+</div>
+<div class="cap"><h3><em>1</em>Настройки, пресет TikTok</h3><ul>
+<li>Превью проигрывается кнопкой справа внизу, рамка показывает, как холст впишется в 9:16 (поля по бокам цветом фона).</li>
+<li>Пресет выставляет формат, размер, fps; любую настройку можно поменять после.</li>
+<li>Диапазон кадров: две ручки, по умолчанию вся анимация.</li>
+</ul></div>
+</div>
+
+<!-- 2. Telegram -->
+<div class="cell">
+<div class="phone">
+  <div class="status"><span>12:31</span><span>100%</span></div><div class="cam"></div>
+  <div class="bar">
+    <div class="ib"><svg viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/></svg></div>
+    <div class="ib"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg></div>
+    <div class="ib off"><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></svg></div>
+    <div class="sep"></div>
+    <div class="ib"><svg viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></svg></div>
+    <div class="sp"></div>
+    <div class="ib"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></div>
+  </div>
+  <div class="tabs"><div class="seg"><span>Риг</span><span>Анимация</span><span>Композинг</span><span class="on">Экспорт</span></div></div>
+  <div class="pv">
+    <div class="frame check" style="width:88px;height:146px"></div>
+    <svg class="frog" width="64" height="76" viewBox="0 0 84 100"><ellipse cx="42" cy="64" rx="30" ry="30" fill="#7cc576" stroke="none"/><ellipse cx="42" cy="34" rx="34" ry="24" fill="#7cc576" stroke="none"/><circle cx="26" cy="20" r="9" fill="#fff" stroke="none"/><circle cx="58" cy="20" r="9" fill="#fff" stroke="none"/><circle cx="27" cy="21" r="4" fill="#222" stroke="none"/><circle cx="57" cy="21" r="4" fill="#222" stroke="none"/><ellipse cx="42" cy="68" rx="16" ry="18" fill="#e8f2cf" stroke="none"/></svg>
+    <div class="meta">308×512 · 30 fps · 3,0 с</div>
+    <div class="play"><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z" fill="currentColor"/></svg></div>
+  </div>
+  <div class="sheet">
+    <div class="lbl">Куда</div>
+    <div class="presets">
+      <div class="pr"><b>TikTok</b><i>9:16</i></div>
+      <div class="pr"><b>Квадрат</b><i>1:1</i></div>
+      <div class="pr on"><b>Стикер</b><i>Telegram</i></div>
+      <div class="pr"><b>GIF</b><i>цикл</i></div>
+    </div>
+    <div class="warn"><svg viewBox="0 0 24 24"><path d="M12 3 2 20h20z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg><span>Анимация 4,0 с, стикер до 3 с: последние 30 кадров не попадут. Сдвинь ручку «Кадры» или ускорь анимацию.</span></div>
+    <div class="row"><span class="k">Кадры</span><div class="range"><div class="tr"></div><div class="fill" style="left:8px;right:78px"></div><div class="h" style="left:0"></div><div class="h" style="right:70px"></div></div></div>
+    <div class="row"><span class="k">Фон</span><div class="mini"><span class="on">Прозрачный</span><span>Цвет</span></div></div>
+    <div class="row"><span class="k">Размер</span><div class="v"><span>до 256 КБ, подберу сам</span></div></div>
+    <div class="go"><svg viewBox="0 0 24 24"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>Экспортировать</div>
+  </div>
+  <div class="nav"></div>
+</div>
+<div class="cap"><h3><em>2</em>Стикер Telegram с предупреждением</h3><ul>
+<li>Шахматка в превью = прозрачный фон.</li>
+<li>Лимиты Telegram (512 px, 3 с, 256 КБ) проверяются заранее, предупреждение жёлтое и объясняет, что сделать.</li>
+<li>Формат и fps тут не показаны: у стикера они фиксированы, лишних кнопок нет.</li>
+</ul></div>
+</div>
+
+<!-- 3. Прогресс -->
+<div class="cell">
+<div class="phone">
+  <div class="status"><span>12:32</span><span>99%</span></div><div class="cam"></div>
+  <div class="bar">
+    <div class="ib off"><svg viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/></svg></div>
+    <div class="ib off"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg></div>
+    <div class="ib off"><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></svg></div>
+    <div class="sep"></div>
+    <div class="ib off"><svg viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></svg></div>
+    <div class="sp"></div>
+    <div class="ib off"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></div>
+  </div>
+  <div class="tabs"><div class="seg"><span style="color:var(--tx3)">Риг</span><span style="color:var(--tx3)">Анимация</span><span style="color:var(--tx3)">Композинг</span><span class="on">Экспорт</span></div></div>
+  <div class="pv">
+    <div class="frame" style="width:82px;height:146px"></div>
+    <svg class="frog" width="64" height="76" viewBox="0 0 84 100" style="transform:translate(-50%,-56%) rotate(-6deg)"><ellipse cx="42" cy="64" rx="30" ry="30" fill="#7cc576" stroke="none"/><ellipse cx="42" cy="34" rx="34" ry="24" fill="#7cc576" stroke="none"/><circle cx="26" cy="20" r="9" fill="#fff" stroke="none"/><circle cx="58" cy="20" r="9" fill="#fff" stroke="none"/><circle cx="27" cy="21" r="4" fill="#222" stroke="none"/><circle cx="57" cy="21" r="4" fill="#222" stroke="none"/><ellipse cx="42" cy="68" rx="16" ry="18" fill="#e8f2cf" stroke="none"/></svg>
+    <div class="meta">кадр 32</div>
+  </div>
+  <div class="sheet">
+    <div class="prog">
+      <div class="t">Собираю видео…</div>
+      <div class="pbar"><div style="width:66%"></div></div>
+      <div class="s">Кадр 32 из 48 · осталось около 6 с</div>
+    </div>
+    <div class="s" style="font-size:13px;color:var(--tx2);padding:0 4px;line-height:1.45">Можно свернуть приложение: экспорт продолжится, а если Android его прервёт, начнём с того же кадра.</div>
+    <div class="go sec"><svg viewBox="0 0 24 24"><path d="M6 6l12 12"/><path d="M18 6 6 18"/></svg>Отменить</div>
+  </div>
+  <div class="nav"></div>
+</div>
+<div class="cap"><h3><em>3</em>Рендер с прогрессом и отменой</h3><ul>
+<li>Кадр за кадром, превью показывает текущий кадр.</li>
+<li>Остальные режимы и правки заблокированы, пока идёт экспорт (видно по серым кнопкам).</li>
+<li>Отмена одной кнопкой, без подтверждения: ничего не теряется.</li>
+</ul></div>
+</div>
+
+<!-- 4. Готово -->
+<div class="cell">
+<div class="phone">
+  <div class="status"><span>12:33</span><span>99%</span></div><div class="cam"></div>
+  <div class="bar">
+    <div class="ib"><svg viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/></svg></div>
+    <div class="ib"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg></div>
+    <div class="ib off"><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></svg></div>
+    <div class="sep"></div>
+    <div class="ib"><svg viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></svg></div>
+    <div class="sp"></div>
+    <div class="ib"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></div>
+  </div>
+  <div class="tabs"><div class="seg"><span>Риг</span><span>Анимация</span><span>Композинг</span><span class="on">Экспорт</span></div></div>
+  <div class="pv">
+    <div class="frame" style="width:82px;height:146px"></div>
+    <svg class="frog" width="64" height="76" viewBox="0 0 84 100"><ellipse cx="42" cy="64" rx="30" ry="30" fill="#7cc576" stroke="none"/><ellipse cx="42" cy="34" rx="34" ry="24" fill="#7cc576" stroke="none"/><circle cx="26" cy="20" r="9" fill="#fff" stroke="none"/><circle cx="58" cy="20" r="9" fill="#fff" stroke="none"/><circle cx="27" cy="21" r="4" fill="#222" stroke="none"/><circle cx="57" cy="21" r="4" fill="#222" stroke="none"/><ellipse cx="42" cy="68" rx="16" ry="18" fill="#e8f2cf" stroke="none"/></svg>
+    <div class="meta">готово · 2,0 с</div>
+    <div class="play"><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z" fill="currentColor"/></svg></div>
+  </div>
+  <div class="sheet">
+    <div class="done"><div class="ok"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg></div>
+      <div><div style="font-size:16px;font-weight:500">Фроги.mp4</div><div style="font-size:13px;color:var(--tx2);margin-top:3px">1080×1920 · 2,0 с · 1,4 МБ</div></div></div>
+    <div class="s" style="font-size:13px;color:var(--tx2);padding:0 4px;line-height:1.45">Сохранено в «Видео / Rigbit». Отправить сразу в TikTok или Telegram можно через «Поделиться».</div>
+    <div class="btns">
+      <div class="go sec"><svg viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/></svg>Папка</div>
+      <div class="go"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.9 7.6-4.6"/><path d="m8.2 13.1 7.6 4.6"/></svg>Поделиться</div>
+    </div>
+  </div>
+  <div class="nav"></div>
+</div>
+<div class="cap"><h3><em>4</em>Готово</h3><ul>
+<li>Файл сразу в галерее (папка Rigbit), имя от проекта.</li>
+<li>«Поделиться» открывает системное меню Android: TikTok, Telegram, что угодно.</li>
+<li>Ниже пресеты снова доступны, можно сразу сделать GIF той же анимации.</li>
+</ul></div>
+</div>
+
+</div>
+</body>
+</html>
