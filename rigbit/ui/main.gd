@@ -2276,6 +2276,7 @@ func _build_panels() -> void:
 
 	sheet = RbLayerSheet.new()
 	sheet.visible = false
+	sheet.shown = _sheet_value
 	sheet.action.connect(_layer_action)
 	sheet.closed.connect(_close_sheet)
 
@@ -2417,6 +2418,39 @@ func _place_panel(p: Control) -> void:
 const DEFRINGE_PX := 2  # «Убрать кайму»: колец по краю, пикселей картинки
 
 
+## Вариант свитч-группы: правка формы = в форму, Анимация = ключ ступенькой, Риг = значение.
+func _pick_switch(l: RbLayer, i: int) -> void:
+	if form_tools.active:
+		form_tools.set_switch(l.id, i)
+	elif mode == 1:
+		_key_layer(l, &"switch_index", i, false)
+		undo.end_gesture()
+	else:
+		undo.push(RbCommands.SetLayerProp.new(l.id, &"switch_index", l.switch_index, i))
+		undo.end_gesture()
+	if sheet.visible:
+		sheet.show_layer(doc, l.id)
+
+
+## Слой по имени (для самопроверок), 0 если нет.
+func r_part(nm: StringName) -> int:
+	for l: RbLayer in doc.layers.values():
+		if l.name == String(nm):
+			return l.id
+	return 0
+
+
+## Значения для листа слоя: при правке формы прозрачность и вариант берутся с учётом формы.
+func _sheet_value(l: RbLayer, prop: StringName) -> Variant:
+	if form_tools.active:
+		if prop == &"opacity":
+			return clampf(l.opacity + form_tools.opacity_delta(l.id), 0.0, 1.0)
+		if prop == &"switch_index":
+			var p := form_tools.switch_pick(l.id)
+			return p if p >= 0 else l.switch_index
+	return l.get_prop(prop)
+
+
 func _layer_action(act: String, arg: Variant) -> void:
 	var l := doc.get_layer(selected_id)
 	if l == null:
@@ -2424,6 +2458,9 @@ func _layer_action(act: String, arg: Variant) -> void:
 	match act:
 		"opacity":
 			var v: float = arg[0]
+			if form_tools.active:
+				form_tools.set_opacity_delta(l.id, v - l.opacity)  # в форму, запишется по «Готово»
+				return
 			if mode == 1:
 				_key_layer(l, &"opacity", v, true)
 			else:
@@ -2441,7 +2478,24 @@ func _layer_action(act: String, arg: Variant) -> void:
 					undo.push(RbCommands.SetLayerProp.new(l.id, &"blend_mode", l.blend_mode, mm))
 					sheet.rebuild()])
 			_open_menu(sheet, items)
+		"switch_menu":
+			var cur := form_tools.switch_pick(l.id) if form_tools.active else -1
+			if cur < 0:
+				cur = l.switch_index
+			var items := []
+			for i in l.children.size():
+				var c := doc.get_layer(l.children[i])
+				var k := i
+				items.append(["check" if i == cur else "dot_empty", c.name if c else "?", func() -> void: _pick_switch(l, k)])
+			_open_menu(sheet, items)
+			return
 		"up", "down":
+			if mode == 1 and not form_tools.active:
+				# в Анимации порядок ставится ключом на кадре (рука перед телом только здесь)
+				_key_layer(l, &"z", l.z + (1 if act == "up" else -1), false)
+				_toast(tr("Z_KEYED") % (l.z))
+				undo.end_gesture()
+				return
 			var list := doc.sibling_list(l.parent_id)
 			var i := list.find(l.id)
 			var j := i + (1 if act == "up" else -1)
@@ -3103,6 +3157,25 @@ func _activate_mesh_tool_for_shot() -> void:
 func _auto(kind: String) -> void:
 	await _frames(3)
 	match kind:
+		"switch":  # вариант свитча и порядок ключами в Анимации (после --gl2)
+			var sw: RbLayer = null
+			for l: RbLayer in doc.layers.values():
+				if l.kind == RbLayer.Kind.SWITCH and l.name == "mouth":
+					sw = l
+			if sw:
+				var hand: RbLayer = doc.get_layer(r_part(&"forearm1"))
+				selected_id = sw.id
+				_open_sheet()
+				var steps := undo.size()
+				_pick_switch(sw, 0)
+				print("AUTO switch keys=", doc.anim.keys_of(RbAnimation.track_key("layer", sw.id, &"switch_index")).size(), " undo_added=", undo.size() - steps)
+				if hand:
+					selected_id = hand.id
+					_layer_action("down", null)
+					print("AUTO switch z=", hand.z, " zkeys=", doc.anim.keys_of(RbAnimation.track_key("layer", hand.id, &"z")).size())
+				selected_id = sw.id
+				_update_selection()
+				sheet.show_layer(doc, sw.id)
 		"gl2pose":  # поза гача-персонажа: рука вверх, присед на IK, зрачки вбок-вверх
 			var by := {}
 			for b: RbBone in doc.rig.bones.values():

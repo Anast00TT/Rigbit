@@ -4,6 +4,8 @@ extends PanelContainer
 ## Вкладки: Слой (вид и порядок) / Сетка (плотность, правка точек).
 
 signal action(name: String, arg: Variant)
+## Что показать в ползунках: func(layer, prop) -> значение (правка формы показывает форму). Пусто = как в слое.
+var shown: Callable
 signal closed
 
 var doc: RbDocument
@@ -120,7 +122,7 @@ func _build_bind_tab(_l: RbLayer) -> void:
 
 
 func _build_layer_tab(l: RbLayer) -> void:
-	_body.add_child(RbUi.slider_row("PROP_OPACITY", 0.0, 1.0, l.opacity,
+	_body.add_child(RbUi.slider_row("PROP_OPACITY", 0.0, 1.0, float(shown.call(l, &"opacity")) if shown.is_valid() else l.opacity,
 		func(v: float) -> String: return "%d%%" % roundi(v * 100.0),
 		func(v: float, done: bool) -> void: action.emit("opacity", [v, done])))
 	var blend_row := RbUi.hbox(12)
@@ -132,6 +134,21 @@ func _build_layer_tab(l: RbLayer) -> void:
 	bb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	blend_row.add_child(bb)
 	_body.add_child(blend_row)
+	if l.kind == RbLayer.Kind.SWITCH and not l.children.is_empty():
+		var idx := clampi(int(shown.call(l, &"switch_index")) if shown.is_valid() else l.switch_index, 0, l.children.size() - 1)
+		var child := doc.get_layer(l.children[idx])
+		var sw_row := RbUi.hbox(12)
+		sw_row.custom_minimum_size.y = 48
+		var sl := RbUi.label("PROP_VARIANT", "LabelDim")
+		sl.custom_minimum_size.x = 104
+		sw_row.add_child(sl)
+		var sb := RbUi.text_btn("SecondaryButton", "", child.name if child else "?", func() -> void: action.emit("switch_menu", null), 40)
+		sb.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+		sb.clip_text = true
+		sb.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		sb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		sw_row.add_child(sb)
+		_body.add_child(sw_row)
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.add_theme_constant_override("h_separation", 8)

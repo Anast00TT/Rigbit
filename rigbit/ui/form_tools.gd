@@ -109,6 +109,33 @@ func set_bone_delta(bone_id: int, prop: String, delta: Variant) -> void:
 	m.doc.notify(&"params")
 
 
+## Прозрачность и свитчи в форме: добавка к прозрачности слоя и выбранный вариант свитч-группы.
+func opacity_delta(layer_id: int) -> float:
+	return float((_form.get("opacity", {}) as Dictionary).get(layer_id, 0.0))
+
+
+func set_opacity_delta(layer_id: int, delta: float) -> void:
+	if not active:
+		return
+	var o: Dictionary = _form["opacity"]
+	if absf(delta) < RbFormEdit.EPS:
+		o.erase(layer_id)
+	else:
+		o[layer_id] = delta
+	m.doc.notify(&"params")
+
+
+func switch_pick(group_id: int) -> int:
+	return int((_form.get("switch", {}) as Dictionary).get(group_id, -1))
+
+
+func set_switch(group_id: int, index: int) -> void:
+	if not active:
+		return
+	(_form["switch"] as Dictionary)[group_id] = index
+	m.doc.notify(&"params")
+
+
 # ---------------- вершины ----------------
 
 ## Ближайшая к касанию вершина (какой её сейчас видно) в радиусе 24 dp, -1 если нет.
