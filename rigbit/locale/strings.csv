@@ -261,3 +261,34 @@ MENU_ONION,Онион скин,Onion skin
 MENU_ONION_ON,Онион скин: ±%d,Onion skin: ±%d
 ONION_OFF,Выключен,Off
 ONION_N,Призраки: ±%d,Ghosts: ±%d
+EXPORT_TITLE,Экспорт,Export
+EXPORT_SECONDS,%s с,%s s
+EXPORT_FORMAT,Формат,Format
+EXPORT_SIZE,Размер,Size
+EXPORT_CANVAS,Холст,Canvas
+EXPORT_FPS,Кадры/с,Frames/s
+EXPORT_FRAMES,Кадры,Frames
+EXPORT_FRAMES_SHORT,кадров,frames
+EXPORT_RANGE,с %d по %d · %s с,%d to %d · %s s
+EXPORT_BG,Фон,Background
+EXPORT_BG_ALPHA,Прозрачный,Transparent
+EXPORT_BG_COLOR,Цвет холста,Canvas color
+EXPORT_GO,Экспортировать,Export
+EXPORT_SOON,MP4 и WebM будут в следующей версии,MP4 and WebM are coming in the next version
+EXPORT_ERR_EMPTY,Проект пустой: сначала импортируй персонажа,The project is empty: import a character first
+EXPORT_WARN_GIF_BIG,GIF больше 1024 px получится очень тяжёлым,A GIF larger than 1024 px will be very heavy
+EXPORT_ERR_GIF_MEM,Для GIF такого размера слишком много кадров. Уменьши размер или диапазон.,Too many frames for a GIF this size. Reduce the size or the range.
+EXPORT_WARN_GIF_ALPHA,В GIF нет полупрозрачности: мягкие края станут ступенькой. Для стикеров лучше PNG.,GIF has no semi-transparency: soft edges become jagged. PNG is better for stickers.
+EXPORT_RENDERING,Собираю файл…,Building the file…
+EXPORT_FRAME,Кадр %d из %d · осталось около %d с,Frame %d of %d · about %d s left
+EXPORT_GIF_ENCODE,Сжимаю GIF…,Compressing GIF…
+EXPORT_CANCEL,Отменить,Cancel
+EXPORT_CANCELLED,Экспорт отменён,Export cancelled
+EXPORT_DONE_HINT,"Файл готов. «Сохранить» отдаст его туда, куда выберешь: в Загрузки, галерею или на диск.","The file is ready. Save puts it wherever you pick: Downloads, gallery or a drive."
+EXPORT_AGAIN,Назад,Back
+EXPORT_SAVE,Сохранить,Save
+EXPORT_SAVED,Сохранено,Saved
+EXPORT_ERR_WRITE,Не получилось записать файл,Could not write the file
+EXPORT_ERR_RENDER,Не получилось отрисовать кадр,Could not render a frame
+SIZE_KB,%d КБ,%d KB
+SIZE_MB,%s МБ,%s MB

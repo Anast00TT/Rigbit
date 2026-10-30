@@ -81,6 +81,19 @@ var pin_tools: RbPinTools
 var form_tools: RbFormTools
 var params_sheet: RbParamsSheet
 var pose_clip := {}  # скопированная поза: {bone_id: [angle, offset, scale]}
+var export_sheet: RbExportSheet
+var exporting := false
+var _export_cancel := false
+var _export_file := ""  # готовый файл в user://exports
+var _export_block: _HoleBlocker
+
+
+## Заслонка на время экспорта: ловит касания везде, кроме листа экспорта (там «Отменить»).
+class _HoleBlocker extends Control:
+	var hole: Control
+
+	func _has_point(p: Vector2) -> bool:
+		return hole == null or not hole.get_global_rect().has_point(p + global_position)
 var onion_eval := RbEvaluator.new()  # свой вычислитель для призраков, кеши вьюпорта не трогает
 var _onion_key := ""
 var _doc_rev := 0  # счётчик правок документа: призраки пересчитываются только после правки или смены кадра
@@ -426,6 +439,12 @@ func _build_ui() -> void:
 	busy_layer.mouse_filter = Control.MOUSE_FILTER_STOP
 	busy_layer.visible = false
 	add_child(busy_layer)
+	_export_block = _HoleBlocker.new()
+	_export_block.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_export_block.mouse_filter = Control.MOUSE_FILTER_STOP
+	_export_block.hole = export_sheet
+	_export_block.visible = false
+	add_child(_export_block)
 	_set_mode(0)
 
 
@@ -616,6 +635,8 @@ func _on_doc_changed(what: StringName) -> void:
 	if what == &"canvas":  # импорт PSD на пустом документе (и его undo) меняет размер холста
 		view.canvas_size = Vector2(doc.canvas_size)
 		view.fit_canvas()
+	if export_sheet.visible and not exporting:
+		export_sheet.sync_doc.call_deferred()
 	if what == &"params" and params_sheet.visible:
 		params_sheet.rebuild.call_deferred(doc)  # список, имена и диапазоны поменялись (значения ползунков идут через &"param_value")
 	_dirty = true
@@ -664,6 +685,119 @@ func _update_onion() -> void:
 	view.renderer.enable_onion().show_ghosts(doc, ghosts, view.renderer.texture_for)
 
 
+# ---------------- экспорт ----------------
+
+## Кадр за кадром в RbFrameRenderer, прогресс и отмена в листе. Файл сначала в user://exports,
+## потом «Сохранить» отдаёт копию через системный диалог (на Android SAF: галерея, Загрузки, диск).
+func _run_export(s: Dictionary) -> void:
+	if exporting or doc == null:
+		return
+	_stop_playback()
+	exporting = true
+	_export_cancel = false
+	_export_block.visible = true
+	export_sheet.show_progress()
+	var size := RbExportPlan.out_size(doc.canvas_size, int(s["long_side"]))
+	var src := RbExportPlan.source_frames(int(s["from"]), int(s["to"]), doc.fps, int(s["fps"]))
+	var gif: bool = s["format"] == "gif"
+	DirAccess.make_dir_recursive_absolute("user://exports")
+	var name := RbExportPlan.file_name(project_path, s["format"])
+	var path := "user://exports/" + name
+	var fr := RbFrameRenderer.new()
+	add_child(fr)
+	fr.setup(doc, size, bool(s["transparent"]), doc.background)
+	var frames: Array = []
+	var seq: RbPngSequence = null
+	var err := ""
+	if not gif:
+		seq = RbPngSequence.new()
+		if seq.open(path) != OK:
+			err = "EXPORT_ERR_WRITE"
+	var t0 := Time.get_ticks_msec()
+	var n := src.size()
+	for i in n:
+		if _export_cancel or err != "":
+			break
+		var img: Image = await fr.render_frame(src[i])
+		if img == null:
+			err = "EXPORT_ERR_RENDER"
+			break
+		if seq:
+			if seq.add(img) != OK:
+				err = "EXPORT_ERR_WRITE"
+		else:
+			frames.append(img)
+		var left := float(Time.get_ticks_msec() - t0) / float(i + 1) * float(n - i - 1) / 1000.0
+		export_sheet.set_progress(float(i + 1) / n * (0.85 if gif else 1.0), tr("EXPORT_FRAME") % [i + 1, n, ceili(left)])
+	fr.finish()
+	fr.queue_free()
+	if seq:
+		seq.close()
+	if _export_cancel or err != "":
+		frames.clear()
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+		_finish_export()
+		_toast(tr("EXPORT_CANCELLED") if err == "" else tr(err))
+		return
+	if gif:
+		export_sheet.set_progress(0.9, tr("EXPORT_GIF_ENCODE"))
+		await _frames(2)  # надпись успевает нарисоваться до долгого сжатия
+		var bytes := RbGifEncoder.encode_frames(frames, float(s["fps"]))
+		frames.clear()
+		if bytes.is_empty() or RbGifEncoder.save(path, bytes) != OK:
+			_finish_export()
+			_toast(tr("EXPORT_ERR_WRITE"))
+			return
+	_export_file = path
+	var kb := ceili(FileAccess.get_file_as_bytes(path).size() / 1024.0)
+	var weight := (tr("SIZE_KB") % kb) if kb < 1024 else (tr("SIZE_MB") % RbExportSheet._secs(kb / 1024.0))
+	_finish_export()
+	export_sheet.show_done(name, "%d×%d · %d %s · %s" % [size.x, size.y, n, tr("EXPORT_FRAMES_SHORT"), weight])
+	_vibrate(30)
+
+
+func _finish_export() -> void:
+	exporting = false
+	_export_block.visible = false
+	if export_sheet.state == "progress":
+		export_sheet.state = "settings"
+		export_sheet.rebuild()
+
+
+func _export_save() -> void:
+	if _export_file == "" or not FileAccess.file_exists(_export_file):
+		return
+	var name := _export_file.get_file()
+	var filt := "*.gif;GIF;image/gif" if name.ends_with(".gif") else "*.zip;ZIP;application/zip"
+	if _args.has("export_save"):  # отладка: сохранить без диалога
+		_export_copy(str(_args["export_save"]))
+	elif DisplayServer.has_feature(DisplayServer.FEATURE_NATIVE_DIALOG_FILE):
+		DisplayServer.file_dialog_show(tr("EXPORT_SAVE"), "", name, false, DisplayServer.FILE_DIALOG_MODE_SAVE_FILE,
+			PackedStringArray([filt]), func(ok: bool, paths: PackedStringArray, _f: int) -> void:
+				if ok and not paths.is_empty():
+					_export_copy.call_deferred(paths[0]))
+	else:
+		var fd := FileDialog.new()
+		fd.file_mode = FileDialog.FILE_MODE_SAVE_FILE
+		fd.access = FileDialog.ACCESS_FILESYSTEM
+		fd.filters = PackedStringArray([filt])
+		fd.current_file = name
+		fd.file_selected.connect(_export_copy)
+		add_child(fd)
+		fd.popup_centered_ratio(0.9)
+
+
+func _export_copy(dst: String) -> void:
+	var bytes := FileAccess.get_file_as_bytes(_export_file)
+	var f := FileAccess.open(dst, FileAccess.WRITE)
+	if f == null or bytes.is_empty():
+		_toast(tr("EXPORT_ERR_WRITE"))
+		return
+	f.store_buffer(bytes)
+	f.close()
+	_toast(tr("EXPORT_SAVED"))
+
+
 func _onion_menu() -> void:
 	var items := []
 	for n in [0, 1, 2, 3]:
@@ -677,7 +811,9 @@ func _onion_menu() -> void:
 
 func _update_selection() -> void:
 	view.selection = PackedVector2Array()
-	if selected_id != 0 and pose and pose.layers.has(selected_id):
+	if mode == 3 and selected_id != 0 and pose and pose.layers.has(selected_id):
+		pass  # Экспорт: вьюпорт = чистое превью, без рамок и чипов
+	elif selected_id != 0 and pose and pose.layers.has(selected_id):
 		var l := doc.get_layer(selected_id)
 		var lp: RbEvaluator.LayerPose = pose.layers[selected_id]
 		if not l.is_group():
@@ -692,7 +828,7 @@ func _update_selection() -> void:
 	pin_tools.update_overlay()
 	var l2 := doc.get_layer(selected_id) if selected_id else null
 	var bone := doc.rig.get_bone(rig_tools.selected_bone) if tool in ["bone", "pose"] else null
-	sel_chip.visible = (l2 != null or bone != null) and not layers_panel.visible and not form_tools.active
+	sel_chip.visible = (l2 != null or bone != null) and not layers_panel.visible and not form_tools.active and mode != 3
 	var chip_name := bone.name if bone else (l2.name if l2 else "")
 	if sel_chip.visible:
 		sel_chip.icon = RbIcons.tex("bone" if bone else ("fx" if mode == 2 else "gear"))
@@ -748,7 +884,7 @@ func _update_empty_state() -> void:
 		return
 	var empty := doc.root.is_empty()
 	cta_center.visible = empty
-	rail.visible = not empty
+	rail.visible = not empty and mode != 3
 	view.show_ghost = false
 	if empty:
 		cta_badge.visible = true
@@ -1110,6 +1246,9 @@ func _add_demo() -> void:
 # ---------------- инструменты ----------------
 
 func _set_mode(i: int) -> void:
+	if exporting and i != 3:
+		seg_buttons[3].button_pressed = true
+		return
 	if form_tools and form_tools.active and i != 1:
 		_finish_form()  # из правки формы выходим «Готово»
 	mode = i
@@ -1121,8 +1260,14 @@ func _set_mode(i: int) -> void:
 	if timeline:
 		timeline.set_mode_color(c)
 		_update_timeline_visibility()
-	if i == 3 and not _args.has("mode"):
-		_soon()
+	if i == 3 and doc:
+		if export_sheet.doc != doc:
+			export_sheet.bind(doc)
+		else:
+			export_sheet.sync_doc()
+		_show_panel(export_sheet, false)
+	elif export_sheet and export_sheet.visible:
+		_hide_panel(export_sheet, false)
 	if i == 2 and doc:
 		_show_hint("fx", "HINT_FX")
 	elif _tip_id == "fx":
@@ -1139,6 +1284,7 @@ func _set_mode(i: int) -> void:
 
 ## Инструменты режима (при правке формы свой набор): лишние кнопки прячем, неподходящий текущий меняем на первый.
 func _update_tool_buttons() -> void:
+	rail.visible = mode != 3  # в Экспорте инструментов нет, превью на всю ширину
 	var allowed: Array = FORM_TOOLS if form_tools.active else MODE_TOOLS[mode]
 	for k in tool_buttons:
 		tool_buttons[k].visible = allowed.has(k)
@@ -1437,7 +1583,7 @@ func _toggle_play() -> void:
 func _start_playback() -> void:
 	if doc == null or doc.frame_count < 2:
 		return
-	if mode != 1:
+	if mode != 1 and mode != 3:  # в Экспорте вьюпорт = превью, играем на месте
 		seg_buttons[1].button_pressed = true
 		_set_mode(1)
 	if not loop_play and doc.current_frame >= doc.frame_count - 1:
@@ -2078,6 +2224,17 @@ func _build_panels() -> void:
 	params_sheet.add_requested.connect(_param_add)
 	params_sheet.menu_requested.connect(_param_menu)
 
+	export_sheet = RbExportSheet.new()
+	export_sheet.visible = false
+	export_sheet.closed.connect(func() -> void:
+		if not exporting:
+			seg_buttons[1].button_pressed = true
+			_set_mode(1))
+	export_sheet.export_requested.connect(_run_export)
+	export_sheet.cancel_requested.connect(func() -> void: _export_cancel = true)
+	export_sheet.save_requested.connect(_export_save)
+	export_sheet.toast.connect(func(t: String) -> void: _toast(t))
+
 	bone_sheet = RbBoneSheet.new()
 	bone_sheet.visible = false
 	bone_sheet.closed.connect(func() -> void: _hide_panel(bone_sheet))
@@ -2136,7 +2293,7 @@ func _close_sheet() -> void:
 
 ## Боковые панели занимают одно место: открытая прячет остальные.
 func _panels() -> Array:
-	return [sheet, params_sheet, bone_sheet, fx_sheet]
+	return [sheet, params_sheet, bone_sheet, fx_sheet, export_sheet]
 
 
 func _any_panel() -> bool:
@@ -2186,7 +2343,8 @@ func _place_panel(p: Control) -> void:
 		p.add_theme_stylebox_override("panel", RbTheme.sb(RbTheme.C.p1, 6))
 	else:
 		main_col.add_child(p)
-		p.custom_minimum_size = Vector2(0, clampf(vs.y * 0.42, 260.0, 380.0))
+		var hmax := 470.0 if p == export_sheet else 380.0  # у экспорта всё на одном экране, без прокрутки
+		p.custom_minimum_size = Vector2(0, clampf(vs.y * (0.56 if p == export_sheet else 0.42), 260.0, hmax))
 		p.size_flags_vertical = Control.SIZE_FILL
 		var sbx := RbTheme.sb(RbTheme.C.p1)
 		sbx.border_color = RbTheme.C.ln
@@ -2883,6 +3041,16 @@ func _activate_mesh_tool_for_shot() -> void:
 func _auto(kind: String) -> void:
 	await _frames(3)
 	match kind:
+		"export":
+			if _args.has("export_fmt"):  # --export_fmt=png_zip
+				export_sheet.settings = RbExportPlan.defaults(doc, str(_args["export_fmt"]))
+			_run_export(export_sheet.settings.duplicate())
+			while exporting:
+				await _frames(1)
+			print("AUTO export file=", _export_file, " bytes=", FileAccess.get_file_as_bytes(_export_file).size(), " state=", export_sheet.state)
+			if _args.has("export_save"):
+				_export_save()
+				print("AUTO export saved=", FileAccess.file_exists(str(_args["export_save"])))
 		"defringe":
 			var dl := doc.get_layer(selected_id)
 			var before: Image = doc.images[dl.image_id]
