@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rigbit мокапы</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#09090B; --app:#111114; --panel:#1C1C21; --panel2:#26262D; --line:#2F2F37;
+  --text:#F3F3F6; --text2:#A3A3AE; --text3:#686873;
+  --rig:#FF9F43; --anim:#FF4D6A; --comp:#A78BFA; --exp:#34D399;
+  --frog:#7CC26A; --canvas:#ECEAF1;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+header{max-width:1240px;margin:0 auto;padding:32px 16px 8px}
+header h1{margin:0 0 6px;font-size:26px;font-weight:700}
+header p{margin:0;color:var(--text2);font-size:14px;line-height:1.5;max-width:720px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--text2)}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+.grid{display:flex;flex-wrap:wrap;gap:44px 36px;justify-content:center;padding:28px 16px 64px;max-width:1300px;margin:0 auto}
+.cell{width:376px}
+.cap{margin-top:14px}
+.cap h3{margin:0 0 6px;font-size:16px}
+.cap h3 em{font-style:normal;color:var(--text3);margin-right:6px}
+.cap ul{margin:0;padding-left:18px;color:var(--text2);font-size:13px;line-height:1.55}
+
+/* phone */
+.phone{--mode:var(--rig);position:relative;width:376px;height:776px;border-radius:44px;border:8px solid #000;background:var(--app);overflow:hidden;box-shadow:0 0 0 1px #2a2a30,0 30px 60px rgba(0,0,0,.5)}
+.phone.anim{--mode:var(--anim)}
+.top{position:absolute;top:0;left:0;right:0;height:60px;display:flex;align-items:center;padding:6px 8px 0;gap:2px;z-index:5}
+.ib{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;color:var(--text);background:none;border:0;padding:0}
+.ib svg{width:24px;height:24px}
+.ib.off{color:var(--text3)}
+.ib.sm svg{width:22px;height:22px}
+.mode{margin:0 auto;height:40px;padding:0 12px 0 14px;border-radius:20px;background:var(--panel);display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px}
+.mode .dot{width:10px;height:10px;border-radius:50%;background:var(--mode);box-shadow:0 0 0 4px color-mix(in srgb,var(--mode) 25%,transparent)}
+.mode svg{width:18px;height:18px;color:var(--text2)}
+
+.vp{position:absolute;top:60px;left:6px;right:6px;bottom:6px;border-radius:30px;border:2px solid var(--mode);overflow:hidden;background:#16161A}
+.vp.withtl{bottom:238px}
+.stage{position:absolute;left:50%;top:50%;width:250px;height:330px;transform:translate(-50%,-50%);background:var(--canvas);border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.stage svg.char{position:absolute;left:22px;top:66px;width:206px;height:247px;overflow:visible}
+
+.chip{height:48px;padding:0 14px;border-radius:16px;background:rgba(28,28,33,.94);display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--text);border:0}
+.chip svg{width:20px;height:20px}
+.float-l{position:absolute;left:10px;top:10px}
+.float-r{position:absolute;right:10px;top:10px}
+.float-c{white-space:nowrap;position:absolute;left:50%;top:14px;transform:translateX(-50%);height:34px;font-size:13px;border-radius:17px;padding:0 12px}
+.rec{color:var(--anim)}
+.rec b{width:8px;height:8px;border-radius:50%;background:var(--anim);display:inline-block}
+
+.rail{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:rgba(28,28,33,.94);border-radius:24px;padding:6px;display:flex;flex-direction:column;gap:4px}
+.tool{width:58px;height:58px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10.5px;font-weight:500;color:var(--text2)}
+.tool svg{width:24px;height:24px}
+.tool.on{background:var(--mode);color:#16110a}
+
+.hint{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);width:300px;background:rgba(10,10,12,.86);padding:12px 14px;border-radius:16px;font-size:13px;line-height:1.45;color:var(--text2);text-align:center}
+.hint b{color:var(--text)}
+
+/* empty state */
+.empty .stage{background:transparent;border:2px dashed #3a3a44;box-shadow:none}
+.empty .size{position:absolute;left:50%;top:calc(50% - 182px);transform:translateX(-50%);font-size:12px;color:var(--text3)}
+.cta{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:14px;width:250px;text-align:center}
+.cta .badge{width:88px;height:88px;border-radius:28px;background:#1d2a1a;display:grid;place-items:center}
+.cta .badge svg{width:70px;height:70px}
+.btn{height:56px;border-radius:18px;background:var(--frog);color:#0f1a0c;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 16px;width:100%;white-space:nowrap;font-size:15.5px}
+.btn svg{width:22px;height:22px}
+.cta small{color:var(--text3);font-size:13px}
+.ghost{height:48px;color:var(--text2);font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px}
+.ghost svg{width:20px;height:20px}
+
+/* sheet */
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--panel);border-radius:28px 28px 0 0;padding:10px 18px 22px;box-shadow:0 -10px 30px rgba(0,0,0,.4);z-index:6}
+.grab{width:40px;height:5px;border-radius:3px;background:#44444e;margin:0 auto 14px}
+.sh-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.thumb{width:44px;height:44px;border-radius:12px;background:var(--canvas);display:grid;place-items:center;overflow:hidden;flex:none}
+.thumb svg{width:40px;height:40px}
+.sh-head h4{margin:0;font-size:17px}
+.sh-head p{margin:2px 0 0;font-size:12.5px;color:var(--text3)}
+.sl{margin-bottom:16px}
+.sl .row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:10px}
+.sl .row span{color:var(--text2)}
+.track{position:relative;height:8px;border-radius:4px;background:var(--panel2)}
+.track i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--mode)}
+.track b{position:absolute;top:50%;width:26px;height:26px;border-radius:50%;background:#fff;transform:translate(-50%,-50%);box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.act{height:64px;border-radius:18px;background:var(--panel2);display:flex;align-items:center;gap:10px;padding:0 14px;font-size:14px;font-weight:500;line-height:1.2}
+.act svg{width:24px;height:24px;color:var(--mode);flex:none}
+.act small{display:block;color:var(--text3);font-size:11.5px;font-weight:400;margin-top:2px}
+
+/* timeline */
+.tl{position:absolute;left:6px;right:6px;bottom:6px;height:226px;background:var(--panel);border-radius:26px;padding:6px 10px 10px;overflow:hidden}
+.tl-top{display:flex;align-items:center;gap:4px;height:52px}
+.play{background:var(--anim);color:#fff;border-radius:16px}
+.play svg{width:20px;height:20px}
+.frame{white-space:nowrap;font-size:14px;color:var(--text2);margin:0 6px;font-variant-numeric:tabular-nums}
+.frame b{color:var(--text);font-size:17px}
+.filt{height:34px;border-radius:17px;font-size:13px;background:var(--panel2);padding:0 6px 0 12px;gap:4px}
+.filt svg{width:16px;height:16px;color:var(--text2)}
+.tl-body{position:relative;display:grid;grid-template-columns:88px 1fr;margin-top:4px}
+.tl-body .lab{height:40px;display:flex;flex-direction:column;justify-content:center;font-size:12.5px;color:var(--text2);border-top:1px solid var(--line);padding-right:6px;line-height:1.15}
+.tl-body .lab.ruler,.tl-body .trk.ruler{height:26px;border-top:0}
+.trk{position:relative;height:40px;border-top:1px solid var(--line)}
+.trk.ruler span{position:absolute;top:4px;font-size:11px;color:var(--text3);transform:translateX(-50%)}
+.trk.ruler s{position:absolute;bottom:0;width:1px;height:6px;background:var(--text3)}
+.key{position:absolute;top:50%;width:13px;height:13px;background:var(--text2);transform:translate(-50%,-50%) rotate(45deg);border-radius:2px}
+.key.sel{background:var(--anim);box-shadow:0 0 0 3px rgba(255,77,106,.3)}
+.key.step{transform:translate(-50%,-50%);border-radius:3px;background:var(--comp)}
+.ph{position:absolute;top:0;bottom:-10px;width:2px;background:var(--anim);left:calc(88px + (100% - 88px) * .3333)}
+.ph::before{content:"";position:absolute;top:-2px;left:50%;width:12px;height:12px;border-radius:3px;background:var(--anim);transform:translateX(-50%)}
+
+/* drawer */
+.drawer{position:absolute;left:0;top:60px;bottom:0;width:300px;background:var(--panel);border-radius:0 28px 28px 0;padding:14px 10px 14px 12px;z-index:6;display:flex;flex-direction:column;box-shadow:10px 0 30px rgba(0,0,0,.4)}
+.dr-head{display:flex;align-items:center;justify-content:space-between;padding:0 4px 10px 6px}
+.dr-head h4{margin:0;font-size:18px}
+.tree{flex:1;overflow:hidden}
+.node{height:54px;display:flex;align-items:center;gap:10px;padding-right:4px;border-radius:14px;position:relative}
+.node.sel{background:color-mix(in srgb,var(--mode) 18%,transparent)}
+.node .thumb{width:38px;height:38px;border-radius:10px}
+.node .thumb svg{width:34px;height:34px}
+.node .nm{flex:1;font-size:14.5px;font-weight:500}
+.node .nm small{display:block;font-size:11.5px;color:var(--text3);font-weight:400;margin-top:1px}
+.node .ib{width:44px;height:44px;color:var(--text3)}
+.node .ib svg{width:20px;height:20px}
+.ind1{padding-left:18px}.ind2{padding-left:36px}.ind3{padding-left:54px}
+.ind1::before,.ind2::before,.ind3::before{content:"";position:absolute;top:8px;bottom:8px;width:2px;border-radius:1px;background:var(--line)}
+.ind1::before{left:6px}.ind2::before{left:24px}.ind3::before{left:42px}
+.bone-ic{width:38px;height:38px;border-radius:10px;background:var(--panel2);display:grid;place-items:center;color:var(--rig);flex:none}
+.bone-ic svg{width:22px;height:22px}
+.sw{font-size:11px;color:var(--comp);background:rgba(167,139,250,.14);padding:3px 8px;border-radius:8px;font-weight:600}
+.radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--text3);flex:none;margin-right:12px}
+.radio.on{border-color:var(--comp);background:radial-gradient(var(--comp) 45%,transparent 50%)}
+.dr-foot{display:flex;gap:8px;padding-top:10px}
+.dr-foot .chip{flex:1;justify-content:center;background:var(--panel2)}
+
+/* mode menu */
+.menu{position:absolute;top:62px;left:50%;transform:translateX(-50%);width:320px;background:var(--panel);border-radius:24px;padding:8px;z-index:7;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+.mi{display:flex;align-items:center;gap:14px;height:68px;padding:0 14px;border-radius:18px}
+.mi.cur{background:var(--panel2)}
+.mi i{width:14px;height:14px;border-radius:50%;flex:none}
+.mi div{flex:1}
+.mi b{display:block;font-size:15.5px}
+.mi span{font-size:12.5px;color:var(--text2)}
+.mi svg{width:22px;height:22px;color:var(--rig)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Rigbit · главные экраны</h1>
+  <p>Телефон в портрете, как iLight. Вьюпорт занимает почти всё, остальное выезжает по контексту. Рамка вьюпорта всегда цвета текущего режима. Это мокап, не финальная графика: иконки и лягушка временные.</p>
+  <div class="legend">
+    <span><i style="background:var(--rig)"></i>Риг</span>
+    <span><i style="background:var(--anim)"></i>Анимация</span>
+    <span><i style="background:var(--comp)"></i>Композинг</span>
+    <span><i style="background:var(--exp)"></i>Экспорт</span>
+  </div>
+</header>
+
+<div class="grid">
+
+<!-- 1 empty -->
+<div class="cell">
+  <div class="phone empty">
+    <div class="top">
+      <button class="ib off" data-i="undo"></button><button class="ib off" data-i="redo"></button>
+      <div class="mode"><span class="dot"></span>Риг<span data-i="chev"></span></div>
+      <button class="ib" data-i="folder"></button><button class="ib" data-i="more"></button>
+    </div>
+    <div class="vp">
+      <div class="stage"></div>
+      <div class="size">1080 × 1920 · 24 fps</div>
+      <div class="cta">
+        <div class="badge"><svg viewBox="0 0 200 240" class="mini-frog"></svg></div>
+        <div class="btn" data-i="import">Импортировать персонажа</div>
+        <small>PSD со слоями, PNG или JPG</small>
+        <div class="ghost" data-i="folder">Открыть проект</div>
+      </div>
+    </div>
+  </div>
+  <div class="cap"><h3><em>1</em>Пустой проект</h3><ul>
+    <li>Одна большая кнопка, думать не о чем.</li>
+    <li>Undo/redo серые, пока нечего отменять. Инструментов нет, пока нет слоёв.</li>
+    <li>Размер холста и fps мелко сверху, меняются в меню проекта.</li></ul></div>
+</div>
+
+<!-- 2 rig bones -->
+<div class="cell">
+  <div class="phone">
+    <div class="top">
+      <button class="ib" data-i="undo"></button><button class="ib" data-i="redo"></button>
+      <div class="mode"><span class="dot"></span>Риг<span data-i="chev"></span></div>
+      <button class="ib" data-i="folder"></button><button class="ib" data-i="more"></button>
+    </div>
+    <div class="vp">
+      <div class="stage"><svg class="char" viewBox="0 0 200 240" data-bones="1" data-sel="armR"></svg></div>
+      <div class="chip float-l" data-i="layers">Слои</div>
+      <div class="rail">
+        <div class="tool on" data-i="bone">Кости</div>
+        <div class="tool" data-i="mesh">Сетка</div>
+        <div class="tool" data-i="brush">Веса</div>
+        <div class="tool" data-i="pin">Пины</div>
+        <div class="tool" data-i="move">Слой</div>
+      </div>
+      <div class="hint">Тяни пальцем, чтобы нарисовать кость.<br><b>Новая станет дочерней</b> для выделенной.</div>
+    </div>
+  </div>
+  <div class="cap"><h3><em>2</em>Риг · кости</h3><ul>
+    <li>Справа инструменты режима, у каждого подпись.</li>
+    <li>Кости как в Moho, выделенная яркая. Подсказка исчезает после первой кости.</li>
+    <li>Слои спрятаны в кнопке слева сверху.</li></ul></div>
+</div>
+
+<!-- 3 rig layer sheet -->
+<div class="cell">
+  <div class="phone">
+    <div class="top">
+      <button class="ib" data-i="undo"></button><button class="ib" data-i="redo"></button>
+      <div class="mode"><span class="dot"></span>Риг<span data-i="chev"></span></div>
+      <button class="ib" data-i="folder"></button><button class="ib" data-i="more"></button>
+    </div>
+    <div class="vp">
+      <div class="stage" style="top:33%;transform:translate(-50%,-50%) scale(.82)"><svg class="char" viewBox="0 0 200 240" data-mesh="1"></svg></div>
+      <div class="chip float-l" data-i="layers">Слои</div>
+    </div>
+    <div class="sheet">
+      <div class="grab"></div>
+      <div class="sh-head">
+        <div class="thumb"><svg viewBox="0 0 200 240" class="mini-frog"></svg></div>
+        <div style="flex:1"><h4>Голова</h4><p>Слой · 214 точек сетки</p></div>
+        <button class="ib" data-i="x"></button>
+      </div>
+      <div class="sl"><div class="row">Плотность сетки<span>Средняя</span></div><div class="track"><i style="width:50%"></i><b style="left:50%"></b></div></div>
+      <div class="sl"><div class="row">Прозрачность<span>100%</span></div><div class="track"><i style="width:100%"></i><b style="left:100%"></b></div></div>
+      <div class="acts">
+        <div class="act" data-i="link"><div>Привязать к кости<small>сейчас: Голова</small></div></div>
+        <div class="act" data-i="brush"><div>Кисть весов<small>мягкость по пальцу</small></div></div>
+        <div class="act" data-i="mesh"><div>Править сетку<small>точки вручную</small></div></div>
+        <div class="act" data-i="refresh"><div>Пересобрать<small>веса сохранятся</small></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="cap"><h3><em>3</em>Риг · настройки слоя</h3><ul>
+    <li>Тап по слою, снизу выезжает лист. Сетка видна прямо на персонаже.</li>
+    <li>Только крупные ползунки и 4 кнопки. Числа появятся по долгому нажатию на ползунок.</li>
+    <li>«Привязать к кости» одна кнопка: и жёсткая привязка, и веса.</li></ul></div>
+</div>
+
+<!-- 4 animation -->
+<div class="cell">
+  <div class="phone anim">
+    <div class="top">
+      <button class="ib" data-i="undo"></button><button class="ib" data-i="redo"></button>
+      <div class="mode"><span class="dot"></span>Анимация<span data-i="chev"></span></div>
+      <button class="ib" data-i="folder"></button><button class="ib" data-i="more"></button>
+    </div>
+    <div class="vp withtl">
+      <div class="stage" style="transform:translate(-50%,-50%) scale(.78)"><svg class="char" viewBox="0 0 200 240" data-bones="1" data-sel="head" data-rot="-12"></svg></div>
+      <div class="chip float-l" data-i="layers"></div>
+      <div class="chip float-c rec"><b></b>автоключ</div>
+      <div class="chip float-r" data-i="sliders"></div>
+      <div class="rail" style="top:58%">
+        <div class="tool on" data-i="bone">Поза</div>
+        <div class="tool" data-i="pin">Пины</div>
+        <div class="tool" data-i="move">Слой</div>
+        <div class="tool" data-i="camera">Камера</div>
+      </div>
+    </div>
+    <div class="tl">
+      <div class="tl-top">
+        <button class="ib play" data-i="play"></button>
+        <div class="frame"><b>12</b> / 48</div>
+        <span class="chip filt">Голова<span data-i="x"></span></span>
+        <div style="flex:1"></div>
+        <button class="ib sm" data-i="loop"></button>
+        <button class="ib sm" data-i="onion" style="color:var(--text3)"></button>
+        <button class="ib sm" data-i="chev"></button>
+      </div>
+      <div class="tl-body">
+        <div class="lab ruler"></div>
+        <div class="trk ruler">
+          <span style="left:0%">0</span><span style="left:16.66%">6</span><span style="left:33.33%">12</span><span style="left:50%">18</span><span style="left:66.66%">24</span><span style="left:83.33%">30</span>
+        </div>
+        <div class="lab">Поворот</div>
+        <div class="trk"><i class="key" style="left:3%"></i><i class="key sel" style="left:33.33%"></i><i class="key" style="left:66.66%"></i><i class="key" style="left:97%"></i></div>
+        <div class="lab">Позиция</div>
+        <div class="trk"><i class="key" style="left:3%"></i><i class="key" style="left:50%"></i></div>
+        <div class="lab">Моргание<span style="color:var(--text3);font-size:11px">ползунок</span></div>
+        <div class="trk"><i class="key step" style="left:8.33%"></i><i class="key step" style="left:16.66%"></i><i class="key step" style="left:25%"></i></div>
+        <div class="ph"></div>
+      </div>
+    </div>
+  </div>
+  <div class="cap"><h3><em>4</em>Анимация</h3><ul>
+    <li>Красная рамка: любое движение ставит ключ. Плашка «автоключ» сверху напоминает.</li>
+    <li>Таймлайн показывает только выделенное. Чип «Голова ✕» снимает фильтр.</li>
+    <li>Справа сверху ползунки параметров, слева слои. Долгий тап по таймлайну: вибро и рамка выделения ключей.</li></ul></div>
+</div>
+
+<!-- 5 layers drawer -->
+<div class="cell">
+  <div class="phone">
+    <div class="top">
+      <button class="ib" data-i="undo"></button><button class="ib" data-i="redo"></button>
+      <div class="mode"><span class="dot"></span>Риг<span data-i="chev"></span></div>
+      <button class="ib" data-i="folder"></button><button class="ib" data-i="more"></button>
+    </div>
+    <div class="vp">
+      <div class="stage"><svg class="char" viewBox="0 0 200 240" data-bones="1" data-sel="head"></svg></div>
+      <div class="scrim"></div>
+    </div>
+    <div class="drawer">
+      <div class="dr-head"><h4>Слои и кости</h4><button class="ib" data-i="x"></button></div>
+      <div class="tree">
+        <div class="node"><div class="thumb"><svg viewBox="0 0 200 240" class="mini-frog"></svg></div><div class="nm">Фроги<small>персонаж · 9 слоёв</small></div><button class="ib" data-i="eye"></button></div>
+        <div class="node ind1"><div class="bone-ic" data-i="bone"></div><div class="nm">Тело<small>кость</small></div></div>
+        <div class="node ind2 sel"><div class="bone-ic" data-i="bone"></div><div class="nm">Голова<small>кость</small></div></div>
+        <div class="node ind3"><div class="thumb"><svg viewBox="0 0 200 240" class="mini-frog"></svg></div><div class="nm">Голова<small>слой</small></div><button class="ib" data-i="eye"></button></div>
+        <div class="node ind3"><div class="thumb" style="background:var(--panel2);color:var(--comp)" data-i="swap"></div><div class="nm">Глаза</div><span class="sw">1 из 3</span></div>
+        <div class="node ind3" style="padding-left:66px;height:44px"><span class="radio on"></span><div class="nm" style="font-size:13.5px">открыты</div></div>
+        <div class="node ind3" style="padding-left:66px;height:44px"><span class="radio"></span><div class="nm" style="font-size:13.5px;color:var(--text2)">закрыты</div></div>
+        <div class="node ind3" style="padding-left:66px;height:44px"><span class="radio"></span><div class="nm" style="font-size:13.5px;color:var(--text2)">^ ^</div></div>
+        <div class="node ind1"><div class="thumb"><svg viewBox="0 0 200 240" class="mini-frog"></svg></div><div class="nm">Лапы<small>группа · 4</small></div><button class="ib" data-i="eye"></button></div>
+      </div>
+      <div class="dr-foot"><div class="chip" data-i="import">Импорт</div><div class="chip" data-i="plus">Группа</div></div>
+    </div>
+  </div>
+  <div class="cap"><h3><em>5</em>Слои и кости</h3><ul>
+    <li>Одно дерево: кости (оранжевые) и слои с миниатюрами.</li>
+    <li>Свитч-группа помечена «1 из 3», активный вариант с точкой, тап переключает.</li>
+    <li>Без стрелочек-раскрывашек: группа сворачивается тапом по миниатюре. Порядок меняется перетаскиванием.</li></ul></div>
+</div>
+
+<!-- 6 mode menu -->
+<div class="cell">
+  <div class="phone">
+    <div class="top">
+      <button class="ib" data-i="undo"></button><button class="ib" data-i="redo"></button>
+      <div class="mode"><span class="dot"></span>Риг<span data-i="chev"></span></div>
+      <button class="ib" data-i="folder"></button><button class="ib" data-i="more"></button>
+    </div>
+    <div class="vp">
+      <div class="stage"><svg class="char" viewBox="0 0 200 240" data-bones="1"></svg></div>
+      <div class="scrim"></div>
+    </div>
+    <div class="menu">
+      <div class="mi cur"><i style="background:var(--rig)"></i><div><b>Риг</b><span>кости, сетки, веса · ключей нет</span></div><span data-i="check"></span></div>
+      <div class="mi"><i style="background:var(--anim)"></i><div><b>Анимация</b><span>любое движение ставит ключ</span></div></div>
+      <div class="mi"><i style="background:var(--comp)"></i><div><b>Композинг</b><span>свет, обводка, цвет</span></div></div>
+      <div class="mi"><i style="background:var(--exp)"></i><div><b>Экспорт</b><span>видео, GIF, стикеры</span></div></div>
+    </div>
+  </div>
+  <div class="cap"><h3><em>6</em>Переключатель режимов</h3><ul>
+    <li>4 режима, у каждого свой цвет и одна строка «что тут делают».</li>
+    <li>Цвет сразу перекрашивает рамку вьюпорта и активный инструмент.</li></ul></div>
+</div>
+
+</div>
+
+<script>
+const ICONS={
+ undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+ redo:'<path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/>',
+ more:'<circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/>',
+ bone:'<path d="M4.5 19.5 8.6 12.6 19.5 4.5 11.4 15.4Z"/><circle cx="4.5" cy="19.5" r="1.6"/>',
+ mesh:'<path d="M12 3.5 21 20H3Z"/><path d="M7.5 11.8h9M12 20l-4.5-8.2M12 20l4.5-8.2"/>',
+ pin:'<path d="M12 21s-6.5-5.8-6.5-11a6.5 6.5 0 0 1 13 0C18.5 15.2 12 21 12 21Z"/><circle cx="12" cy="10" r="2.3"/>',
+ brush:'<path d="m14.5 4.5 5 5L11 18l-5-5Z"/><path d="M6 13c-2 0-3 2-3 4.5V20h2.5C8 20 10 19 10 17"/>',
+ move:'<path d="M12 3v18M3 12h18M12 3 9.5 5.5M12 3l2.5 2.5M12 21l-2.5-2.5M12 21l2.5-2.5M3 12l2.5-2.5M3 12l2.5 2.5M21 12l-2.5-2.5M21 12l-2.5 2.5"/>',
+ layers:'<path d="m12 3 9 5-9 5-9-5Z"/><path d="m3 13 9 5 9-5"/>',
+ play:'<path d="M7 4.5v15l13-7.5Z" fill="currentColor" stroke="none"/>',
+ loop:'<path d="m17 2 3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="m7 22-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/>',
+ onion:'<circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6" opacity=".45"/>',
+ camera:'<rect x="3" y="6.5" width="18" height="13" rx="3"/><circle cx="12" cy="13" r="3.5"/><path d="M8.5 6.5 10 4h4l1.5 2.5"/>',
+ sliders:'<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>',
+ eye:'<path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+ swap:'<path d="M7 4 4 7l3 3"/><path d="M4 7h13"/><path d="m17 20 3-3-3-3"/><path d="M20 17H7"/>',
+ import:'<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>',
+ x:'<path d="M6 6l12 12M18 6 6 18"/>',
+ check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+ chev:'<path d="m6 9 6 6 6-6"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>',
+ link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+ refresh:'<path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/>'
+};
+document.querySelectorAll('[data-i]').forEach(el=>{
+  el.insertAdjacentHTML('afterbegin',`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[el.dataset.i]}</svg>`);
+});
+
+// --- лягушка-заглушка ---
+const G='#7CC26A', G2='#68AE57';
+const HEAD={cx:100,cy:98,rx:80,ry:56};
+function headParts(){return `
+ <circle cx="64" cy="52" r="26" fill="${G}"/><circle cx="136" cy="52" r="26" fill="${G}"/>
+ <ellipse cx="${HEAD.cx}" cy="${HEAD.cy}" rx="${HEAD.rx}" ry="${HEAD.ry}" fill="${G}"/>
+ <circle cx="64" cy="52" r="18" fill="#fff"/><circle cx="136" cy="52" r="18" fill="#fff"/>
+ <circle cx="67" cy="55" r="8.5" fill="#1d1d22"/><circle cx="133" cy="55" r="8.5" fill="#1d1d22"/>
+ <circle cx="64" cy="51" r="3" fill="#fff"/><circle cx="130" cy="51" r="3" fill="#fff"/>
+ <ellipse cx="46" cy="112" rx="12" ry="6" fill="#FF9BB0" opacity=".75"/><ellipse cx="154" cy="112" rx="12" ry="6" fill="#FF9BB0" opacity=".75"/>
+ <path d="M84 116 Q100 131 116 116" stroke="#2d4d24" stroke-width="3.5" fill="none" stroke-linecap="round"/>`}
+function bodyParts(){return `
+ <ellipse cx="66" cy="226" rx="27" ry="9" fill="${G2}"/><ellipse cx="134" cy="226" rx="27" ry="9" fill="${G2}"/>
+ <ellipse cx="100" cy="182" rx="54" ry="46" fill="${G}"/>
+ <ellipse cx="100" cy="192" rx="34" ry="28" fill="#EAF3CD"/>
+ <ellipse cx="56" cy="176" rx="11" ry="26" fill="${G2}" transform="rotate(28 56 176)"/>
+ <ellipse cx="144" cy="176" rx="11" ry="26" fill="${G2}" transform="rotate(-28 144 176)"/>`}
+function bone(x1,y1,x2,y2,on){
+  const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy),px=-dy/L,py=dx/L,w=Math.min(9,L*.13),bx=x1+dx*.2,by=y1+dy*.2;
+  const c=on?'var(--mode)':'var(--mode)';
+  return `<polygon points="${x1},${y1} ${bx+px*w},${by+py*w} ${x2},${y2} ${bx-px*w},${by-py*w}" fill="${c}" fill-opacity="${on?1:.35}" stroke="${on?'#fff':c}" stroke-width="${on?2:1.5}" stroke-linejoin="round"/><circle cx="${x1}" cy="${y1}" r="3.5" fill="#fff" stroke="${c}" stroke-width="1.5"/>`;
+}
+function delaunay(pts){
+  const n=pts.length,P=pts.concat([{x:-2000,y:-2000},{x:2200,y:-2000},{x:100,y:3000}]);
+  const cc=t=>{const[a,b,c]=t.map(i=>P[i]);const d=2*(a.x*(b.y-c.y)+b.x*(c.y-a.y)+c.x*(a.y-b.y));
+    const A=a.x*a.x+a.y*a.y,B=b.x*b.x+b.y*b.y,C=c.x*c.x+c.y*c.y;
+    const ux=(A*(b.y-c.y)+B*(c.y-a.y)+C*(a.y-b.y))/d,uy=(A*(c.x-b.x)+B*(a.x-c.x)+C*(b.x-a.x))/d;
+    return{x:ux,y:uy,r:(ux-a.x)**2+(uy-a.y)**2}};
+  let tris=[[n,n+1,n+2]];tris[0].c=cc(tris[0]);
+  for(let i=0;i<n;i++){const p=P[i],bad=[],good=[];
+    for(const t of tris)((p.x-t.c.x)**2+(p.y-t.c.y)**2<t.c.r?bad:good).push(t);
+    const E=[];for(const t of bad)for(let k=0;k<3;k++){const a=t[k],b=t[(k+1)%3];
+      const j=E.findIndex(e=>(e[0]===a&&e[1]===b)||(e[0]===b&&e[1]===a));j>=0?E.splice(j,1):E.push([a,b])}
+    tris=good;for(const e of E){const t=[e[0],e[1],i];t.c=cc(t);tris.push(t)}}
+  return tris.filter(t=>t.every(i=>i<n)).map(t=>t.map(i=>P[i]));
+}
+function meshMarkup(){
+  const pts=[],{cx,cy,rx,ry}=HEAD,N=34;
+  for(let i=0;i<N;i++){const a=i/N*Math.PI*2;pts.push({x:cx+Math.cos(a)*rx,y:cy+Math.sin(a)*ry})}
+  for(let y=cy-ry;y<=cy+ry;y+=15)for(let x=cx-rx;x<=cx+rx;x+=17){
+    const xx=x+((Math.round((y-cy)/15))%2?8:0);
+    if(((xx-cx)/rx)**2+((y-cy)/ry)**2<.78)pts.push({x:xx,y})}
+  const tris=delaunay(pts).filter(t=>{const mx=(t[0].x+t[1].x+t[2].x)/3,my=(t[0].y+t[1].y+t[2].y)/3;return((mx-cx)/rx)**2+((my-cy)/ry)**2<1});
+  let d='';for(const t of tris)d+=`M${t[0].x.toFixed(1)} ${t[0].y.toFixed(1)}L${t[1].x.toFixed(1)} ${t[1].y.toFixed(1)}L${t[2].x.toFixed(1)} ${t[2].y.toFixed(1)}Z`;
+  return `<path d="${d}" fill="none" stroke="var(--mode)" stroke-width=".9" stroke-opacity=".9"/>`+
+    pts.map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="1.9" fill="#fff" stroke="var(--mode)" stroke-width="1"/>`).join('');
+}
+document.querySelectorAll('svg.char').forEach(s=>{
+  const rot=+(s.dataset.rot||0),sel=s.dataset.sel,bones=s.dataset.bones;
+  let head=headParts(),body=bodyParts(),bb='';
+  if(s.dataset.mesh)head+=meshMarkup();
+  if(bones){
+    head+=bone(100,150,100,70,sel==='head');
+    bb=bone(100,214,100,150,sel==='body')+bone(84,150,54,198,sel==='armL')+bone(116,150,146,198,sel==='armR');
+  }
+  s.innerHTML=body+`<g transform="rotate(${rot} 100 150)">${head}</g>`+bb;
+});
+document.querySelectorAll('svg.mini-frog').forEach(s=>s.innerHTML=bodyParts()+headParts());
+</script>
+</body>
+</html>

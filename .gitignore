@@ -1,0 +1,36 @@
+# Godot 4
+.godot/
+.import/
+export_credentials.cfg
+*.translation
+mono_crash.*.json
+
+# Билды и экспорт
+build/
+*.apk
+*.apk.idsig
+*.aab
+*.pck
+*.exe
+
+# Android подпись
+*.keystore
+*.jks
+
+# Godot SDK и шаблоны экспорта (качаются отдельно, ~1.5 ГБ)
+tools/godot/
+tools/*.zip
+tools/*.tpz
+
+# Node / веб (на будущее)
+node_modules/
+dist/
+
+# Системное и редакторы
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+*.log
+.vscode/
+.idea/

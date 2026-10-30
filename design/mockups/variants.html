@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rigbit варианты стиля</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@500&family=Unbounded:wght@600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0c0c0d;color:#eee;font-family:Onest,system-ui,sans-serif}
+header{max-width:1240px;margin:0 auto;padding:32px 16px 0}
+header h1{margin:0 0 6px;font-size:26px}
+header p{margin:0;color:#a3a3ad;font-size:14px;line-height:1.5;max-width:760px}
+section{max-width:1240px;margin:0 auto;padding:40px 16px 8px}
+.sec-head{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;margin-bottom:22px}
+.sec-head .txt{flex:1;min-width:280px}
+.sec-head h2{margin:0 0 6px;font-size:22px}
+.sec-head h2 em{font-style:normal;color:#77777f;margin-right:8px}
+.sec-head p{margin:0 0 8px;color:#b0b0b8;font-size:14px;line-height:1.55}
+.sec-head .pm{font-size:13px;color:#8d8d96;line-height:1.55}
+.sec-head .pm b{color:#d6d6dc;font-weight:600}
+.sw{display:flex;gap:6px;flex-wrap:wrap}
+.sw i{width:40px;height:40px;border-radius:8px;border:1px solid rgba(255,255,255,.12)}
+.pair{display:flex;flex-wrap:wrap;gap:36px}
+.cell{width:376px}
+.cell .cap{margin-top:10px;color:#8d8d96;font-size:13px}
+
+.phone{position:relative;width:376px;height:776px;border-radius:44px;border:8px solid #000;overflow:hidden;box-shadow:0 0 0 1px #2a2a30,0 30px 60px rgba(0,0,0,.5)}
+.ib{width:48px;height:48px;display:grid;place-items:center;background:none;border:0;padding:0;color:inherit;flex:none}
+.ib svg{width:24px;height:24px}
+.stage{position:absolute;left:50%;top:50%;width:250px;height:330px;transform:translate(-50%,-50%)}
+.stage svg.char{position:absolute;left:22px;top:66px;width:206px;height:247px;overflow:visible}
+.thumb{width:44px;height:44px;display:grid;place-items:center;overflow:hidden;flex:none;background:#F2F0EA}
+.thumb svg{width:40px;height:40px}
+.track{position:relative}
+.track i{position:absolute;left:0;top:0;bottom:0}
+.track b{position:absolute;top:50%;border-radius:50%;transform:translate(-50%,-50%)}
+
+/* ---------- общая плавающая раскладка (B и C) ---------- */
+.top{position:absolute;top:0;left:0;right:0;height:60px;display:flex;align-items:center;padding:6px 8px 0;gap:2px;z-index:5}
+.mode{margin:0 auto;height:40px;display:flex;align-items:center;gap:8px;padding:0 10px 0 12px;font-size:15px}
+.mode svg{width:18px;height:18px}
+.vp{position:absolute;top:60px;left:6px;right:6px;bottom:6px;overflow:hidden}
+.chip{height:48px;padding:0 14px;display:inline-flex;align-items:center;gap:8px;font-size:14px}
+.chip svg{width:20px;height:20px}
+.float-l{position:absolute;left:10px;top:10px}
+.float-r{position:absolute;right:10px;top:10px}
+.float-c{position:absolute;left:50%;top:14px;transform:translateX(-50%);height:34px;font-size:13px;padding:0 12px;white-space:nowrap}
+.rec b{width:8px;height:8px;border-radius:50%;background:var(--anim);display:inline-block}
+.rail{position:absolute;right:10px;top:50%;transform:translateY(-50%);padding:6px;display:flex;flex-direction:column;gap:4px}
+.tool{width:58px;height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10.5px}
+.tool svg{width:24px;height:24px}
+.sheet{position:absolute;left:0;right:0;bottom:0;padding:10px 18px 22px;z-index:6}
+.grab{width:40px;height:5px;border-radius:3px;margin:0 auto 14px}
+.sh-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.sh-head h4{margin:0;font-size:17px}
+.sh-head p{margin:2px 0 0;font-size:12.5px}
+.sl{margin-bottom:18px}
+.sl .row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:10px}
+.acts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.act>div{min-width:0}
+.act small{white-space:normal}
+.vC .act{font-size:12px;padding:0 8px;gap:7px}
+.act{height:62px;display:flex;align-items:center;gap:9px;padding:0 10px;font-size:13px;line-height:1.2;white-space:nowrap}
+.act svg{width:24px;height:24px;flex:none}
+.act small{display:block;font-size:11.5px;margin-top:2px;font-weight:400}
+.tl{position:absolute;left:6px;right:6px;bottom:6px;height:226px;padding:6px 10px 10px;overflow:hidden}
+.tl-top{display:flex;align-items:center;gap:4px;height:52px}
+.tl-top .sm svg{width:22px;height:22px}
+.play svg{width:20px;height:20px}
+.frame{font-size:14px;margin:0 6px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.frame b{font-size:17px}
+.filt{height:34px;font-size:13px;padding:0 6px 0 12px;gap:4px}
+.filt svg{width:16px;height:16px}
+.tl-body{position:relative;display:grid;grid-template-columns:88px 1fr;margin-top:4px}
+.lab{height:40px;display:flex;flex-direction:column;justify-content:center;font-size:12.5px;line-height:1.15}
+.lab small{font-size:11px}
+.lab.ruler,.trk.ruler{height:26px;border-top:0!important}
+.trk{position:relative;height:40px}
+.trk.ruler span{position:absolute;top:4px;font-size:11px;transform:translateX(-50%)}
+.key{position:absolute;top:50%;width:13px;height:13px;transform:translate(-50%,-50%) rotate(45deg)}
+.key.step{transform:translate(-50%,-50%)}
+.ph{position:absolute;top:0;bottom:-10px;width:2px;left:calc(88px + (100% - 88px) * .3333)}
+.ph::before{content:"";position:absolute;top:-2px;left:50%;width:12px;height:12px;border-radius:3px;transform:translateX(-50%)}
+
+/* ---------- 0 · Первый ---------- */
+.v0{--app:#111114;--panel:#1C1C21;--panel2:#26262D;--line:#2F2F37;--tx:#F3F3F6;--tx2:#A3A3AE;--tx3:#686873;
+    --rig:#FF9F43;--anim:#FF4D6A;--comp:#A78BFA;--exp:#34D399;background:var(--app);color:var(--tx);font-family:Inter,system-ui,sans-serif}
+.v0 .ib{border-radius:14px}
+.v0 .mode{border-radius:20px;background:var(--panel);font-weight:600}
+.v0 .mode .dot{width:10px;height:10px;border-radius:50%;background:var(--mode);box-shadow:0 0 0 4px color-mix(in srgb,var(--mode) 25%,transparent)}
+.v0 .mode svg{color:var(--tx2)}
+.v0 .vp{border:2px solid var(--mode);border-radius:30px;background:#16161A}
+.v0 .stage{background:#ECEAF1;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.v0 .chip{background:rgba(28,28,33,.94);border-radius:16px;font-weight:500}
+.v0 .float-c{border-radius:17px}
+.v0 .rail{background:rgba(28,28,33,.94);border-radius:24px}
+.v0 .tool{border-radius:18px;color:var(--tx2);font-weight:500}
+.v0 .tool.on{background:var(--mode);color:#16110a}
+.v0 .sheet{background:var(--panel);border-radius:28px 28px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.4)}
+.v0 .grab{background:#44444e}
+.v0 .thumb{background:#ECEAF1;border-radius:12px}
+.v0 .sh-head p,.v0 .act small{color:var(--tx3)}
+.v0 .sl .row span{color:var(--tx2)}
+.v0 .track{height:8px;border-radius:4px;background:var(--panel2)}
+.v0 .track i{background:var(--mode);border-radius:4px}
+.v0 .track b{width:26px;height:26px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.v0 .act{background:var(--panel2);border-radius:18px;font-weight:500}
+.v0 .act svg{color:var(--mode)}
+.v0 .tl{background:var(--panel);border-radius:26px}
+.v0 .play{background:var(--anim);color:#fff;border-radius:16px}
+.v0 .frame{color:var(--tx2)}
+.v0 .frame b{color:var(--tx)}
+.v0 .filt{border-radius:17px;background:var(--panel2)}
+.v0 .filt svg{color:var(--tx2)}
+.v0 .lab{color:var(--tx2);border-top:1px solid var(--line)}
+.v0 .lab small{color:var(--tx3)}
+.v0 .trk{border-top:1px solid var(--line)}
+.v0 .trk.ruler span{color:var(--tx3)}
+.v0 .key{background:var(--tx2);border-radius:2px}
+.v0 .key.sel{background:var(--anim);box-shadow:0 0 0 3px rgba(255,77,106,.3)}
+.v0 .key.step{background:var(--comp);border-radius:3px}
+.v0 .ph,.v0 .ph::before{background:var(--anim)}
+.v0 .rec{color:var(--anim)}
+
+/* ---------- A · Студия ---------- */
+.vA{--bg:#1F1F1F;--p1:#2B2B2B;--p3:#3E3E3E;--ln:#151515;--tx:#E6E6E6;--tx2:#9C9C9C;--tx3:#686868;--acc:#3D8BFD;
+    --rig:#E9A23B;--anim:#E5484D;--comp:#8E7CC3;--exp:#46A758;background:var(--bg);color:var(--tx);font-family:Roboto,sans-serif}
+.vA [data-i]>svg{stroke-width:1.6}
+.a-top{position:absolute;top:0;left:0;right:0;height:52px;background:var(--p1);display:flex;align-items:center;padding:0 4px;border-bottom:1px solid var(--ln)}
+.vA .ib{width:44px;height:48px;border-radius:6px}
+.vA .ib svg{width:22px;height:22px}
+.sep{width:1px;height:24px;background:var(--p3);margin:0 4px;flex:none}
+.a-tabs{position:absolute;top:52px;left:0;right:0;height:42px;background:var(--p1);display:flex;border-bottom:1px solid var(--ln)}
+.a-tabs span{flex:1;display:grid;place-items:center;font-size:13.5px;color:var(--tx2);font-weight:500;position:relative}
+.a-tabs span.on{color:var(--tx)}
+.a-tabs span.on::after{content:"";position:absolute;left:12px;right:12px;bottom:0;height:3px;background:var(--mode);border-radius:2px 2px 0 0}
+.a-vp{position:absolute;top:94px;left:0;right:56px;overflow:hidden;background:var(--bg);box-shadow:inset 0 0 0 2px var(--mode)}
+.vA .stage{background:#F2F0EA;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.a-rail{position:absolute;top:94px;right:0;width:56px;background:var(--p1);border-left:1px solid var(--ln);display:flex;flex-direction:column;padding:6px 4px;gap:2px}
+.a-tool{height:54px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:9.5px;color:var(--tx2)}
+.a-tool svg{width:22px;height:22px}
+.a-tool.on{background:var(--p3);color:var(--tx);box-shadow:inset 3px 0 0 var(--mode)}
+.a-panel{position:absolute;left:0;right:0;bottom:0;background:var(--p1);border-top:1px solid var(--ln)}
+.a-ph{display:flex;align-items:center;gap:10px;height:52px;padding:0 4px 0 12px;border-bottom:1px solid var(--ln)}
+.vA .thumb{width:34px;height:34px;border-radius:4px}
+.vA .thumb svg{width:30px;height:30px}
+.a-ph .nm{flex:1;font-size:15px;font-weight:500}
+.a-ph .nm small{color:var(--tx3);font-size:12px;margin-left:6px;font-weight:400}
+.a-seg{display:flex;margin:12px 12px 4px;background:var(--bg);border-radius:6px;padding:3px}
+.a-seg span{flex:1;height:36px;display:grid;place-items:center;font-size:13px;color:var(--tx2);border-radius:4px}
+.a-seg span.on{background:var(--p3);color:var(--tx)}
+.a-row{display:grid;grid-template-columns:118px 1fr 50px;align-items:center;gap:12px;height:50px;padding:0 12px;font-size:13.5px;color:var(--tx2)}
+.vA .track{height:4px;background:var(--p3);border-radius:2px}
+.vA .track i{background:var(--acc);border-radius:2px}
+.vA .track b{width:20px;height:20px;background:#E6E6E6;box-shadow:0 1px 3px rgba(0,0,0,.6)}
+.a-row output{height:32px;border-radius:4px;background:var(--bg);display:grid;place-items:center;font-size:13px;color:var(--tx);font-variant-numeric:tabular-nums}
+.a-btns{display:flex;gap:8px;padding:8px 12px}
+.a-btns span{flex:1;height:44px;border-radius:6px;background:var(--p3);display:flex;align-items:center;justify-content:center;gap:8px;font-size:13.5px}
+.a-btns span svg{width:20px;height:20px}
+.a-btns span.pr{background:var(--acc);color:#fff}
+.a-tl{position:absolute;left:0;right:0;bottom:0;height:272px;background:var(--p1);border-top:1px solid var(--ln)}
+.a-tr{display:flex;align-items:center;height:48px;padding:0 4px;border-bottom:1px solid var(--ln)}
+.a-tr .ib{width:40px}
+.a-fr{white-space:nowrap;margin:0 6px;height:30px;padding:0 10px;border-radius:4px;background:var(--bg);display:grid;place-items:center;font-size:13px;font-variant-numeric:tabular-nums;color:var(--tx2)}
+.a-fr b{color:var(--tx);font-weight:500}
+.a-grid{position:relative;display:grid;grid-template-columns:96px 1fr}
+.a-grid .l{height:32px;display:flex;align-items:center;padding-left:12px;font-size:12.5px;color:var(--tx2);border-bottom:1px solid var(--ln);border-right:1px solid var(--ln)}
+.a-grid .t{height:32px;position:relative;border-bottom:1px solid var(--ln);
+  background:linear-gradient(90deg,rgba(255,255,255,.09) 1px,transparent 1px) 0 0/calc(100%/6) 100%,linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px) 0 0/calc(100%/36) 100%,var(--bg)}
+.a-grid .l.h{color:var(--tx);font-weight:500;background:#252525;padding-left:8px;gap:6px}
+.a-grid .t.h{background:#252525}
+.a-grid .l.r,.a-grid .t.r{height:24px;background:var(--p1)}
+.a-grid .t.r span{position:absolute;top:5px;font-size:10.5px;color:var(--tx3);transform:translateX(-50%)}
+.a-key{position:absolute;top:50%;width:10px;height:10px;border-radius:50%;background:#BDBDBD;transform:translate(-50%,-50%)}
+.a-key.sel{background:var(--anim);box-shadow:0 0 0 2px #fff}
+.a-key.step{border-radius:1px;background:var(--comp)}
+.a-ph-line{position:absolute;top:0;bottom:0;width:1px;background:var(--anim);left:calc(96px + (100% - 96px) * .3333)}
+.a-ph-line::before{content:"12";position:absolute;top:2px;left:50%;transform:translateX(-50%);background:var(--anim);color:#fff;font-size:10px;padding:2px 4px;border-radius:3px}
+.dotrec{width:12px;height:12px;border-radius:50%;background:var(--anim);box-shadow:0 0 0 3px rgba(229,72,77,.25)}
+
+/* ---------- B · Скетчбук ---------- */
+.vB{--paper:#F3EEE4;--card:#FFFDF8;--ink:#1F1B16;--ink2:#6E665B;--ink3:#B3AA9C;
+    --rig:#F08A24;--anim:#E0402F;--comp:#6B5BD6;--exp:#1E9467;background:var(--paper);color:var(--ink);font-family:Onest,sans-serif}
+.vB [data-i]>svg{stroke-width:2}
+.vB .ib{border-radius:12px}
+.vB .mode{border:1.5px solid var(--ink);border-radius:10px;background:var(--card);font-weight:600}
+.vB .mode .dot{width:12px;height:12px;border-radius:3px;background:var(--mode);border:1.5px solid var(--ink)}
+.vB .vp{border:2px solid var(--mode);border-radius:20px;background:radial-gradient(#D3C9B8 1.1px,transparent 1.3px) 0 0/16px 16px,#ECE6DA}
+.vB .stage{background:#fff;border:1.5px solid var(--ink);border-radius:3px}
+.vB .chip{background:var(--card);border:1.5px solid var(--ink);border-radius:12px;font-weight:600}
+.vB .rail{background:var(--card);border:1.5px solid var(--ink);border-radius:16px;box-shadow:3px 3px 0 var(--ink)}
+.vB .tool{border-radius:11px;color:var(--ink2);font-weight:600}
+.vB .tool.on{background:var(--mode);color:var(--ink);border:1.5px solid var(--ink)}
+.vB .sheet{background:var(--card);border-top:1.5px solid var(--ink);border-radius:22px 22px 0 0}
+.vB .grab{background:var(--ink3)}
+.vB .thumb{background:#fff;border:1.5px solid var(--ink);border-radius:10px}
+.vB .sh-head p,.vB .act small,.vB .sl .row span{color:var(--ink2)}
+.vB .sl .row span{font-family:'JetBrains Mono',monospace;font-size:13px}
+.vB .track{height:4px;background:var(--ink3);border-radius:2px}
+.vB .track i{background:var(--ink);border-radius:2px}
+.vB .track b{width:24px;height:24px;background:var(--mode);border:2px solid var(--ink)}
+.vB .act{background:var(--card);border:1.5px solid var(--ink);border-radius:12px;box-shadow:2px 2px 0 var(--ink);font-weight:600}
+.vB .tl{background:var(--card);border:1.5px solid var(--ink);border-radius:18px}
+.vB .play{background:var(--anim);color:#fff;border:1.5px solid var(--ink);border-radius:12px;box-shadow:2px 2px 0 var(--ink)}
+.vB .frame{font-family:'JetBrains Mono',monospace;color:var(--ink2)}
+.vB .frame b{color:var(--ink)}
+.vB .filt{border-radius:10px}
+.vB .lab{color:var(--ink2);border-top:1.5px dashed var(--ink3)}
+.vB .lab small{color:var(--ink3)}
+.vB .trk{border-top:1.5px dashed var(--ink3)}
+.vB .trk.ruler span{color:var(--ink2);font-family:'JetBrains Mono',monospace}
+.vB .key{background:var(--card);border:1.5px solid var(--ink);border-radius:2px}
+.vB .key.sel{background:var(--anim)}
+.vB .key.step{background:var(--comp)}
+.vB .ph,.vB .ph::before{background:var(--ink)}
+.vB .rec{color:var(--anim);font-weight:600}
+
+/* ---------- C · Фроги ---------- */
+.vC{--bg:#0E1710;--p1:#182A1C;--p2:#223A27;--tx:#EEF6E6;--tx2:#9DB59A;--tx3:#62795F;--lime:#B8F25C;--sh:#040805;
+    --rig:#FFB547;--anim:#FF5C7A;--comp:#B79CFF;--exp:#5EE6C2;background:var(--bg);color:var(--tx);font-family:Nunito,sans-serif}
+.vC [data-i]>svg{stroke-width:2.2}
+.vC .top .ib{width:44px;height:44px;border-radius:14px;background:var(--p1);margin:0 2px}
+.vC .mode{background:var(--mode);color:#17120a;border:2px solid var(--sh);border-radius:14px;box-shadow:0 3px 0 var(--sh);font-family:Unbounded,sans-serif;font-weight:700;font-size:13.5px}
+.vC .mode .dot{display:none}
+.vC .vp{border:3px solid var(--mode);border-radius:28px;background:linear-gradient(rgba(184,242,92,.05) 1px,transparent 1px) 0 0/24px 24px,linear-gradient(90deg,rgba(184,242,92,.05) 1px,transparent 1px) 0 0/24px 24px,#112016}
+.vC .stage{background:#F4F1E8;border-radius:10px;box-shadow:0 6px 0 var(--sh)}
+.vC .chip{background:var(--p2);border:2px solid var(--sh);border-radius:14px;box-shadow:0 3px 0 var(--sh);font-weight:800}
+.vC .rail{background:var(--p2);border:2px solid var(--sh);border-radius:22px;box-shadow:0 4px 0 var(--sh)}
+.vC .tool{border-radius:16px;color:var(--tx2);font-weight:800}
+.vC .tool.on{background:var(--mode);color:#17120a;border:2px solid var(--sh);box-shadow:0 3px 0 var(--sh)}
+.vC .sheet{background:var(--p1);border-radius:30px 30px 0 0;border-top:2px solid var(--sh)}
+.vC .sh-head h4{font-family:Unbounded,sans-serif;font-size:15.5px}
+.vC .grab{background:var(--tx3)}
+.vC .thumb{background:#F4F1E8;border-radius:14px;border:2px solid var(--sh)}
+.vC .sh-head p,.vC .act small{color:var(--tx3)}
+.vC .sl .row{font-weight:800}
+.vC .sl .row span{color:var(--lime)}
+.vC .track{height:14px;border-radius:7px;background:var(--p2)}
+.vC .track i{background:var(--mode);border-radius:7px}
+.vC .track b{width:30px;height:30px;background:#fff;border:3px solid var(--sh)}
+.vC .act{background:var(--p2);border:2px solid var(--sh);border-radius:18px;box-shadow:0 3px 0 var(--sh);font-weight:800}
+.vC .act svg{color:var(--lime)}
+.vC .tl{background:var(--p1);border:2px solid var(--sh);border-radius:26px}
+.vC .play{background:var(--anim);color:#fff;border:2px solid var(--sh);box-shadow:0 3px 0 var(--sh);border-radius:16px}
+.vC .frame{color:var(--tx2);font-family:Unbounded,sans-serif;font-weight:600;font-size:12px}
+.vC .frame b{color:var(--tx);font-size:16px}
+.vC .filt{border-radius:12px;font-weight:800}
+.vC .lab{color:var(--tx2);font-weight:800;border-top:2px solid var(--p2)}
+.vC .lab small{color:var(--tx3)}
+.vC .trk{border-top:2px solid var(--p2)}
+.vC .trk.ruler span{color:var(--tx3);font-weight:800}
+.vC .key{background:var(--lime);border:2px solid var(--sh);border-radius:4px;width:15px;height:15px}
+.vC .key.sel{background:var(--anim)}
+.vC .key.step{background:var(--comp)}
+.vC .ph,.vC .ph::before{background:var(--anim)}
+.vC .rec{color:var(--anim)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Rigbit · три стиля на выбор</h1>
+  <p>Раскладка и логика те же, что в первом мокапе, меняется только характер. Можно брать вариант целиком или смешивать: например, раскладку из А и цвета из C.</p>
+</header>
+
+<!-- ============ 0 ============ -->
+<section>
+  <div class="sec-head">
+    <div class="txt">
+      <h2><em>0</em>Первый вариант</h2>
+      <p>Самый первый мокап, для сравнения. Тёмный, всё плавает поверх вьюпорта, мягкие скругления, режим в выпадающей кнопке. Шрифт Inter.</p>
+      <div class="pm"><b>Плюс:</b> максимум воздуха, вьюпорт почти на весь экран. <b>Минус:</b> выглядит как типичный «нейросетный» интерфейс.</div>
+    </div>
+    <div class="sw"><i style="background:#111114"></i><i style="background:#1C1C21"></i><i style="background:#26262D"></i><i style="background:#FF9F43"></i><i style="background:#FF4D6A"></i><i style="background:#A78BFA"></i></div>
+  </div>
+  <div class="pair">
+    <div class="cell">
+      <div class="phone v0" style="--mode:var(--rig)">
+        <div class="top">
+          <span class="ib" data-i="undo"></span><span class="ib" data-i="redo"></span>
+          <div class="mode"><span class="dot"></span>Риг<span data-i="chev"></span></div>
+          <span class="ib" data-i="folder"></span><span class="ib" data-i="more"></span>
+        </div>
+        <div class="vp">
+          <div class="stage" style="top:33%;transform:translate(-50%,-50%) scale(.82)"><svg class="char" viewBox="0 0 200 240" data-mesh="1"></svg></div>
+          <div class="chip float-l" data-i="layers">Слои</div>
+        </div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="sh-head">
+            <div class="thumb"><svg viewBox="0 0 200 240" class="mini-frog"></svg></div>
+            <div style="flex:1"><h4>Голова</h4><p>Слой · 214 точек сетки</p></div>
+            <span class="ib" data-i="x"></span>
+          </div>
+          <div class="sl"><div class="row">Плотность сетки<span>Средняя</span></div><div class="track"><i style="width:50%"></i><b style="left:50%"></b></div></div>
+          <div class="sl"><div class="row">Прозрачность<span>100%</span></div><div class="track"><i style="width:100%"></i><b style="left:calc(100% - 13px)"></b></div></div>
+          <div class="acts">
+            <div class="act" data-i="link"><div>Привязать к кости<small>сейчас: Голова</small></div></div>
+            <div class="act" data-i="brush"><div>Кисть весов<small>мягкость по пальцу</small></div></div>
+            <div class="act" data-i="mesh"><div>Править сетку<small>точки вручную</small></div></div>
+            <div class="act" data-i="refresh"><div>Пересобрать<small>веса сохранятся</small></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">Риг · настройки слоя</div>
+    </div>
+    <div class="cell">
+      <div class="phone v0" style="--mode:var(--anim)">
+        <div class="top">
+          <span class="ib" data-i="undo"></span><span class="ib" data-i="redo"></span>
+          <div class="mode"><span class="dot"></span>Анимация<span data-i="chev"></span></div>
+          <span class="ib" data-i="folder"></span><span class="ib" data-i="more"></span>
+        </div>
+        <div class="vp" style="bottom:238px">
+          <div class="stage" style="transform:translate(-50%,-50%) scale(.78)"><svg class="char" viewBox="0 0 200 240" data-bones="1" data-sel="head" data-rot="-12"></svg></div>
+          <div class="chip float-l" data-i="layers"></div>
+          <div class="chip float-c rec"><b></b>автоключ</div>
+          <div class="chip float-r" data-i="sliders"></div>
+          <div class="rail" style="top:58%">
+            <div class="tool on" data-i="bone">Поза</div>
+            <div class="tool" data-i="pin">Пины</div>
+            <div class="tool" data-i="move">Слой</div>
+            <div class="tool" data-i="camera">Камера</div>
+          </div>
+        </div>
+        <div class="tl">
+          <div class="tl-top">
+            <span class="ib play" data-i="play"></span>
+            <div class="frame"><b>12</b> / 48</div>
+            <span class="chip filt">Голова<span data-i="x"></span></span>
+            <span style="flex:1"></span>
+            <span class="ib sm" data-i="loop"></span>
+            <span class="ib sm" data-i="chev"></span>
+          </div>
+          <div class="tl-body">
+            <div class="lab ruler"></div>
+            <div class="trk ruler"><span style="left:0%;transform:none">0</span><span style="left:16.66%">6</span><span style="left:33.33%">12</span><span style="left:50%">18</span><span style="left:66.66%">24</span><span style="left:83.33%">30</span></div>
+            <div class="lab">Поворот</div>
+            <div class="trk"><i class="key" style="left:3%"></i><i class="key sel" style="left:33.33%"></i><i class="key" style="left:66.66%"></i><i class="key" style="left:96%"></i></div>
+            <div class="lab">Позиция</div>
+            <div class="trk"><i class="key" style="left:3%"></i><i class="key" style="left:50%"></i></div>
+            <div class="lab">Моргание<small>ползунок</small></div>
+            <div class="trk"><i class="key step" style="left:8.33%"></i><i class="key step" style="left:16.66%"></i><i class="key step" style="left:25%"></i></div>
+            <div class="ph"></div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">Анимация · таймлайн</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ A ============ -->
+<section>
+  <div class="sec-head">
+    <div class="txt">
+      <h2><em>A</em>Студия</h2>
+      <p>Классика, как в Procreate, Clip Studio и Moho: графит, плоские панели прибиты к краям экрана, режимы вкладками сверху (видны все сразу, без выпадашки), у ползунков рядом число. Шрифт Roboto, родной для Android.</p>
+      <div class="pm"><b>Плюс:</b> привычно тем, кто пришёл с ПК, серый не спорит с цветами персонажа. <b>Минус:</b> строже и безликее, меньше «своего лица».</div>
+    </div>
+    <div class="sw"><i style="background:#1F1F1F"></i><i style="background:#2B2B2B"></i><i style="background:#3E3E3E"></i><i style="background:#3D8BFD"></i><i style="background:#E9A23B"></i><i style="background:#E5484D"></i></div>
+  </div>
+  <div class="pair">
+    <div class="cell">
+      <div class="phone vA" style="--mode:var(--rig)">
+        <div class="a-top">
+          <span class="ib" data-i="folder"></span><span class="ib" data-i="undo"></span><span class="ib" data-i="redo"></span>
+          <span class="sep"></span><span class="ib" data-i="layers"></span><span class="ib" data-i="sliders"></span>
+          <span style="flex:1"></span><span class="ib" data-i="play"></span><span class="ib" data-i="more"></span>
+        </div>
+        <div class="a-tabs"><span class="on">Риг</span><span>Анимация</span><span>Композинг</span><span>Экспорт</span></div>
+        <div class="a-vp" style="bottom:304px">
+          <div class="stage" style="transform:translate(-50%,-50%) scale(.74)"><svg class="char" viewBox="0 0 200 240" data-mesh="1" data-bones="1" data-sel="head"></svg></div>
+        </div>
+        <div class="a-rail" style="bottom:304px">
+          <div class="a-tool" data-i="bone">Кости</div>
+          <div class="a-tool on" data-i="mesh">Сетка</div>
+          <div class="a-tool" data-i="brush">Веса</div>
+          <div class="a-tool" data-i="pin">Пины</div>
+          <div class="a-tool" data-i="move">Слой</div>
+        </div>
+        <div class="a-panel" style="height:304px">
+          <div class="a-ph"><div class="thumb"><svg viewBox="0 0 200 240" class="mini-frog"></svg></div><div class="nm">Голова<small>слой · 214 точек</small></div><span class="ib" data-i="x"></span></div>
+          <div class="a-seg"><span class="on">Сетка</span><span>Привязка</span><span>Вид</span></div>
+          <div class="a-row">Плотность<div class="track"><i style="width:50%"></i><b style="left:50%"></b></div><output>50</output></div>
+          <div class="a-row">Отступ от края<div class="track"><i style="width:20%"></i><b style="left:20%"></b></div><output>4 px</output></div>
+          <div class="a-btns"><span data-i="mesh">Править точки</span><span class="pr" data-i="refresh">Пересобрать</span></div>
+        </div>
+      </div>
+      <div class="cap">Риг · сетка слоя</div>
+    </div>
+    <div class="cell">
+      <div class="phone vA" style="--mode:var(--anim)">
+        <div class="a-top">
+          <span class="ib" data-i="folder"></span><span class="ib" data-i="undo"></span><span class="ib" data-i="redo"></span>
+          <span class="sep"></span><span class="ib" data-i="layers"></span><span class="ib" data-i="sliders"></span>
+          <span style="flex:1"></span><span class="ib" data-i="play"></span><span class="ib" data-i="more"></span>
+        </div>
+        <div class="a-tabs"><span>Риг</span><span class="on">Анимация</span><span>Композинг</span><span>Экспорт</span></div>
+        <div class="a-vp" style="bottom:272px">
+          <div class="stage" style="transform:translate(-50%,-50%) scale(.82)"><svg class="char" viewBox="0 0 200 240" data-bones="1" data-sel="head" data-rot="-12"></svg></div>
+        </div>
+        <div class="a-rail" style="bottom:272px">
+          <div class="a-tool on" data-i="bone">Поза</div>
+          <div class="a-tool" data-i="pin">Пины</div>
+          <div class="a-tool" data-i="move">Слой</div>
+          <div class="a-tool" data-i="camera">Камера</div>
+          <div class="a-tool" data-i="onion">Калька</div>
+        </div>
+        <div class="a-tl">
+          <div class="a-tr">
+            <span class="ib" data-i="first"></span><span class="ib" data-i="prev"></span><span class="ib" data-i="play" style="color:var(--anim)"></span><span class="ib" data-i="next"></span>
+            <div class="a-fr"><b>12</b>&nbsp;/ 48</div>
+            <span style="flex:1"></span>
+            <span class="ib" data-i="loop"></span>
+            <span class="ib"><span class="dotrec"></span></span>
+          </div>
+          <div class="a-grid">
+            <div class="l r"></div><div class="t r"><span style="left:0%;transform:none;margin-left:3px">0</span><span style="left:16.66%">6</span><span style="left:33.33%">12</span><span style="left:50%">18</span><span style="left:66.66%">24</span><span style="left:83.33%">30</span></div>
+            <div class="l h">Голова</div><div class="t h"></div>
+            <div class="l">Поворот</div><div class="t"><i class="a-key" style="left:1.4%"></i><i class="a-key sel" style="left:33.33%"></i><i class="a-key" style="left:66.66%"></i><i class="a-key" style="left:98%"></i></div>
+            <div class="l">Позиция</div><div class="t"><i class="a-key" style="left:1.4%"></i><i class="a-key" style="left:50%"></i></div>
+            <div class="l">Масштаб</div><div class="t"></div>
+            <div class="l h">Ползунки</div><div class="t h"></div>
+            <div class="l">Моргание</div><div class="t"><i class="a-key step" style="left:8.33%"></i><i class="a-key step" style="left:16.66%"></i><i class="a-key step" style="left:25%"></i></div>
+            <div class="a-ph-line"></div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">Анимация · таймлайн как в Moho</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ B ============ -->
+<section>
+  <div class="sec-head">
+    <div class="txt">
+      <h2><em>B</em>Скетчбук</h2>
+      <p>Светлая тема: бумага, тушь и маркеры. Обводки вместо теней, фон вьюпорта в точечку как блокнот, кадры и числа моноширинным шрифтом. Шрифт Onest.</p>
+      <div class="pm"><b>Плюс:</b> сразу выделяется среди тёмных редакторов, тёплый, «рисовательский», хорошо читается на солнце. <b>Минус:</b> ночью слепит, так что понадобится тёмная версия той же системы.</div>
+    </div>
+    <div class="sw"><i style="background:#F3EEE4"></i><i style="background:#FFFDF8"></i><i style="background:#1F1B16"></i><i style="background:#F08A24"></i><i style="background:#E0402F"></i><i style="background:#6B5BD6"></i></div>
+  </div>
+  <div class="pair">
+    <div class="cell">
+      <div class="phone vB" style="--mode:var(--rig)">
+        <div class="top">
+          <span class="ib" data-i="undo"></span><span class="ib" data-i="redo"></span>
+          <div class="mode"><span class="dot"></span>Риг<span data-i="chev"></span></div>
+          <span class="ib" data-i="folder"></span><span class="ib" data-i="more"></span>
+        </div>
+        <div class="vp">
+          <div class="stage" style="top:33%;transform:translate(-50%,-50%) scale(.82)"><svg class="char" viewBox="0 0 200 240" data-mesh="1"></svg></div>
+          <div class="chip float-l" data-i="layers">Слои</div>
+        </div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="sh-head">
+            <div class="thumb"><svg viewBox="0 0 200 240" class="mini-frog"></svg></div>
+            <div style="flex:1"><h4>Голова</h4><p>слой · 214 точек сетки</p></div>
+            <span class="ib" data-i="x"></span>
+          </div>
+          <div class="sl"><div class="row">Плотность сетки<span>средняя</span></div><div class="track"><i style="width:50%"></i><b style="left:50%"></b></div></div>
+          <div class="sl"><div class="row">Прозрачность<span>100%</span></div><div class="track"><i style="width:100%"></i><b style="left:calc(100% - 12px)"></b></div></div>
+          <div class="acts">
+            <div class="act" data-i="link"><div>Привязать к кости<small>сейчас: Голова</small></div></div>
+            <div class="act" data-i="brush"><div>Кисть весов<small>мягкость по пальцу</small></div></div>
+            <div class="act" data-i="mesh"><div>Править сетку<small>точки вручную</small></div></div>
+            <div class="act" data-i="refresh"><div>Пересобрать<small>веса сохранятся</small></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">Риг · настройки слоя</div>
+    </div>
+    <div class="cell">
+      <div class="phone vB" style="--mode:var(--anim)">
+        <div class="top">
+          <span class="ib" data-i="undo"></span><span class="ib" data-i="redo"></span>
+          <div class="mode"><span class="dot"></span>Анимация<span data-i="chev"></span></div>
+          <span class="ib" data-i="folder"></span><span class="ib" data-i="more"></span>
+        </div>
+        <div class="vp" style="bottom:238px">
+          <div class="stage" style="transform:translate(-50%,-50%) scale(.78)"><svg class="char" viewBox="0 0 200 240" data-bones="1" data-sel="head" data-rot="-12"></svg></div>
+          <div class="chip float-l" data-i="layers"></div>
+          <div class="chip float-c rec"><b></b>автоключ</div>
+          <div class="chip float-r" data-i="sliders"></div>
+          <div class="rail" style="top:58%">
+            <div class="tool on" data-i="bone">Поза</div>
+            <div class="tool" data-i="pin">Пины</div>
+            <div class="tool" data-i="move">Слой</div>
+            <div class="tool" data-i="camera">Камера</div>
+          </div>
+        </div>
+        <div class="tl">
+          <div class="tl-top">
+            <span class="ib play" data-i="play"></span>
+            <div class="frame"><b>012</b> / 048</div>
+            <span class="chip filt">Голова<span data-i="x"></span></span>
+            <span style="flex:1"></span>
+            <span class="ib sm" data-i="loop"></span>
+            <span class="ib sm" data-i="chev"></span>
+          </div>
+          <div class="tl-body">
+            <div class="lab ruler"></div>
+            <div class="trk ruler"><span style="left:0%;transform:none">0</span><span style="left:16.66%">6</span><span style="left:33.33%">12</span><span style="left:50%">18</span><span style="left:66.66%">24</span><span style="left:83.33%">30</span></div>
+            <div class="lab">Поворот</div>
+            <div class="trk"><i class="key" style="left:3%"></i><i class="key sel" style="left:33.33%"></i><i class="key" style="left:66.66%"></i><i class="key" style="left:96%"></i></div>
+            <div class="lab">Позиция</div>
+            <div class="trk"><i class="key" style="left:3%"></i><i class="key" style="left:50%"></i></div>
+            <div class="lab">Моргание<small>ползунок</small></div>
+            <div class="trk"><i class="key step" style="left:8.33%"></i><i class="key step" style="left:16.66%"></i><i class="key step" style="left:25%"></i></div>
+            <div class="ph"></div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">Анимация · таймлайн</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ C ============ -->
+<section style="padding-bottom:64px">
+  <div class="sec-head">
+    <div class="txt">
+      <h2><em>C</em>Фроги</h2>
+      <p>Фирменный стиль вокруг маскота: болотный почти-чёрный фон, лаймовый акцент, толстые кнопки с жёсткой тенью, как наклейки. Заголовки Unbounded, текст Nunito (круглый, мягкий).</p>
+      <div class="pm"><b>Плюс:</b> запоминается, в духе TikTok и гача-комьюнити, по скриншоту сразу видно, что это Rigbit. <b>Минус:</b> громкий; если переборщить, начнёт выглядеть детским.</div>
+    </div>
+    <div class="sw"><i style="background:#0E1710"></i><i style="background:#182A1C"></i><i style="background:#223A27"></i><i style="background:#B8F25C"></i><i style="background:#FFB547"></i><i style="background:#FF5C7A"></i></div>
+  </div>
+  <div class="pair">
+    <div class="cell">
+      <div class="phone vC" style="--mode:var(--rig)">
+        <div class="top">
+          <span class="ib" data-i="undo"></span><span class="ib" data-i="redo"></span>
+          <div class="mode"><span class="dot"></span>Риг<span data-i="chev"></span></div>
+          <span class="ib" data-i="folder"></span><span class="ib" data-i="more"></span>
+        </div>
+        <div class="vp">
+          <div class="stage" style="top:33%;transform:translate(-50%,-50%) scale(.82)"><svg class="char" viewBox="0 0 200 240" data-mesh="1"></svg></div>
+          <div class="chip float-l" data-i="layers">Слои</div>
+        </div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="sh-head">
+            <div class="thumb"><svg viewBox="0 0 200 240" class="mini-frog"></svg></div>
+            <div style="flex:1"><h4>Голова</h4><p>слой · 214 точек сетки</p></div>
+            <span class="ib" data-i="x"></span>
+          </div>
+          <div class="sl"><div class="row">Плотность сетки<span>средняя</span></div><div class="track"><i style="width:50%"></i><b style="left:50%"></b></div></div>
+          <div class="sl"><div class="row">Прозрачность<span>100%</span></div><div class="track"><i style="width:100%"></i><b style="left:calc(100% - 15px)"></b></div></div>
+          <div class="acts">
+            <div class="act" data-i="link"><div>Привязать к кости<small>сейчас: Голова</small></div></div>
+            <div class="act" data-i="brush"><div>Кисть весов<small>мягкость по пальцу</small></div></div>
+            <div class="act" data-i="mesh"><div>Править сетку<small>точки вручную</small></div></div>
+            <div class="act" data-i="refresh"><div>Пересобрать<small>веса сохранятся</small></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">Риг · настройки слоя</div>
+    </div>
+    <div class="cell">
+      <div class="phone vC" style="--mode:var(--anim)">
+        <div class="top">
+          <span class="ib" data-i="undo"></span><span class="ib" data-i="redo"></span>
+          <div class="mode"><span class="dot"></span>Анимация<span data-i="chev"></span></div>
+          <span class="ib" data-i="folder"></span><span class="ib" data-i="more"></span>
+        </div>
+        <div class="vp" style="bottom:238px">
+          <div class="stage" style="transform:translate(-50%,-50%) scale(.78)"><svg class="char" viewBox="0 0 200 240" data-bones="1" data-sel="head" data-rot="-12"></svg></div>
+          <div class="chip float-l" data-i="layers"></div>
+          <div class="chip float-c rec"><b></b>автоключ</div>
+          <div class="chip float-r" data-i="sliders"></div>
+          <div class="rail" style="top:58%">
+            <div class="tool on" data-i="bone">Поза</div>
+            <div class="tool" data-i="pin">Пины</div>
+            <div class="tool" data-i="move">Слой</div>
+            <div class="tool" data-i="camera">Камера</div>
+          </div>
+        </div>
+        <div class="tl">
+          <div class="tl-top">
+            <span class="ib play" data-i="play"></span>
+            <div class="frame"><b>12</b> / 48</div>
+            <span class="chip filt">Голова<span data-i="x"></span></span>
+            <span style="flex:1"></span>
+            <span class="ib sm" data-i="loop"></span>
+            <span class="ib sm" data-i="chev"></span>
+          </div>
+          <div class="tl-body">
+            <div class="lab ruler"></div>
+            <div class="trk ruler"><span style="left:0%;transform:none">0</span><span style="left:16.66%">6</span><span style="left:33.33%">12</span><span style="left:50%">18</span><span style="left:66.66%">24</span><span style="left:83.33%">30</span></div>
+            <div class="lab">Поворот</div>
+            <div class="trk"><i class="key" style="left:3%"></i><i class="key sel" style="left:33.33%"></i><i class="key" style="left:66.66%"></i><i class="key" style="left:96%"></i></div>
+            <div class="lab">Позиция</div>
+            <div class="trk"><i class="key" style="left:3%"></i><i class="key" style="left:50%"></i></div>
+            <div class="lab">Моргание<small>ползунок</small></div>
+            <div class="trk"><i class="key step" style="left:8.33%"></i><i class="key step" style="left:16.66%"></i><i class="key step" style="left:25%"></i></div>
+            <div class="ph"></div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">Анимация · таймлайн</div>
+    </div>
+  </div>
+</section>
+
+<script>
+const ICONS={
+ undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+ redo:'<path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/>',
+ more:'<circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/>',
+ bone:'<path d="M4.5 19.5 8.6 12.6 19.5 4.5 11.4 15.4Z"/><circle cx="4.5" cy="19.5" r="1.6"/>',
+ mesh:'<path d="M12 3.5 21 20H3Z"/><path d="M7.5 11.8h9M12 20l-4.5-8.2M12 20l4.5-8.2"/>',
+ pin:'<path d="M12 21s-6.5-5.8-6.5-11a6.5 6.5 0 0 1 13 0C18.5 15.2 12 21 12 21Z"/><circle cx="12" cy="10" r="2.3"/>',
+ brush:'<path d="m14.5 4.5 5 5L11 18l-5-5Z"/><path d="M6 13c-2 0-3 2-3 4.5V20h2.5C8 20 10 19 10 17"/>',
+ move:'<path d="M12 3v18M3 12h18M12 3 9.5 5.5M12 3l2.5 2.5M12 21l-2.5-2.5M12 21l2.5-2.5M3 12l2.5-2.5M3 12l2.5 2.5M21 12l-2.5-2.5M21 12l-2.5 2.5"/>',
+ layers:'<path d="m12 3 9 5-9 5-9-5Z"/><path d="m3 13 9 5 9-5"/>',
+ play:'<path d="M7 4.5v15l13-7.5Z" fill="currentColor" stroke="none"/>',
+ first:'<path d="M6 5v14"/><path d="M18 5v14l-9-7Z" fill="currentColor" stroke="none"/>',
+ prev:'<path d="M15 6 9 12l6 6"/>',
+ next:'<path d="m9 6 6 6-6 6"/>',
+ loop:'<path d="m17 2 3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="m7 22-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/>',
+ onion:'<circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6" opacity=".45"/>',
+ camera:'<rect x="3" y="6.5" width="18" height="13" rx="3"/><circle cx="12" cy="13" r="3.5"/><path d="M8.5 6.5 10 4h4l1.5 2.5"/>',
+ sliders:'<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>',
+ x:'<path d="M6 6l12 12M18 6 6 18"/>',
+ chev:'<path d="m6 9 6 6 6-6"/>',
+ folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>',
+ link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+ refresh:'<path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/>'
+};
+document.querySelectorAll('[data-i]').forEach(el=>{
+  el.insertAdjacentHTML('afterbegin',`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[el.dataset.i]}</svg>`);
+});
+
+// лягушка-заглушка
+const G='#7CC26A',G2='#68AE57',HEAD={cx:100,cy:98,rx:80,ry:56};
+const headParts=()=>`
+ <circle cx="64" cy="52" r="26" fill="${G}"/><circle cx="136" cy="52" r="26" fill="${G}"/>
+ <ellipse cx="100" cy="98" rx="80" ry="56" fill="${G}"/>
+ <circle cx="64" cy="52" r="18" fill="#fff"/><circle cx="136" cy="52" r="18" fill="#fff"/>
+ <circle cx="67" cy="55" r="8.5" fill="#1d1d22"/><circle cx="133" cy="55" r="8.5" fill="#1d1d22"/>
+ <circle cx="64" cy="51" r="3" fill="#fff"/><circle cx="130" cy="51" r="3" fill="#fff"/>
+ <ellipse cx="46" cy="112" rx="12" ry="6" fill="#FF9BB0" opacity=".75"/><ellipse cx="154" cy="112" rx="12" ry="6" fill="#FF9BB0" opacity=".75"/>
+ <path d="M84 116 Q100 131 116 116" stroke="#2d4d24" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
+const bodyParts=()=>`
+ <ellipse cx="66" cy="226" rx="27" ry="9" fill="${G2}"/><ellipse cx="134" cy="226" rx="27" ry="9" fill="${G2}"/>
+ <ellipse cx="100" cy="182" rx="54" ry="46" fill="${G}"/>
+ <ellipse cx="100" cy="192" rx="34" ry="28" fill="#EAF3CD"/>
+ <ellipse cx="56" cy="176" rx="11" ry="26" fill="${G2}" transform="rotate(28 56 176)"/>
+ <ellipse cx="144" cy="176" rx="11" ry="26" fill="${G2}" transform="rotate(-28 144 176)"/>`;
+function bone(x1,y1,x2,y2,on){
+  const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy),px=-dy/L,py=dx/L,w=Math.min(9,L*.13),bx=x1+dx*.2,by=y1+dy*.2;
+  return `<polygon points="${x1},${y1} ${bx+px*w},${by+py*w} ${x2},${y2} ${bx-px*w},${by-py*w}" fill="var(--mode)" fill-opacity="${on?1:.35}" stroke="${on?'#fff':'var(--mode)'}" stroke-width="${on?2:1.5}" stroke-linejoin="round"/><circle cx="${x1}" cy="${y1}" r="3.5" fill="#fff" stroke="var(--mode)" stroke-width="1.5"/>`;
+}
+function delaunay(pts){
+  const n=pts.length,P=pts.concat([{x:-2000,y:-2000},{x:2200,y:-2000},{x:100,y:3000}]);
+  const cc=t=>{const[a,b,c]=t.map(i=>P[i]);const d=2*(a.x*(b.y-c.y)+b.x*(c.y-a.y)+c.x*(a.y-b.y));
+    const A=a.x*a.x+a.y*a.y,B=b.x*b.x+b.y*b.y,C=c.x*c.x+c.y*c.y;
+    const ux=(A*(b.y-c.y)+B*(c.y-a.y)+C*(a.y-b.y))/d,uy=(A*(c.x-b.x)+B*(a.x-c.x)+C*(b.x-a.x))/d;
+    return{x:ux,y:uy,r:(ux-a.x)**2+(uy-a.y)**2}};
+  let tris=[[n,n+1,n+2]];tris[0].c=cc(tris[0]);
+  for(let i=0;i<n;i++){const p=P[i],bad=[],good=[];
+    for(const t of tris)((p.x-t.c.x)**2+(p.y-t.c.y)**2<t.c.r?bad:good).push(t);
+    const E=[];for(const t of bad)for(let k=0;k<3;k++){const a=t[k],b=t[(k+1)%3];
+      const j=E.findIndex(e=>(e[0]===a&&e[1]===b)||(e[0]===b&&e[1]===a));j>=0?E.splice(j,1):E.push([a,b])}
+    tris=good;for(const e of E){const t=[e[0],e[1],i];t.c=cc(t);tris.push(t)}}
+  return tris.filter(t=>t.every(i=>i<n)).map(t=>t.map(i=>P[i]));
+}
+function meshMarkup(){
+  const pts=[],{cx,cy,rx,ry}=HEAD,N=34;
+  for(let i=0;i<N;i++){const a=i/N*Math.PI*2;pts.push({x:cx+Math.cos(a)*rx,y:cy+Math.sin(a)*ry})}
+  for(let y=cy-ry;y<=cy+ry;y+=15)for(let x=cx-rx;x<=cx+rx;x+=17){
+    const xx=x+(Math.abs(Math.round((y-cy)/15))%2?8:0);
+    if(((xx-cx)/rx)**2+((y-cy)/ry)**2<.78)pts.push({x:xx,y})}
+  const tris=delaunay(pts).filter(t=>{const mx=(t[0].x+t[1].x+t[2].x)/3,my=(t[0].y+t[1].y+t[2].y)/3;return((mx-cx)/rx)**2+((my-cy)/ry)**2<1});
+  let d='';for(const t of tris)d+=`M${t[0].x.toFixed(1)} ${t[0].y.toFixed(1)}L${t[1].x.toFixed(1)} ${t[1].y.toFixed(1)}L${t[2].x.toFixed(1)} ${t[2].y.toFixed(1)}Z`;
+  return `<path d="${d}" fill="none" stroke="var(--mode)" stroke-width=".9"/>`+
+    pts.map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="1.9" fill="#fff" stroke="var(--mode)" stroke-width="1"/>`).join('');
+}
+document.querySelectorAll('svg.char').forEach(s=>{
+  const rot=+(s.dataset.rot||0),sel=s.dataset.sel;
+  let head=headParts(),bb='';
+  if(s.dataset.mesh)head+=meshMarkup();
+  if(s.dataset.bones){
+    head+=bone(100,150,100,70,sel==='head');
+    bb=bone(100,214,100,150,sel==='body')+bone(84,150,54,198,sel==='armL')+bone(116,150,146,198,sel==='armR');
+  }
+  s.innerHTML=bodyParts()+`<g transform="rotate(${rot} 100 150)">${head}</g>`+bb;
+});
+document.querySelectorAll('svg.mini-frog').forEach(s=>s.innerHTML=bodyParts()+headParts());
+</script>
+</body>
+</html>

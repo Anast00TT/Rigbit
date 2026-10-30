@@ -1,0 +1,250 @@
+keys,ru,en
+TAB_RIG,Риг,Rig
+TAB_ANIM,Анимация,Animate
+TAB_COMP,Композинг,Compose
+TAB_EXPORT,Экспорт,Export
+TOOL_LAYER,Слой,Layer
+TOOL_HAND,Вид,View
+TOOL_MESH,Сетка,Mesh
+EMPTY_IMPORT,Импортировать персонажа,Import character
+EMPTY_HINT,"PSD, PNG или JPG","PSD, PNG or JPG"
+EMPTY_OPEN,Открыть проект,Open project
+EMPTY_DEMO,Пример: лягушка,Sample: frog
+MENU_NEW,Новый проект,New project
+MENU_OPEN,Открыть проект,Open project
+MENU_IMPORT,Импорт картинки,Import image
+MENU_DEMO,Пример: лягушка,Sample: frog
+MENU_FIT,Вписать холст,Fit canvas
+MENU_BENCH,Тест производительности,Performance test
+MENU_ABOUT,О приложении,About
+FILTER_IMAGES,PSD и картинки,PSD and images
+TOAST_UNDO,Отменено,Undone
+TOAST_REDO,Повторено,Redone
+TOAST_NOTHING_UNDO,Нечего отменять,Nothing to undo
+TOAST_NOTHING_REDO,Нечего повторять,Nothing to redo
+TOAST_SOON,Будет в следующих фазах,Coming in later phases
+TOAST_NEW,Новый проект,New project
+TOAST_OPENED,Открыт: %s,Opened: %s
+IMPORT_WARN_DOWNSCALED,"Картинка больше 4096 px, уменьшена","Image larger than 4096 px, downscaled"
+IMPORT_ERR_READ,Не получилось открыть файл,Could not open the file
+IMPORT_ERR_BUDGET,"Не хватает памяти под текстуры, слишком много крупных слоёв","Not enough texture memory, too many large layers"
+HINT_LAYER,"Тяни слой пальцем. Двумя пальцами: двигать холст. Тап двумя: отмена.","Drag a layer. Two fingers: move the canvas. Two-finger tap: undo."
+OPEN_TITLE,Проекты,Projects
+OPEN_EMPTY,Пока нет сохранённых проектов,No saved projects yet
+PROJECT_N,Проект %d,Project %d
+BENCH_RUNNING,"Тест идёт, не трогай экран","Test running, don't touch the screen"
+BENCH_TITLE,Тест производительности,Performance test
+BENCH_RESULT,"Средний FPS: %.0f из %.0f
+1%% худших кадров: %.0f FPS
+Самый долгий кадр: %.1f мс
+CPU на сетки: %.2f мс за кадр
+%d слоёв, %d вершин
+GPU: %s","Average FPS: %.0f of %.0f
+1%% low: %.0f FPS
+Longest frame: %.1f ms
+CPU for meshes: %.2f ms per frame
+%d layers, %d vertices
+GPU: %s"
+ABOUT_TITLE,Rigbit,Rigbit
+ABOUT_TEXT,"Версия %s, фаза 0: каркас.
+Скелетная 2D-анимация на телефоне.","Version %s, phase 0: skeleton.
+Skeletal 2D animation on your phone."
+OK,Понятно,Got it
+LAYERS_TITLE,Слои,Layers
+LAYERS_TITLE_N,Слои · %d,Layers · %d
+LAYERS_EMPTY,Пока нет слоёв,No layers yet
+LAYER_GROUP,Группа,Group
+SUB_GROUP,группа · %d,group · %d
+SUB_LAYER,слой · %d точек,layer · %d points
+SHEET_TAB_LAYER,Слой,Layer
+SHEET_TAB_MESH,Сетка,Mesh
+PROP_OPACITY,Прозрачность,Opacity
+PROP_BLEND,Наложение,Blend
+PROP_DENSITY,Плотность,Density
+BLEND_NORMAL,Обычное,Normal
+BLEND_ADD,Добавление,Add
+BLEND_MULTIPLY,Умножение,Multiply
+BLEND_SCREEN,Экран,Screen
+BLEND_OVERLAY,Перекрытие,Overlay
+ACT_UP,Выше,Up
+ACT_DOWN,Ниже,Down
+ACT_DUPLICATE,Копия,Duplicate
+ACT_FLIP,Отразить,Flip
+ACT_GROUP,В группу,Group
+ACT_RESET,Сбросить,Reset
+ACT_DELETE,Удалить слой,Delete layer
+ACT_RENAME,Переименовать,Rename
+ACT_SAVE,Сохранить,Save
+ACT_CANCEL,Отмена,Cancel
+MESH_SOON,Автосетка появится в этой сборке чуть позже.,Auto mesh is coming in this build shortly.
+MESH_EDIT,Править точки,Edit points
+MESH_REBUILD,Пересобрать,Rebuild
+MESH_QUAD,4 угла,4 corners
+MESH_PICK,Выбери слой с картинкой,Pick an image layer
+MESH_NO_ADD,Точка вне фигуры,Point is outside the shape
+MESH_NO_REMOVE,Эту точку нельзя убрать,Can't remove this point
+MESH_FAIL,Не получилось построить сетку,Could not build the mesh
+PSD_IMPORTING,Импорт PSD…,Importing PSD…
+PSD_DONE,"PSD: слоёв %d","PSD: %d layers"
+PSD_ERR_READ,Не получилось прочитать PSD,Could not read the PSD
+PSD_ERR_SIGNATURE,Это не PSD-файл,This is not a PSD file
+PSD_ERR_VERSION,Версия PSD не поддержана,PSD version not supported
+PSD_ERR_MODE,Нужен цветовой режим RGB,Only RGB color mode is supported
+PSD_ERR_DEPTH,Нужно 8 бит на канал,Only 8 bits per channel are supported
+PSD_ERR_CORRUPT,Файл PSD повреждён,The PSD file is damaged
+PSD_ERR_COMPRESSION,Не получилось распаковать PSD,Could not decompress the PSD
+PSD_ERR_EMPTY,В PSD нет пикселей,The PSD has no pixels
+PSD_WARN_FLATTENED,"Слоёв нет, взята сведённая картинка","No layers, using the flattened image"
+PSD_WARN_CORRUPT,"Часть PSD повреждена, слои могут быть неполными","Part of the PSD is damaged, layers may be incomplete"
+PSD_WARN_CLIPPING,"Обтравка не поддержана, слои без неё","Clipping is not supported, layers imported without it"
+PSD_WARN_ADJUSTMENT,Корректирующий слой пропущен: %s,Adjustment layer skipped: %s
+PSD_WARN_BLEND,"Режим «%s» не поддержан, стал обычным","Blend mode %s is not supported, set to normal"
+PSD_WARN_NO_PIXELS,Слой без пикселей пропущен: %s,Layer without pixels skipped: %s
+PSD_WARN_CORRUPT_LAYER,Слой повреждён и пропущен: %s,Damaged layer skipped: %s
+PSD_WARN_COMPRESSION,Сжатие слоя не поддержано: %s,Layer compression is not supported: %s
+MESH_HINT,"Тап внутри: добавить точку. Тяни точку: сдвинуть. Долгий тап по точке: удалить.","Tap inside: add a point. Drag a point: move. Long-press a point: delete."
+SET_TITLE,Настройки,Settings
+SETTINGS_TITLE,Настройки,Settings
+SET_LANGUAGE,Язык,Language
+SET_THEME,Тема,Theme
+SET_HINTS,Показывать подсказки,Show hints
+SET_VIBRATION,Вибрация,Vibration
+SET_RESET_HINTS,Показать подсказки заново,Show hints again
+LANG_RU,Русский,Русский
+LANG_EN,English,English
+THEME_DARK,Тёмная,Dark
+THEME_LIGHT,Светлая,Light
+THEME_SYSTEM,Как в системе,System
+MENU_SETTINGS,Настройки,Settings
+MENU_LAYER,Настройки слоя,Layer settings
+COPY_SUFFIX,%s копия,%s copy
+GROUP_NAME,Группа,Group
+HINT_TRANSFORM,"Тяни слой, чтобы двигать. Углы: масштаб. Кружок сверху: поворот. Шестерёнка: настройки слоя.","Drag to move. Corners: scale. Top circle: rotate. Gear: layer settings."
+LAYERS_IMPORT,Импорт,Import
+TOOL_BONE,Кости,Bones
+TOOL_POSE,Поза,Pose
+TOOL_WEIGHTS,Веса,Weights
+BONE_N,Кость %d,Bone %d
+BONE_RESET_POSE,Сбросить позу,Reset pose
+BONE_DETACH,Отцепить от родителя,Detach from parent
+BONE_DELETE,Удалить кость,Delete bone
+SHEET_TAB_BIND,Кости,Bones
+BIND_NONE,Слой не привязан к костям.,Layer is not bound to bones.
+BIND_TO,Привязан к: %s,Bound to: %s
+BIND_RIGID,К кости,To bone
+BIND_AUTO,Автовеса,Auto weights
+BIND_PAINT,Кисть весов,Weight brush
+BIND_UNBIND,Отвязать,Unbind
+BIND_HINT,"«К кости»: весь слой на выделенную кость. «Автовеса»: по расстоянию до костей, потом можно поправить кистью.","«To bone»: the whole layer follows the selected bone. «Auto weights»: by distance to bones, refine with the brush."
+BIND_PICK_BONE,"Сначала выдели кость: инструмент «Кости», тап по кости","Select a bone first: Bones tool, tap a bone"
+BIND_NO_BONES,"Сначала нарисуй кости","Draw some bones first"
+HINT_BONE,"Тяни по пустому месту: новая кость. Она станет дочерней для выделенной. Тяни кончик: длина и угол.","Drag on empty space: new bone, child of the selected one. Drag the tip: length and angle."
+HINT_POSE,"Тяни кость: поворот. Тяни кончик: IK цепочки за пальцем. Корневую тяни за начало.","Drag a bone to rotate. Drag a tip: IK pulls the chain. Drag a root by its base to move."
+HINT_WEIGHTS,"Выдели кость тапом и води по слою: красный = кость тянет сильно, синий = не тянет.","Tap a bone, then brush over the layer: red = strong pull, blue = none."
+TL_ROT,Поворот,Rotation
+TL_OFFSET,Сдвиг,Offset
+TL_SCALE,Масштаб,Scale
+TL_POS,Позиция,Position
+TL_OPACITY,Прозрачность,Opacity
+TL_VISIBLE,Видимость,Visibility
+TL_FILTER_ON,только выделенное,selected only
+TL_FILTER_OFF,все объекты,all objects
+TL_EMPTY_OBJ,Двигай объект: ключ появится сам,Move the object to add a key
+TL_EMPTY_ALL,Выдели кость или слой и двигай его. Тут появятся ключи.,Select a bone or layer and move it. Keys will show up here.
+TL_ALL_KEYS,Все ключи,All keys
+TL_DELETE,Удалить ключи,Delete keys
+TL_COPY,Копировать,Copy
+TL_PASTE,Вставить на плейхед,Paste at playhead
+TL_INTERP,Интерполяция,Interpolation
+TL_CLEAR,Снять выделение,Clear selection
+TL_DELETED,Удалено ключей: %d,Keys deleted: %d
+TL_COPIED,Скопировано ключей: %d,Keys copied: %d
+TL_PASTED,Вставлено ключей: %d,Keys pasted: %d
+TL_TIMING_TITLE,Длительность,Timing
+TL_FRAMES,Кадров,Frames
+TL_FPS,Кадров/с,Frames/s
+INTERP_LINEAR,Линейная,Linear
+INTERP_SMOOTH,Плавная,Smooth
+INTERP_EASE_IN,Разгон,Ease in
+INTERP_EASE_OUT,Торможение,Ease out
+INTERP_STEP,Ступенька,Step
+INTERP_BOUNCE,Отскок,Bounce
+TOOL_PINS,Пины,Pins
+HINT_PINS,"Тап по слою: поставить пин. Тяни пин: двигать (в Анимации это ключ). Долгий тап по пину: привязать к кости или удалить.","Tap the layer: add a pin. Drag a pin to move it (a key in Animate). Long-press a pin: bind to a bone or delete."
+PIN_MESH_BUILT,Построил сетку: пинам нужны точки,Built a mesh: pins need points
+PIN_BIND,Привязать к кости,Bind to bone
+PIN_UNBIND,Отвязать от кости,Unbind from bone
+PIN_DELETE,Удалить пин,Delete pin
+PIN_NOT_BOUND,Пин и так свободный,The pin is already free
+PIN_TAP_LAYER,Тапни по слою с картинкой,Tap an image layer
+PIN_EXISTS,На этой точке уже есть пин,There is already a pin here
+LBL_MIN,Мин,Min
+LBL_MAX,Макс,Max
+BONE_CONSTRAINTS,Ограничения…,Constraints…
+CON_TITLE,Ограничения,Constraints
+CON_LIMIT,Предел угла,Angle limit
+CON_INDEP,Независимый угол,Independent angle
+CON_COPY,Взять у кости,Copy from bone
+CON_NONE,Нет,None
+CON_LOOK,Смотреть на кость,Look at bone
+CON_DYN,Динамика,Dynamics
+CON_SPRING,Жёсткость,Stiffness
+CON_DAMP,Затухание,Damping
+CON_WEIGHT,Вес,Weight
+CON_PICK,Выбрать кость,Pick a bone
+CON_NO_BONES,Других костей нет,No other bones
+CON_HINT,Ограничения видно в режиме Анимация.,Constraints show in Animate mode.
+PARAMS_TITLE,Параметры,Parameters
+PARAMS_EMPTY,"Параметры двигают форму: моргание, улыбка, поворот головы. Нажми +, чтобы создать.","Parameters drive a shape: blink, smile, head turn. Tap + to create one."
+PARAMS_HINT_ANIM,Ключ ставится на текущем кадре,A key is added at the current frame
+PARAMS_HINT_RIG,Предпросмотр без записи,Preview only: nothing is recorded
+PARAM_NEW,Новый параметр,New parameter
+PARAM_N,Параметр %d,Parameter %d
+PARAM_RANGE,Диапазон,Range
+PARAM_FORM,Ключевая форма…,Key shape…
+PARAM_DRIVE,Управлять другим…,Drive another…
+PARAM_DELETE,Удалить параметр,Delete parameter
+PARAM_MIN,Минимум,Minimum
+PARAM_MAX,Максимум,Maximum
+PARAM_DEFAULT,По умолчанию,Default
+PARAM_DRIVEN,управляется другим,driven by another
+PARAM_CYCLE,Так нельзя: получится цикл,Not allowed: it would make a loop
+PARAM_NO_OTHERS,Нужен ещё один параметр,Needs another parameter
+PARAM_DRIVE_TITLE,Управлять параметром,Drive a parameter
+PARAM_DRIVE_PICK,Какой параметр двигать?,Which parameter to move?
+PARAM_DRIVE_K,Множитель,Multiplier
+PARAM_DRIVE_STOP,Не управлять,Stop driving
+PARAM_RANGE_BAD,Минимум должен быть меньше максимума,Minimum must be below maximum
+FORM_TITLE,Ключевая форма,Key shape
+FORM_PICK,Выбери значение ползунка для формы,Pick the slider value for the shape
+FORM_VALUE,Значение,Value
+FORM_EDIT,Править,Edit
+FORM_CLEAR,Сбросить форму,Clear shape
+FORM_EXISTS,В этой точке форма уже есть,A shape already exists here
+FORM_BANNER,Форма «%s» = %s: двигай кости и точки сетки,Shape «%s» = %s: move bones and mesh points
+FORM_DONE,Готово,Done
+FORM_RESET,Сброс,Reset
+FORM_SAVED,Форма записана,Shape saved
+FORM_CLEARED,Форма сброшена,Shape cleared
+FORM_UNDO_BLOCK,Сначала нажми «Готово»,Tap Done first
+FX_TITLE,Эффекты,Effects
+FX_EDGE,Край,Edge
+FX_INSIDE,Внутри,Inside
+FX_OUTSIDE,Снаружи,Outside
+FX_ANGLE,Угол света,Light angle
+FX_ANGLE_HINT,Тяни стрелку на холсте,Drag the arrow on the canvas
+FX_DIST,Дистанция,Distance
+FX_BLUR,Размытие,Blur
+FX_HARD,Жёсткость,Hardness
+FX_COLOR,Цвет,Color
+FX_GRAD,Градиентный свет,Gradient light
+FX_COLOR_A,Цвет 1,Color 1
+FX_COLOR_B,Цвет 2,Color 2
+FX_ANGLE_G,Угол,Angle
+FX_AMOUNT,Сила,Strength
+FX_CC,Цветокор,Color grade
+FX_HUE,Тон,Hue
+FX_SAT,Насыщенность,Saturation
+FX_BRIGHT,Яркость,Brightness
+FX_CONTRAST,Контраст,Contrast
+HINT_FX,Выбери слой и включи эффект. Стрелку света тяни на холсте.,Pick a layer and turn an effect on. Drag the light arrow on the canvas.

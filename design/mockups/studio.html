@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rigbit Студия</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0c0c0d;color:#eee;font-family:Roboto,system-ui,sans-serif}
+header{max-width:1240px;margin:0 auto;padding:32px 16px 0}
+header h1{margin:0 0 6px;font-size:26px;font-weight:700}
+header p{margin:0 0 8px;color:#a3a3ad;font-size:14px;line-height:1.55;max-width:780px}
+.grid{display:flex;flex-wrap:wrap;gap:44px 36px;justify-content:center;padding:28px 16px 64px;max-width:1300px;margin:0 auto}
+.cell{width:376px}
+.cap{margin-top:14px}
+.cap h3{margin:0 0 6px;font-size:16px;font-weight:500}
+.cap h3 em{font-style:normal;color:#77777f;margin-right:6px}
+.cap ul{margin:0;padding-left:18px;color:#9a9aa3;font-size:13px;line-height:1.55}
+
+/* ---------- тема ---------- */
+.phone{--bg:#161616;--p1:#262626;--p2:#2E2E2E;--p3:#3A3A3A;--ln:#111;--tx:#E8E8E8;--tx2:#9E9E9E;--tx3:#666;--acc:#3D8BFD;
+  --rig:#E9A23B;--anim:#E5484D;--comp:#8E7CC3;--exp:#46A758;--canvas:#F2F0EA;--mode:var(--rig);
+  position:relative;width:376px;height:776px;border-radius:44px;border:8px solid #000;overflow:hidden;background:var(--bg);color:var(--tx);
+  box-shadow:0 0 0 1px #2a2a30,0 30px 60px rgba(0,0,0,.5)}
+.phone.anim{--mode:var(--anim)}
+[data-i]>svg{stroke-width:1.6}
+.ib{width:44px;height:48px;border-radius:8px;display:grid;place-items:center;flex:none;color:inherit}
+.ib svg{width:22px;height:22px}
+.ib.off{color:var(--tx3)}
+.ib.act{background:var(--p3);background-clip:content-box;padding:4px 2px;color:var(--mode)}
+.ib.on{color:var(--mode)}
+
+/* статус-бар + фронталка */
+.status{position:absolute;top:0;left:0;right:0;height:32px;background:var(--p1);display:flex;align-items:center;justify-content:space-between;padding:0 22px 0 26px;font-size:12.5px;font-weight:500}
+.status .sys{display:flex;gap:6px;align-items:center}
+.status .sys svg{width:15px;height:15px}
+.cam{position:absolute;left:50%;top:7px;width:19px;height:19px;border-radius:50%;background:#000;transform:translateX(-50%);box-shadow:0 0 0 1.5px #0a0a0a}
+/* safe zone, только для мокапа */
+.safe .cam::after{content:"";position:absolute;inset:-7px;border-radius:50%;border:1px dashed rgba(255,90,90,.6)}
+
+.bar{position:absolute;top:32px;left:0;right:0;height:52px;background:var(--p1);display:flex;align-items:center;padding:0 4px}
+.sep{width:1px;height:24px;background:var(--p3);margin:0 4px;flex:none}
+.tabs{position:absolute;top:84px;left:0;right:0;height:48px;background:var(--p1);border-bottom:1px solid var(--ln);padding:4px 8px 8px}
+.seg{display:flex;height:36px;background:#1C1C1C;border-radius:8px;padding:3px}
+.seg span{flex:1 1 auto;padding:0 8px;display:flex;align-items:center;justify-content:center;gap:7px;font-size:13.5px;color:var(--tx2);font-weight:500;border-radius:6px;white-space:nowrap}
+.seg span.on{background:var(--p3);color:var(--tx)}
+.seg span.on::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--mode);flex:none}
+
+.vp{position:absolute;top:136px;left:4px;right:62px;bottom:24px;overflow:hidden;background:#1E1E1E;border-radius:6px;box-shadow:inset 0 0 0 2px var(--mode)}
+.vp.full{right:4px}
+.stage{position:absolute;left:50%;top:50%;width:250px;height:330px;transform:translate(-50%,-50%);background:var(--canvas);box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.stage svg.char{position:absolute;left:22px;top:66px;width:206px;height:247px;overflow:visible}
+
+.rail{position:absolute;top:136px;right:4px;width:54px;bottom:24px;background:var(--p1);border-radius:6px;display:flex;flex-direction:column;padding:4px;gap:8px}
+.tool{height:54px;flex:none;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:9.5px;color:var(--tx2);white-space:nowrap}
+.tool svg{width:22px;height:22px}
+.tool.on{background:var(--p3);color:var(--tx)}
+.tool.on svg{color:var(--mode)}
+
+.nav{position:absolute;left:0;right:0;bottom:0;height:20px;background:var(--p1);display:grid;place-items:center}
+.nav::after{content:"";width:108px;height:4px;border-radius:2px;background:#777}
+
+.panel{position:absolute;left:0;right:0;bottom:20px;background:var(--p1);border-top:1px solid var(--ln)}
+.ph{display:flex;align-items:center;gap:10px;height:52px;padding:0 4px 0 12px;border-bottom:1px solid var(--ln);flex:none}
+.thumb{width:34px;height:34px;border-radius:5px;background:var(--canvas);display:grid;place-items:center;overflow:hidden;flex:none}
+.thumb svg{width:30px;height:30px}
+.ph .nm{flex:1;min-width:0;font-size:15px;font-weight:500;white-space:nowrap}
+.ph .nm small{color:var(--tx3);font-size:12px;margin-left:6px;font-weight:400}
+.pseg{display:flex;margin:12px 12px 6px;background:#1C1C1C;border-radius:8px;padding:3px;flex:none}
+.pseg span{flex:1;height:36px;display:grid;place-items:center;font-size:13px;color:var(--tx2);border-radius:6px;white-space:nowrap}
+.pseg span.on{background:var(--p3);color:var(--tx)}
+.row{display:grid;grid-template-columns:112px 1fr 52px;align-items:center;gap:12px;height:48px;padding:0 12px;font-size:13.5px;color:var(--tx2);white-space:nowrap}
+.track{position:relative;height:4px;background:var(--p3);border-radius:2px}
+.track i{position:absolute;left:0;top:0;bottom:0;background:var(--acc);border-radius:2px}
+.track b{position:absolute;top:50%;width:20px;height:20px;border-radius:50%;background:#E8E8E8;transform:translate(-50%,-50%);box-shadow:0 1px 3px rgba(0,0,0,.6)}
+.row output{height:32px;border-radius:5px;background:#1C1C1C;display:grid;place-items:center;font-size:13px;color:var(--tx);font-variant-numeric:tabular-nums;white-space:nowrap}
+.btns{display:flex;gap:8px;padding:8px 12px 12px}
+.btns span{flex:1;height:44px;border-radius:8px;background:var(--p3);display:flex;align-items:center;justify-content:center;gap:8px;font-size:13.5px;white-space:nowrap}
+.btns span svg{width:20px;height:20px}
+.btns span.pr{background:var(--acc);color:#fff}
+
+/* подсказка с крестиком */
+.tip{position:absolute;left:12px;right:12px;bottom:12px;background:rgba(20,20,20,.94);border:1px solid #333;border-radius:8px;padding:4px 4px 4px 12px;font-size:12.5px;line-height:1.45;color:var(--tx2);display:flex;gap:10px;align-items:flex-start}
+.tip>svg{width:18px;height:18px;color:var(--mode);flex:none;margin-top:10px}
+.tip>span:not(.ib){flex:1;min-width:0;padding:8px 0}
+.tip b{color:var(--tx);font-weight:500}
+.tip .ib{width:44px;height:44px;color:var(--tx2)}
+.tip .ib svg{width:18px;height:18px}
+.selname{position:absolute;left:12px;top:12px;height:28px;padding:0 10px;border-radius:6px;background:rgba(20,20,20,.9);font-size:12px;display:flex;align-items:center;gap:6px;color:var(--tx2);white-space:nowrap}
+.selname b{color:var(--tx);font-weight:500}
+.selname i{width:7px;height:7px;border-radius:50%;background:var(--mode)}
+
+/* таймлайн */
+.tl{position:absolute;left:0;right:0;bottom:20px;height:270px;background:var(--p1);border-top:1px solid var(--ln)}
+.tr{display:flex;align-items:center;height:48px;padding:0 4px;border-bottom:1px solid var(--ln)}
+.fr{margin:0 8px;height:30px;padding:0 10px;border-radius:5px;background:#1C1C1C;display:flex;align-items:center;font-size:13px;font-variant-numeric:tabular-nums;color:var(--tx2);white-space:nowrap;flex:none}
+.fr b{color:var(--tx);font-weight:500;margin-right:3px}
+.rec{display:flex;align-items:center;gap:6px;height:30px;padding:0 9px;border-radius:5px;background:rgba(229,72,77,.15);color:#FF8A8D;font-size:12px;font-weight:500;white-space:nowrap;flex:none;margin-right:8px}
+.rec i{width:8px;height:8px;border-radius:50%;background:var(--anim)}
+.tg{position:relative;display:grid;grid-template-columns:96px 1fr}
+.tg .l{height:32px;display:flex;align-items:center;padding-left:12px;font-size:12.5px;color:var(--tx2);border-bottom:1px solid var(--ln);border-right:1px solid var(--ln);white-space:nowrap}
+.tg .t{height:32px;position:relative;border-bottom:1px solid var(--ln);overflow:visible;
+  background:linear-gradient(90deg,rgba(255,255,255,.09) 1px,transparent 1px) 0 0/calc(100%/6) 100%,linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px) 0 0/calc(100%/36) 100%,#1E1E1E}
+.tg .l.h{color:var(--tx);font-weight:500;background:#2B2B2B;padding-left:8px;justify-content:space-between;padding-right:6px}
+.tg .t.h{background:#2B2B2B}
+.flt{position:absolute;right:8px;top:50%;transform:translateY(-50%);height:24px;padding:0 8px;border-radius:4px;background:#3A3A3A;font-size:11px;color:var(--tx);display:flex;align-items:center;white-space:nowrap}
+.tg .l.r,.tg .t.r{height:24px;background:var(--p1)}
+.tg .t.r span{position:absolute;top:6px;font-size:10.5px;color:var(--tx3);transform:translateX(-50%)}
+.tg .t.r span:first-child{transform:none;margin-left:4px}
+.key{position:absolute;top:50%;width:10px;height:10px;border-radius:50%;background:#BDBDBD;transform:translate(-50%,-50%)}
+.key.sel{background:var(--anim);box-shadow:0 0 0 2px #fff}
+.key.step{border-radius:1px;background:var(--comp)}
+.phl{position:absolute;top:0;bottom:0;width:1px;background:var(--anim);left:calc(96px + (100% - 96px) * .3333);pointer-events:none}
+.phl::before{content:"12";position:absolute;top:3px;left:50%;transform:translateX(-50%);background:var(--anim);color:#fff;font-size:10px;line-height:1;padding:3px 4px;border-radius:3px}
+
+/* пустой проект: всё внутри пунктирной рамки холста */
+.frame-ghost{position:absolute;left:50%;top:50%;width:250px;height:330px;transform:translate(-50%,-50%);border:1.5px dashed #444;border-radius:2px;display:flex;align-items:center;justify-content:center;padding:16px}
+.size{position:absolute;left:50%;top:calc(50% - 189px);transform:translateX(-50%);font-size:11.5px;line-height:16px;color:var(--tx3);white-space:nowrap}
+.cta{width:100%;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.cta .badge{width:72px;height:72px;border-radius:14px;background:#252525;display:grid;place-items:center;margin-bottom:4px;flex:none}
+.cta .badge svg{width:56px;height:56px}
+.cta .pr{height:48px;width:100%;padding:0 8px;border-radius:8px;background:var(--acc);color:#fff;font-weight:500;font-size:13.5px;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.cta .pr svg{width:18px;height:18px;flex:none}
+.cta small{color:var(--tx3);font-size:12px;white-space:nowrap}
+.cta .sec{height:44px;width:100%;padding:0 8px;border-radius:8px;background:#2B2B2B;color:var(--tx);font-size:14px;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.cta .sec svg{width:18px;height:18px;flex:none}
+
+/* слои */
+.lp{background:var(--p1);display:flex;flex-direction:column;overflow:hidden}
+.lp.cover{position:absolute;top:136px;left:4px;right:62px;bottom:24px;border-radius:6px}
+.lp.pinned{position:absolute;top:84px;left:0;width:280px;bottom:20px;border-right:1px solid var(--ln)}
+.dh{display:flex;align-items:center;gap:8px;height:48px;padding:0 4px 0 12px;border-bottom:1px solid var(--ln);font-size:15px;font-weight:500;flex:none}
+.dh .t{flex:1;white-space:nowrap}
+.dh .t small{color:var(--tx3);font-size:12px;font-weight:400;margin-left:6px}
+.list{flex:1;overflow:hidden}
+.node{position:relative;height:52px;display:flex;align-items:center;gap:10px;padding-right:4px;border-bottom:1px solid #202020}
+.node.opt{height:44px}
+.node.sel{background:#33302A}
+.node.sel::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--mode)}
+.node .thumb{width:32px;height:32px}
+.node .nm{flex:1;min-width:0;font-size:14px;line-height:18px;white-space:nowrap}
+.node .nm small{display:block;color:var(--tx3);font-size:11.5px;line-height:15px;margin-top:1px}
+.node.opt .nm{font-size:13.5px}
+.node .ib{width:44px;height:44px;color:var(--tx3)}
+.node .ib svg{width:19px;height:19px}
+.bi{width:32px;height:32px;border-radius:5px;background:#1C1C1C;display:grid;place-items:center;color:var(--rig);flex:none}
+.bi svg{width:19px;height:19px}
+.swb{font-size:10.5px;color:var(--comp);background:rgba(142,124,195,.16);padding:3px 7px;border-radius:4px;font-weight:500;margin-right:8px;white-space:nowrap;flex:none}
+.radio{width:16px;height:16px;border-radius:50%;border:2px solid var(--tx3);flex:none}
+.radio.on{border-color:var(--comp);background:radial-gradient(var(--comp) 42%,transparent 48%)}
+.df{display:flex;gap:8px;padding:8px;border-top:1px solid var(--ln);flex:none}
+.df span{flex:1;height:44px;border-radius:8px;background:var(--p3);display:flex;align-items:center;justify-content:center;gap:7px;font-size:13.5px;white-space:nowrap}
+.df span svg{width:18px;height:18px}
+
+/* настройки */
+.sh{position:absolute;top:32px;left:0;right:0;height:56px;background:var(--p1);border-bottom:1px solid var(--ln);display:flex;align-items:center;gap:8px;padding:0 4px}
+.sh .ttl{font-size:18px;font-weight:500;white-space:nowrap}
+.slist{position:absolute;top:88px;left:0;right:0;bottom:20px;background:var(--p1);overflow:hidden}
+.sgh{height:40px;display:flex;align-items:flex-end;padding:0 16px 8px;font-size:12.5px;font-weight:500;color:var(--tx3);white-space:nowrap}
+.srow{display:flex;align-items:center;gap:16px;height:56px;padding:0 16px;border-bottom:1px solid #202020}
+.srow.two{height:64px}
+.srow.nob{border-bottom:0;height:52px}
+.srow>svg{width:22px;height:22px;color:var(--tx2);flex:none}
+.srow .st{flex:1;min-width:0;font-size:15px;color:var(--tx);white-space:nowrap}
+.srow .st small{display:block;font-size:12.5px;color:var(--tx3);margin-top:3px}
+.srow .sv{font-size:14px;color:var(--tx2);white-space:nowrap}
+.srow .chev{width:24px;height:24px;display:grid;place-items:center;color:var(--tx3);flex:none;margin-left:-8px}
+.srow .chev svg{width:20px;height:20px}
+.sseg{display:flex;margin:0 16px 16px;height:44px;background:#1C1C1C;border-radius:8px;padding:3px}
+.sseg span{flex:1 1 auto;padding:0 12px;display:grid;place-items:center;font-size:13px;color:var(--tx2);border-radius:6px;white-space:nowrap}
+.sseg span.on{background:var(--p3);color:var(--tx);font-weight:500}
+.sblock{border-bottom:1px solid #202020}
+.sw{position:relative;width:52px;height:32px;border-radius:16px;background:#1C1C1C;border:2px solid var(--tx3);flex:none}
+.sw::after{content:"";position:absolute;left:6px;top:6px;width:16px;height:16px;border-radius:50%;background:var(--tx3)}
+.sw.on{background:var(--acc);border-color:var(--acc)}
+.sw.on::after{left:auto;right:2px;top:2px;width:24px;height:24px;background:#fff}
+
+/* ---------- ландшафт ---------- */
+.land-h{max-width:1240px;margin:0 auto;padding:16px 16px 0;border-top:1px solid #222}
+.land-h h2{margin:24px 0 6px;font-size:22px;font-weight:700}
+.land-h p{margin:0;color:#a3a3ad;font-size:14px;line-height:1.55;max-width:780px}
+.lgrid{display:flex;flex-direction:column;align-items:flex-start;gap:56px;padding:32px 16px 80px}
+.lcell{width:776px;margin:0 auto;flex:none}
+.lcell.wide{width:900px}
+
+/* телефон в ландшафте: inner 760x360 */
+.phone.ls{width:776px;height:376px}
+.ls .cam{left:7px;top:50%;transform:translateY(-50%)}
+.lbar{position:absolute;top:0;left:0;right:0;height:48px;background:var(--p1);border-bottom:1px solid var(--ln);display:flex;align-items:center;padding:0 8px 0 40px}
+.lbar .ib{height:44px}
+.lbar .seg{flex:1;margin:0 12px}
+.ls .vp{top:52px;left:40px;right:66px;bottom:172px}
+.ls .rail{top:52px;right:8px;bottom:20px}
+.ls .tool{height:48px}
+.ltl{position:absolute;left:40px;right:66px;bottom:20px;height:148px;background:var(--p1);border-radius:6px;overflow:hidden}
+.ltl .tr{height:44px}
+.ltl .tr .ib{height:44px}
+.ltl .tg .l,.ltl .tg .t{height:28px}
+.ltl .tg .l.r,.ltl .tg .t.r{height:20px}
+.ltl .tg .t.r span{top:4px}
+.ltl .phl::before{top:3px}
+.lnav{position:absolute;left:0;right:0;bottom:0;height:16px;display:grid;place-items:center}
+.lnav::after{content:"";width:108px;height:4px;border-radius:2px;background:#777}
+
+/* планшет в ландшафте: inner 1024x640, на странице в масштабе */
+.tabwrap{position:relative;width:900px;height:571px}
+.phone.tab{position:absolute;left:0;top:0;width:1048px;height:664px;border-width:12px;border-radius:32px;transform:scale(.8588);transform-origin:0 0}
+.tab .status{padding:0 24px}
+.tab .bar{display:grid;grid-template-columns:1fr auto 1fr;padding:0 8px;border-bottom:1px solid var(--ln)}
+.tab .grp{display:flex;align-items:center;gap:8px}
+.tab .grp.r{justify-content:flex-end}
+.tab .bar .seg{width:440px}
+.tab .vp{top:88px;left:284px;right:350px;bottom:24px}
+.tab .rail{top:88px;right:292px;bottom:24px}
+.tab .nav{height:20px}
+.tab .node{height:48px}
+.tab .node.opt{height:44px}
+.sp{position:absolute;top:84px;right:0;width:288px;bottom:20px;background:var(--p1);border-left:1px solid var(--ln);display:flex;flex-direction:column}
+.sp .ph .nm small{display:block;margin:2px 0 0}
+.vrow{padding:4px 12px 0}
+.vrow .vl{display:flex;align-items:center;justify-content:space-between;gap:8px;height:40px;font-size:13.5px;color:var(--tx2);white-space:nowrap}
+.vrow output{height:32px;min-width:56px;padding:0 8px;border-radius:5px;background:#1C1C1C;display:grid;place-items:center;font-size:13px;color:var(--tx);font-variant-numeric:tabular-nums;white-space:nowrap}
+.vrow .track{margin:14px 10px 18px}
+.sp .srow{padding:0 12px;border-top:1px solid #202020;border-bottom:0;margin-top:4px}
+.sp .srow .st{font-size:14px}
+.vbtns{margin-top:auto;display:flex;flex-direction:column;gap:8px;padding:12px;border-top:1px solid var(--ln)}
+.vbtns span{height:44px;border-radius:8px;background:var(--p3);display:flex;align-items:center;justify-content:center;gap:8px;font-size:13.5px;white-space:nowrap}
+.vbtns span svg{width:20px;height:20px}
+.vbtns span.pr{background:var(--acc);color:#fff}
+</style>
+</head>
+<body>
+<header>
+  <h1>Rigbit · Студия, чистовой мокап</h1>
+  <p>Сверху статус-бар Android с фронтальной камерой посередине: в этой полосе приложение ничего не рисует, тулбар начинается ниже. Режимы сегментами, активный отмечен плашкой и цветной точкой, вьюпорт отделён отступом. Снизу место под жестовую навигацию. Красный пунктир вокруг камеры показывает запретную зону, в приложении его нет.</p>
+  <p>Что нового: пустой проект целиком внутри рамки холста, панель слоёв закрывает вьюпорт полностью и без затемнения, подсказки закрываются крестиком и выключаются в Настройках (новый экран 6, кнопка ⋯). Внизу раздел «Ландшафт»: телефон в режиме Анимации и планшет в режиме Рига с пристёгнутыми панелями.</p>
+</header>
+
+<div class="grid">
+
+<!-- 1 пустой -->
+<div class="cell">
+  <div class="phone safe">
+    <div class="status"><span>12:30</span><span class="sys" data-i="wifi"><span data-i="batt"></span></span></div><div class="cam"></div>
+    <div class="bar">
+      <span class="ib" data-i="folder"></span><span class="ib off" data-i="undo"></span><span class="ib off" data-i="redo"></span>
+      <span class="sep"></span><span class="ib off" data-i="layers"></span><span class="ib off" data-i="sliders"></span>
+      <span style="flex:1"></span><span class="ib off" data-i="play"></span><span class="ib" data-i="more"></span>
+    </div>
+    <div class="tabs"><div class="seg"><span class="on">Риг</span><span>Анимация</span><span>Композинг</span><span>Экспорт</span></div></div>
+    <div class="vp full">
+      <div class="size">1080 × 1920 · 24 fps</div>
+      <div class="frame-ghost">
+        <div class="cta">
+          <div class="badge"><svg viewBox="0 0 200 240" class="mini-frog"></svg></div>
+          <div class="pr" data-i="import">Импортировать персонажа</div>
+          <small>PSD со слоями, PNG или JPG</small>
+          <div class="sec" data-i="folder">Открыть проект</div>
+        </div>
+      </div>
+    </div>
+    <div class="nav"></div>
+  </div>
+  <div class="cap"><h3><em>1</em>Пустой проект</h3><ul>
+    <li>Пока нет слоёв, панели инструментов нет, вьюпорт на всю ширину.</li>
+    <li>Кнопки и подпись целиком внутри пунктирной рамки холста, отступ от рамки 16px.</li>
+    <li>Неактивные кнопки серые, но на месте: раскладка не прыгает после импорта.</li></ul></div>
+</div>
+
+<!-- 2 риг кости -->
+<div class="cell">
+  <div class="phone">
+    <div class="status"><span>12:30</span><span class="sys" data-i="wifi"><span data-i="batt"></span></span></div><div class="cam"></div>
+    <div class="bar">
+      <span class="ib" data-i="folder"></span><span class="ib" data-i="undo"></span><span class="ib" data-i="redo"></span>
+      <span class="sep"></span><span class="ib" data-i="layers"></span><span class="ib" data-i="sliders"></span>
+      <span style="flex:1"></span><span class="ib" data-i="play"></span><span class="ib" data-i="more"></span>
+    </div>
+    <div class="tabs"><div class="seg"><span class="on">Риг</span><span>Анимация</span><span>Композинг</span><span>Экспорт</span></div></div>
+    <div class="vp">
+      <div class="stage" style="transform:translate(-50%,-56%) scale(.9)"><svg class="char" viewBox="0 0 200 240" data-bones="1" data-sel="armR"></svg></div>
+      <div class="selname"><i></i>Кость: <b>Рука R</b></div>
+      <div class="tip" data-i="bone"><span>Тяни пальцем, чтобы нарисовать кость. <b>Новая станет дочерней</b> для выделенной.</span><span class="ib" data-i="x"></span></div>
+    </div>
+    <div class="rail">
+      <div class="tool on" data-i="bone">Кости</div>
+      <div class="tool" data-i="mesh">Сетка</div>
+      <div class="tool" data-i="brush">Веса</div>
+      <div class="tool" data-i="pin">Пины</div>
+      <div class="tool" data-i="move">Слой</div>
+    </div>
+    <div class="nav"></div>
+  </div>
+  <div class="cap"><h3><em>2</em>Риг · кости</h3><ul>
+    <li>Инструменты прибиты справа, активный: плашка и иконка цвета режима.</li>
+    <li>Слева сверху во вьюпорте имя выделенного.</li>
+    <li>Подсказку закрывает ✕ справа (зона 44px). Выключить все подсказки разом можно в Настройках, экран 6.</li></ul></div>
+</div>
+
+<!-- 3 риг сетка -->
+<div class="cell">
+  <div class="phone">
+    <div class="status"><span>12:30</span><span class="sys" data-i="wifi"><span data-i="batt"></span></span></div><div class="cam"></div>
+    <div class="bar">
+      <span class="ib" data-i="folder"></span><span class="ib" data-i="undo"></span><span class="ib" data-i="redo"></span>
+      <span class="sep"></span><span class="ib" data-i="layers"></span><span class="ib" data-i="sliders"></span>
+      <span style="flex:1"></span><span class="ib" data-i="play"></span><span class="ib" data-i="more"></span>
+    </div>
+    <div class="tabs"><div class="seg"><span class="on">Риг</span><span>Анимация</span><span>Композинг</span><span>Экспорт</span></div></div>
+    <div class="vp" style="bottom:322px">
+      <div class="stage" style="transform:translate(-50%,-50%) scale(.66)"><svg class="char" viewBox="0 0 200 240" data-mesh="1"></svg></div>
+    </div>
+    <div class="rail" style="bottom:322px">
+      <div class="tool" data-i="bone">Кости</div>
+      <div class="tool on" data-i="mesh">Сетка</div>
+      <div class="tool" data-i="brush">Веса</div>
+      <div class="tool" data-i="pin">Пины</div>
+    </div>
+    <div class="panel" style="height:298px">
+      <div class="ph"><div class="thumb"><svg viewBox="0 0 200 240" class="mini-frog"></svg></div><div class="nm">Голова<small>слой · 214 точек</small></div><span class="ib" data-i="x"></span></div>
+      <div class="pseg"><span class="on">Сетка</span><span>Привязка</span><span>Вид</span></div>
+      <div class="row">Плотность<div class="track"><i style="width:50%"></i><b style="left:50%"></b></div><output>50</output></div>
+      <div class="row">Отступ от края<div class="track"><i style="width:20%"></i><b style="left:20%"></b></div><output>4 px</output></div>
+      <div class="btns"><span data-i="mesh">Править точки</span><span class="pr" data-i="refresh">Пересобрать</span></div>
+    </div>
+    <div class="nav"></div>
+  </div>
+  <div class="cap"><h3><em>3</em>Риг · настройки слоя</h3><ul>
+    <li>Панель снизу, вкладки Сетка / Привязка / Вид вместо длинного списка.</li>
+    <li>Число справа от ползунка: тап по нему открывает точный ввод.</li></ul></div>
+</div>
+
+<!-- 4 анимация -->
+<div class="cell">
+  <div class="phone anim">
+    <div class="status"><span>12:30</span><span class="sys" data-i="wifi"><span data-i="batt"></span></span></div><div class="cam"></div>
+    <div class="bar">
+      <span class="ib" data-i="folder"></span><span class="ib" data-i="undo"></span><span class="ib" data-i="redo"></span>
+      <span class="sep"></span><span class="ib" data-i="layers"></span><span class="ib" data-i="sliders"></span>
+      <span style="flex:1"></span><span class="ib" data-i="play"></span><span class="ib" data-i="more"></span>
+    </div>
+    <div class="tabs"><div class="seg"><span>Риг</span><span class="on">Анимация</span><span>Композинг</span><span>Экспорт</span></div></div>
+    <div class="vp" style="bottom:294px">
+      <div class="stage" style="transform:translate(-50%,-46%) scale(.74)"><svg class="char" viewBox="0 0 200 240" data-bones="1" data-sel="head" data-rot="-12"></svg></div>
+      <div class="selname"><i></i>Кость: <b>Голова</b></div>
+    </div>
+    <div class="rail" style="bottom:294px">
+      <div class="tool on" data-i="bone">Поза</div>
+      <div class="tool" data-i="pin">Пины</div>
+      <div class="tool" data-i="move">Слой</div>
+      <div class="tool" data-i="camera">Камера</div>
+      <div class="tool" data-i="onion">Калька</div>
+    </div>
+    <div class="tl">
+      <div class="tr">
+        <span class="ib" data-i="prev"></span><span class="ib" data-i="play" style="color:var(--anim)"></span><span class="ib" data-i="next"></span>
+        <div class="fr"><b>12</b>/ 48</div>
+        <span style="flex:1"></span>
+        <span class="rec"><i></i>автоключ</span>
+        <span class="ib" data-i="loop"></span>
+      </div>
+      <div class="tg">
+        <div class="l r"></div><div class="t r"><span style="left:0%">0</span><span style="left:16.66%">6</span><span style="left:50%">18</span><span style="left:66.66%">24</span><span style="left:83.33%">30</span></div>
+        <div class="l h">Голова</div><div class="t h"><span class="flt">только выделенное ✕</span></div>
+        <div class="l">Поворот</div><div class="t"><i class="key" style="left:2.78%"></i><i class="key sel" style="left:33.33%"></i><i class="key" style="left:66.66%"></i><i class="key" style="left:97.22%"></i></div>
+        <div class="l">Позиция</div><div class="t"><i class="key" style="left:2.78%"></i><i class="key" style="left:50%"></i></div>
+        <div class="l">Масштаб</div><div class="t"></div>
+        <div class="l h">Ползунки</div><div class="t h"></div>
+        <div class="l">Моргание</div><div class="t"><i class="key step" style="left:8.33%"></i><i class="key step" style="left:16.66%"></i><i class="key step" style="left:25%"></i></div>
+        <div class="phl"></div>
+      </div>
+    </div>
+    <div class="nav"></div>
+  </div>
+  <div class="cap"><h3><em>4</em>Анимация</h3><ul>
+    <li>Таймлайн как в Moho: сетка кадров, круг = плавный ключ, квадрат = ступенька.</li>
+    <li>«Автоключ» прямо в транспорте, фильтр «только выделенное ✕» в заголовке группы.</li>
+    <li>Кнопки транспорта по 44px, поэтому «в начало» переехала на долгий тап по ‹.</li>
+    <li>Долгий тап по таймлайну: вибро и рамка выделения ключей.</li></ul></div>
+</div>
+
+<!-- 5 слои -->
+<div class="cell">
+  <div class="phone">
+    <div class="status"><span>12:30</span><span class="sys" data-i="wifi"><span data-i="batt"></span></span></div><div class="cam"></div>
+    <div class="bar">
+      <span class="ib" data-i="folder"></span><span class="ib" data-i="undo"></span><span class="ib" data-i="redo"></span>
+      <span class="sep"></span><span class="ib act" data-i="layers"></span><span class="ib" data-i="sliders"></span>
+      <span style="flex:1"></span><span class="ib" data-i="play"></span><span class="ib" data-i="more"></span>
+    </div>
+    <div class="tabs"><div class="seg"><span class="on">Риг</span><span>Анимация</span><span>Композинг</span><span>Экспорт</span></div></div>
+    <div class="lp cover">
+      <div class="dh"><span class="t">Слои и кости<small>9 слоёв · 6 костей</small></span><span class="ib" data-i="x"></span></div>
+      <div class="list">
+        <div class="node" style="padding-left:12px"><div class="thumb"><svg viewBox="0 0 200 240" class="mini-frog"></svg></div><div class="nm">Фроги<small>персонаж · 9 слоёв</small></div><span class="ib" data-i="eye"></span></div>
+        <div class="node" style="padding-left:28px"><div class="bi" data-i="bone"></div><div class="nm">Тело<small>кость · 3 дочерних</small></div></div>
+        <div class="node sel" style="padding-left:44px"><div class="bi" data-i="bone"></div><div class="nm">Голова<small>кость · держит 2 слоя</small></div></div>
+        <div class="node" style="padding-left:60px"><div class="thumb"><svg viewBox="0 0 200 240" class="mini-frog"></svg></div><div class="nm">Голова<small>слой · 214 точек</small></div><span class="ib" data-i="eye"></span></div>
+        <div class="node" style="padding-left:60px"><div class="bi" style="color:var(--comp)" data-i="swap"></div><div class="nm">Глаза<small>свитч · 3 варианта</small></div><span class="swb">1 из 3</span></div>
+        <div class="node opt" style="padding-left:68px"><span class="radio on"></span><div class="nm">открыты</div></div>
+        <div class="node opt" style="padding-left:68px"><span class="radio"></span><div class="nm" style="color:var(--tx2)">закрыты</div></div>
+        <div class="node opt" style="padding-left:68px"><span class="radio"></span><div class="nm" style="color:var(--tx2)">^ ^</div></div>
+        <div class="node" style="padding-left:28px"><div class="thumb"><svg viewBox="0 0 200 240" class="mini-frog"></svg></div><div class="nm">Лапы<small>группа · 4 слоя</small></div><span class="ib" data-i="eye"></span></div>
+      </div>
+      <div class="df"><span data-i="import">Импорт</span><span data-i="plus">Группа</span></div>
+    </div>
+    <div class="rail">
+      <div class="tool on" data-i="bone">Кости</div>
+      <div class="tool" data-i="mesh">Сетка</div>
+      <div class="tool" data-i="brush">Веса</div>
+      <div class="tool" data-i="pin">Пины</div>
+      <div class="tool" data-i="move">Слой</div>
+    </div>
+    <div class="nav"></div>
+  </div>
+  <div class="cap"><h3><em>5</em>Слои и кости</h3><ul>
+    <li>Открывается кнопкой слоёв в тулбаре и занимает ровно место вьюпорта: без затемнения и без полуприкрытого холста. Инструменты справа остаются.</li>
+    <li>Одно дерево: кости и слои, отступами без стрелочек. Вторая строка: тип и счётчик, в шапке общий счёт слоёв и костей.</li>
+    <li>Свитч-группа «1 из 3», вариант выбирается тапом.</li></ul></div>
+</div>
+
+<!-- 6 настройки -->
+<div class="cell">
+  <div class="phone">
+    <div class="status"><span>12:30</span><span class="sys" data-i="wifi"><span data-i="batt"></span></span></div><div class="cam"></div>
+    <div class="sh"><span class="ib" data-i="back"></span><span class="ttl">Настройки</span></div>
+    <div class="slist">
+      <div class="sgh">Интерфейс</div>
+      <div class="srow" data-i="globe"><div class="st">Язык</div><span class="sv">Русский</span><span class="chev" data-i="next"></span></div>
+      <div class="sblock">
+        <div class="srow nob" data-i="theme"><div class="st">Тема</div></div>
+        <div class="sseg"><span class="on">Тёмная</span><span>Светлая</span><span>Как в системе</span></div>
+      </div>
+      <div class="srow two" data-i="hint"><div class="st">Показывать подсказки<small>Советы во вьюпорте для новичков</small></div><span class="sw on"></span></div>
+      <div class="srow two" data-i="vibrate"><div class="st">Вибрация<small>Отклик на долгий тап и привязку</small></div><span class="sw on"></span></div>
+      <div class="sgh">Прочее</div>
+      <div class="srow two" data-i="refresh"><div class="st">Сбросить подсказки<small>Снова показать закрытые</small></div></div>
+      <div class="srow two" data-i="info"><div class="st">О приложении<small>Rigbit 0.1 · бета</small></div><span class="chev" data-i="next"></span></div>
+    </div>
+    <div class="nav"></div>
+  </div>
+  <div class="cap"><h3><em>6</em>Настройки</h3><ul>
+    <li>Открываются кнопкой ⋯ в тулбаре, стрелка назад возвращает в студию. Экран целиком, строки от 56px.</li>
+    <li>Язык: Русский, дальше English, Polski, Українська. Тема сегментами, как режимы.</li>
+    <li>«Показывать подсказки» выключает их все разом, «Сбросить подсказки» возвращает закрытые крестиком.</li></ul></div>
+</div>
+
+</div>
+
+<!-- ================= ЛАНДШАФТ ================= -->
+<div class="land-h">
+  <h2>Ландшафт</h2>
+  <p>В ландшафте у телефона мало высоты, поэтому всё, что можно, уезжает в строки и столбцы по краям. Планшету места хватает, панели на нём можно пристегнуть открытыми.</p>
+</div>
+
+<div class="lgrid">
+
+<!-- 7 телефон ландшафт, анимация -->
+<div class="lcell">
+  <div class="phone ls anim safe">
+    <div class="cam"></div>
+    <div class="lbar">
+      <span class="ib" data-i="folder"></span><span class="ib" data-i="undo"></span><span class="ib" data-i="redo"></span>
+      <span class="sep"></span><span class="ib" data-i="layers"></span><span class="ib" data-i="sliders"></span>
+      <div class="seg"><span>Риг</span><span class="on">Анимация</span><span>Композинг</span><span>Экспорт</span></div>
+      <span class="ib" data-i="play"></span><span class="ib" data-i="more"></span>
+    </div>
+    <div class="vp">
+      <div class="stage" style="transform:translate(-50%,-50%) scale(.34)"><svg class="char" viewBox="0 0 200 240" data-bones="1" data-sel="head" data-rot="-12"></svg></div>
+      <div class="selname"><i></i>Кость: <b>Голова</b></div>
+    </div>
+    <div class="rail">
+      <div class="tool on" data-i="bone">Поза</div>
+      <div class="tool" data-i="pin">Пины</div>
+      <div class="tool" data-i="move">Слой</div>
+      <div class="tool" data-i="camera">Камера</div>
+      <div class="tool" data-i="onion">Калька</div>
+    </div>
+    <div class="ltl">
+      <div class="tr">
+        <span class="ib" data-i="first"></span><span class="ib" data-i="prev"></span><span class="ib" data-i="play" style="color:var(--anim)"></span><span class="ib" data-i="next"></span>
+        <div class="fr"><b>12</b>/ 48</div>
+        <span style="flex:1"></span>
+        <span class="rec"><i></i>автоключ</span>
+        <span class="ib" data-i="loop"></span>
+        <span class="ib" data-i="down"></span>
+      </div>
+      <div class="tg">
+        <div class="l r"></div><div class="t r"><span style="left:0%">0</span><span style="left:16.66%">6</span><span style="left:50%">18</span><span style="left:66.66%">24</span><span style="left:83.33%">30</span></div>
+        <div class="l h">Голова</div><div class="t h"><span class="flt">только выделенное ✕</span></div>
+        <div class="l">Поворот</div><div class="t"><i class="key" style="left:2.78%"></i><i class="key sel" style="left:33.33%"></i><i class="key" style="left:66.66%"></i><i class="key" style="left:97.22%"></i></div>
+        <div class="l">Позиция</div><div class="t"><i class="key" style="left:2.78%"></i><i class="key" style="left:50%"></i></div>
+        <div class="phl"></div>
+      </div>
+    </div>
+    <div class="lnav"></div>
+  </div>
+  <div class="cap"><h3><em>7</em>Телефон, ландшафт · Анимация</h3><ul>
+    <li>Статус-бар скрыт (immersive). Слева 40px пусто: зона камеры 32px и отступ. Снизу 16px под жестовую полоску.</li>
+    <li>Тулбар и режимы слиты в одну строку сверху: высоты мало, ширины хватает. Инструменты справа на всю высоту, по 48px.</li>
+    <li>Таймлайн короче (3 дорожки) и сворачивается кнопкой ˅ до строки транспорта, тогда вьюпорт вырастает почти вдвое.</li></ul></div>
+</div>
+
+<!-- 8 планшет ландшафт, риг -->
+<div class="lcell wide">
+  <div class="tabwrap">
+    <div class="phone tab">
+      <div class="status"><span>12:30</span><span class="sys" data-i="wifi"><span data-i="batt"></span></span></div><div class="cam"></div>
+      <div class="bar">
+        <div class="grp"><span class="ib" data-i="folder"></span><span class="ib" data-i="undo"></span><span class="ib" data-i="redo"></span><span class="sep"></span><span class="ib act" data-i="layers"></span><span class="ib act" data-i="sliders"></span></div>
+        <div class="seg"><span class="on">Риг</span><span>Анимация</span><span>Композинг</span><span>Экспорт</span></div>
+        <div class="grp r"><span class="ib" data-i="play"></span><span class="ib" data-i="more"></span></div>
+      </div>
+      <div class="lp pinned">
+        <div class="dh"><span class="t">Слои и кости<small>9 слоёв · 6 костей</small></span><span class="ib on" data-i="tack"></span></div>
+        <div class="list">
+          <div class="node" style="padding-left:12px"><div class="thumb"><svg viewBox="0 0 200 240" class="mini-frog"></svg></div><div class="nm">Фроги<small>персонаж · 9 слоёв</small></div><span class="ib" data-i="eye"></span></div>
+          <div class="node" style="padding-left:28px"><div class="bi" data-i="bone"></div><div class="nm">Тело<small>кость · 3 дочерних</small></div></div>
+          <div class="node" style="padding-left:44px"><div class="bi" data-i="bone"></div><div class="nm">Голова<small>кость · держит 2 слоя</small></div></div>
+          <div class="node sel" style="padding-left:60px"><div class="thumb"><svg viewBox="0 0 200 240" class="mini-frog"></svg></div><div class="nm">Голова<small>слой · 214 точек</small></div><span class="ib" data-i="eye"></span></div>
+          <div class="node" style="padding-left:60px"><div class="bi" style="color:var(--comp)" data-i="swap"></div><div class="nm">Глаза<small>свитч · 3 варианта</small></div><span class="swb">1 из 3</span></div>
+          <div class="node opt" style="padding-left:68px"><span class="radio on"></span><div class="nm">открыты</div></div>
+          <div class="node opt" style="padding-left:68px"><span class="radio"></span><div class="nm" style="color:var(--tx2)">закрыты</div></div>
+          <div class="node opt" style="padding-left:68px"><span class="radio"></span><div class="nm" style="color:var(--tx2)">^ ^</div></div>
+          <div class="node" style="padding-left:28px"><div class="thumb"><svg viewBox="0 0 200 240" class="mini-frog"></svg></div><div class="nm">Лапы<small>группа · 4 слоя</small></div><span class="ib" data-i="eye"></span></div>
+        </div>
+        <div class="df"><span data-i="import">Импорт</span><span data-i="plus">Группа</span></div>
+      </div>
+      <div class="vp">
+        <div class="stage" style="transform:translate(-50%,-50%) scale(1.28)"><svg class="char" viewBox="0 0 200 240" data-mesh="1"></svg></div>
+        <div class="selname"><i></i>Слой: <b>Голова</b></div>
+      </div>
+      <div class="rail">
+        <div class="tool" data-i="bone">Кости</div>
+        <div class="tool on" data-i="mesh">Сетка</div>
+        <div class="tool" data-i="brush">Веса</div>
+        <div class="tool" data-i="pin">Пины</div>
+        <div class="tool" data-i="move">Слой</div>
+      </div>
+      <div class="sp">
+        <div class="ph"><div class="thumb"><svg viewBox="0 0 200 240" class="mini-frog"></svg></div><div class="nm">Голова<small>слой · 214 точек</small></div><span class="ib on" data-i="tack"></span></div>
+        <div class="pseg"><span class="on">Сетка</span><span>Привязка</span><span>Вид</span></div>
+        <div class="vrow"><div class="vl">Плотность<output>50</output></div><div class="track"><i style="width:50%"></i><b style="left:50%"></b></div></div>
+        <div class="vrow"><div class="vl">Отступ от края<output>4 px</output></div><div class="track"><i style="width:20%"></i><b style="left:20%"></b></div></div>
+        <div class="srow"><div class="st">Показывать треугольники</div><span class="sw on"></span></div>
+        <div class="vbtns"><span data-i="mesh">Править точки</span><span class="pr" data-i="refresh">Пересобрать</span></div>
+      </div>
+      <div class="nav"></div>
+    </div>
+  </div>
+  <div class="cap"><h3><em>8</em>Планшет, ландшафт · Риг</h3><ul>
+    <li>Панели пристёгнуты: слои слева, настройки слоя справа. Канцелярская кнопка в шапке открепляет панель, и она снова открывается поверх вьюпорта, как на телефоне.</li>
+    <li>Пара «вьюпорт + инструменты» та же, что на телефоне, рука не переучивается. Вьюпорт высокий: холст 9:16 занимает его почти целиком.</li>
+    <li>Тулбар и режимы в одной строке, режимы по центру. Обе кнопки панелей в тулбаре подсвечены, между ними 8px.</li></ul></div>
+</div>
+
+</div>
+
+<script>
+const ICONS={
+ undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+ redo:'<path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/>',
+ more:'<circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/>',
+ bone:'<path d="M4.5 19.5 8.6 12.6 19.5 4.5 11.4 15.4Z"/><circle cx="4.5" cy="19.5" r="1.6"/>',
+ mesh:'<path d="M12 3.5 21 20H3Z"/><path d="M7.5 11.8h9M12 20l-4.5-8.2M12 20l4.5-8.2"/>',
+ pin:'<path d="M12 21s-6.5-5.8-6.5-11a6.5 6.5 0 0 1 13 0C18.5 15.2 12 21 12 21Z"/><circle cx="12" cy="10" r="2.3"/>',
+ brush:'<path d="m14.5 4.5 5 5L11 18l-5-5Z"/><path d="M6 13c-2 0-3 2-3 4.5V20h2.5C8 20 10 19 10 17"/>',
+ move:'<path d="M12 3v18M3 12h18M12 3 9.5 5.5M12 3l2.5 2.5M12 21l-2.5-2.5M12 21l2.5-2.5M3 12l2.5-2.5M3 12l2.5 2.5M21 12l-2.5-2.5M21 12l-2.5 2.5"/>',
+ layers:'<path d="m12 3 9 5-9 5-9-5Z"/><path d="m3 13 9 5 9-5"/>',
+ play:'<path d="M7 4.5v15l13-7.5Z" fill="currentColor" stroke="none"/>',
+ first:'<path d="M6 5v14"/><path d="M18 5v14l-9-7Z" fill="currentColor" stroke="none"/>',
+ prev:'<path d="M15 6 9 12l6 6"/>',
+ next:'<path d="m9 6 6 6-6 6"/>',
+ down:'<path d="m6 9 6 6 6-6"/>',
+ back:'<path d="M20 12H5"/><path d="m11 5-7 7 7 7"/>',
+ loop:'<path d="m17 2 3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="m7 22-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/>',
+ onion:'<circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6" opacity=".45"/>',
+ camera:'<rect x="3" y="6.5" width="18" height="13" rx="3"/><circle cx="12" cy="13" r="3.5"/><path d="M8.5 6.5 10 4h4l1.5 2.5"/>',
+ sliders:'<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>',
+ eye:'<path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+ swap:'<path d="M7 4 4 7l3 3"/><path d="M4 7h13"/><path d="m17 20 3-3-3-3"/><path d="M20 17H7"/>',
+ import:'<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>',
+ x:'<path d="M6 6l12 12M18 6 6 18"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>',
+ refresh:'<path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/>',
+ globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.5 3.8 5.5 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.5-3.8-9S9.5 5.5 12 3Z"/>',
+ theme:'<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17Z" fill="currentColor" stroke="none"/>',
+ hint:'<path d="M9.5 18h5M10.5 21h3"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3Z"/>',
+ vibrate:'<rect x="7.5" y="3.5" width="9" height="17" rx="2"/><path d="M4 8.5v7M20 8.5v7"/>',
+ info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/>',
+ tack:'<path d="M9 3.5h6"/><path d="M10 3.5V9l-3.5 4.5h11L14 9V3.5"/><path d="M12 13.5V21"/>',
+ wifi:'<path d="M2 9a15 15 0 0 1 20 0" /><path d="M5.5 12.5a10 10 0 0 1 13 0"/><path d="M9 16a5 5 0 0 1 6 0"/><circle cx="12" cy="19" r="1" fill="currentColor"/>',
+ batt:'<rect x="2.5" y="7" width="17" height="10" rx="2"/><rect x="4.5" y="9" width="11" height="6" rx="1" fill="currentColor" stroke="none"/><path d="M21.5 10.5v3"/>'
+};
+document.querySelectorAll('[data-i]').forEach(el=>{
+  el.insertAdjacentHTML('afterbegin',`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[el.dataset.i]}</svg>`);
+});
+
+const G='#7CC26A',G2='#68AE57',HEAD={cx:100,cy:98,rx:80,ry:56};
+const headParts=()=>`
+ <circle cx="64" cy="52" r="26" fill="${G}"/><circle cx="136" cy="52" r="26" fill="${G}"/>
+ <ellipse cx="100" cy="98" rx="80" ry="56" fill="${G}"/>
+ <circle cx="64" cy="52" r="18" fill="#fff"/><circle cx="136" cy="52" r="18" fill="#fff"/>
+ <circle cx="67" cy="55" r="8.5" fill="#1d1d22"/><circle cx="133" cy="55" r="8.5" fill="#1d1d22"/>
+ <circle cx="64" cy="51" r="3" fill="#fff"/><circle cx="130" cy="51" r="3" fill="#fff"/>
+ <ellipse cx="46" cy="112" rx="12" ry="6" fill="#FF9BB0" opacity=".75"/><ellipse cx="154" cy="112" rx="12" ry="6" fill="#FF9BB0" opacity=".75"/>
+ <path d="M84 116 Q100 131 116 116" stroke="#2d4d24" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
+const bodyParts=()=>`
+ <ellipse cx="66" cy="226" rx="27" ry="9" fill="${G2}"/><ellipse cx="134" cy="226" rx="27" ry="9" fill="${G2}"/>
+ <ellipse cx="100" cy="182" rx="54" ry="46" fill="${G}"/>
+ <ellipse cx="100" cy="192" rx="34" ry="28" fill="#EAF3CD"/>
+ <ellipse cx="56" cy="176" rx="11" ry="26" fill="${G2}" transform="rotate(28 56 176)"/>
+ <ellipse cx="144" cy="176" rx="11" ry="26" fill="${G2}" transform="rotate(-28 144 176)"/>`;
+function bone(x1,y1,x2,y2,on){
+  const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy),px=-dy/L,py=dx/L,w=Math.min(9,L*.13),bx=x1+dx*.2,by=y1+dy*.2;
+  return `<polygon points="${x1},${y1} ${bx+px*w},${by+py*w} ${x2},${y2} ${bx-px*w},${by-py*w}" fill="var(--mode)" fill-opacity="${on?1:.35}" stroke="${on?'#fff':'var(--mode)'}" stroke-width="${on?2:1.5}" stroke-linejoin="round"/><circle cx="${x1}" cy="${y1}" r="3.5" fill="#fff" stroke="var(--mode)" stroke-width="1.5"/>`;
+}
+function delaunay(pts){
+  const n=pts.length,P=pts.concat([{x:-2000,y:-2000},{x:2200,y:-2000},{x:100,y:3000}]);
+  const cc=t=>{const[a,b,c]=t.map(i=>P[i]);const d=2*(a.x*(b.y-c.y)+b.x*(c.y-a.y)+c.x*(a.y-b.y));
+    const A=a.x*a.x+a.y*a.y,B=b.x*b.x+b.y*b.y,C=c.x*c.x+c.y*c.y;
+    const ux=(A*(b.y-c.y)+B*(c.y-a.y)+C*(a.y-b.y))/d,uy=(A*(c.x-b.x)+B*(a.x-c.x)+C*(b.x-a.x))/d;
+    return{x:ux,y:uy,r:(ux-a.x)**2+(uy-a.y)**2}};
+  let tris=[[n,n+1,n+2]];tris[0].c=cc(tris[0]);
+  for(let i=0;i<n;i++){const p=P[i],bad=[],good=[];
+    for(const t of tris)((p.x-t.c.x)**2+(p.y-t.c.y)**2<t.c.r?bad:good).push(t);
+    const E=[];for(const t of bad)for(let k=0;k<3;k++){const a=t[k],b=t[(k+1)%3];
+      const j=E.findIndex(e=>(e[0]===a&&e[1]===b)||(e[0]===b&&e[1]===a));j>=0?E.splice(j,1):E.push([a,b])}
+    tris=good;for(const e of E){const t=[e[0],e[1],i];t.c=cc(t);tris.push(t)}}
+  return tris.filter(t=>t.every(i=>i<n)).map(t=>t.map(i=>P[i]));
+}
+function meshMarkup(){
+  const pts=[],{cx,cy,rx,ry}=HEAD,N=34;
+  for(let i=0;i<N;i++){const a=i/N*Math.PI*2;pts.push({x:cx+Math.cos(a)*rx,y:cy+Math.sin(a)*ry})}
+  for(let y=cy-ry;y<=cy+ry;y+=15)for(let x=cx-rx;x<=cx+rx;x+=17){
+    const xx=x+(Math.abs(Math.round((y-cy)/15))%2?8:0);
+    if(((xx-cx)/rx)**2+((y-cy)/ry)**2<.78)pts.push({x:xx,y})}
+  const tris=delaunay(pts).filter(t=>{const mx=(t[0].x+t[1].x+t[2].x)/3,my=(t[0].y+t[1].y+t[2].y)/3;return((mx-cx)/rx)**2+((my-cy)/ry)**2<1});
+  let d='';for(const t of tris)d+=`M${t[0].x.toFixed(1)} ${t[0].y.toFixed(1)}L${t[1].x.toFixed(1)} ${t[1].y.toFixed(1)}L${t[2].x.toFixed(1)} ${t[2].y.toFixed(1)}Z`;
+  return `<path d="${d}" fill="none" stroke="var(--mode)" stroke-width=".9"/>`+
+    pts.map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="1.9" fill="#fff" stroke="var(--mode)" stroke-width="1"/>`).join('');
+}
+document.querySelectorAll('svg.char').forEach(s=>{
+  const rot=+(s.dataset.rot||0),sel=s.dataset.sel;
+  let head=headParts(),bb='';
+  if(s.dataset.mesh)head+=meshMarkup();
+  if(s.dataset.bones){
+    head+=bone(100,150,100,70,sel==='head');
+    bb=bone(100,214,100,150,sel==='body')+bone(84,150,54,198,sel==='armL')+bone(116,150,146,198,sel==='armR');
+  }
+  s.innerHTML=bodyParts()+`<g transform="rotate(${rot} 100 150)">${head}</g>`+bb;
+});
+document.querySelectorAll('svg.mini-frog').forEach(s=>s.innerHTML=bodyParts()+headParts());
+</script>
+</body>
+</html>
