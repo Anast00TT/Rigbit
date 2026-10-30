@@ -81,6 +81,38 @@ func test_build_rows() -> void:
 	t.eq(RbTimelineLogic.row_at(tops, 9999.0), -1, "ниже строк")
 
 
+func test_param_and_pin_rows() -> void:
+	var doc := _doc()
+	var lid: int = doc.root[0]
+	var prm := RbParams.Param.new()
+	prm.id = doc.new_id()
+	prm.name = "Моргание"
+	doc.params.params[prm.id] = prm
+	var pa := doc.new_id()
+	var pb := doc.new_id()
+	doc.rig.pins[lid] = [{"id": pa, "v": 0, "bone": 0, "offset": Vector2.ZERO}, {"id": pb, "v": 1, "bone": 0, "offset": Vector2.ZERO}]
+	var bid: int = doc.rig.bones.keys()[0]
+	doc.anim.set_key(RbAnimation.track_key("pin", pb, &"offset"), 3, Vector2(4, 0))
+	doc.anim.set_key(RbAnimation.track_key("param", prm.id, &"value"), 0, 0.5)
+	doc.anim.set_key(RbAnimation.track_key("layer", lid, &"opacity"), 0, 1.0)
+	doc.anim.set_key(RbAnimation.track_key("bone", bid, &"pose_angle"), 0, 0.0)
+	var all := RbTimelineLogic.build_rows(doc, "", 0, false)
+	t.eq(all.size(), 8, "четыре объекта: заголовок и дорожка у каждого")
+	t.eq([all[0]["kind"], all[2]["kind"], all[4]["kind"], all[6]["kind"]], ["bone", "layer", "param", "pin"], "кости, слои, ползунки, пины")
+	t.eq(all[4]["name"], "Моргание", "имя ползунка")
+	t.eq(all[5]["label"], "TL_VALUE", "дорожка значения")
+	t.eq(all[6]["name"], "Слой", "у пина имя его слоя")
+	t.eq(int(all[6]["n"]), 2, "второй пин на слое")
+	t.eq(all[7]["label"], "TL_OFFSET", "дорожка сдвига пина")
+	var only := RbTimelineLogic.build_rows(doc, "pin", pb, true)
+	t.eq(only.size(), 2, "фильтр по пину")
+	t.eq(RbTimelineLogic.pin_info(doc, 12345), [0, 0], "чужой пин")
+	# удалённый пин и ползунок не дают строк
+	doc.rig.pins.erase(lid)
+	doc.params.params.erase(prm.id)
+	t.eq(RbTimelineLogic.build_rows(doc, "", 0, false).size(), 4, "только кость и слой")
+
+
 func _anim_doc() -> Array:
 	var doc := _doc()
 	var bid: int = doc.rig.bones.keys()[0]

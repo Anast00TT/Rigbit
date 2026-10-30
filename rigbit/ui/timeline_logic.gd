@@ -14,10 +14,15 @@ const HIT_HALF := 14.0  # зона касания ключа: 28 dp по шир�
 
 const BONE_PROPS: Array[StringName] = [&"pose_angle", &"pose_offset", &"pose_scale"]
 const LAYER_PROPS: Array[StringName] = [&"position", &"rotation", &"scale", &"opacity", &"visible"]
+const PARAM_PROPS: Array[StringName] = [&"value"]
+const PIN_PROPS: Array[StringName] = [&"offset"]
+## Порядок объектов в общем списке: кости, слои, ползунки, пины.
+const KIND_ORDER := {"bone": 0, "layer": 1, "param": 2, "pin": 3}
 const LABELS := {
 	&"pose_angle": "TL_ROT", &"pose_offset": "TL_OFFSET", &"pose_scale": "TL_SCALE",
 	&"position": "TL_POS", &"rotation": "TL_ROT", &"scale": "TL_SCALE",
 	&"opacity": "TL_OPACITY", &"visible": "TL_VISIBLE",
+	&"value": "TL_VALUE", &"offset": "TL_OFFSET",
 }
 
 
@@ -74,21 +79,56 @@ static func scroll_to_show(f: int, scroll: float, ppf: float, view_w: float, cou
 # ---------------- строки ----------------
 
 static func object_exists(doc: RbDocument, kind: String, id: int) -> bool:
-	if kind == "bone":
-		return doc.rig.get_bone(id) != null
+	match kind:
+		"bone":
+			return doc.rig.get_bone(id) != null
+		"param":
+			return doc.params.get_param(id) != null
+		"pin":
+			return not doc.rig.find_pin(id).is_empty()
 	return doc.get_layer(id) != null
 
 
-## Имя объекта; пустое, если у кости нет имени (интерфейс подставит «Кость N»).
+## Имя объекта; пустое, если у кости или ползунка нет имени (интерфейс подставит «Кость N»).
+## У пина своего имени нет: возвращается имя его слоя.
 static func object_name(doc: RbDocument, kind: String, id: int) -> String:
-	if kind == "bone":
-		var b := doc.rig.get_bone(id)
-		return b.name if b else ""
+	match kind:
+		"bone":
+			var b := doc.rig.get_bone(id)
+			return b.name if b else ""
+		"param":
+			var prm := doc.params.get_param(id)
+			return prm.name if prm else ""
+		"pin":
+			var info := pin_info(doc, id)
+			var pl := doc.get_layer(info[0]) if info[0] != 0 else null
+			return pl.name if pl else ""
 	var l := doc.get_layer(id)
 	return l.name if l else ""
 
 
-## Строки таймлайна. Заголовок объекта {t:"head", kind, id, name}, затем его дорожки
+## Слой пина и его номер на слое с 1: [layer_id, n] или [0, 0].
+static func pin_info(doc: RbDocument, pin_id: int) -> Array:
+	for lid in doc.rig.pins:
+		var arr: Array = doc.rig.pins[lid]
+		for i in arr.size():
+			if int(arr[i]["id"]) == pin_id:
+				return [int(lid), i + 1]
+	return [0, 0]
+
+
+static func props_of(kind: String) -> Array[StringName]:
+	match kind:
+		"bone":
+			return BONE_PROPS
+		"param":
+			return PARAM_PROPS
+		"pin":
+			return PIN_PROPS
+	return LAYER_PROPS
+
+
+## Строки таймлайна. Заголовок объекта {t:"head", kind, id, name} (у пина ещё n: номер на слое), затем его дорожки
 ## {t:"track", track, kind, id, prop, label}; у объекта без ключей одна строка {t:"empty"}.
 ## only_focus и focus_kind != "": только выделенный объект. Иначе все объекты, у которых есть дорожки.
 static func build_rows(doc: RbDocument, focus_kind: String, focus_id: int, only_focus: bool) -> Array:
@@ -105,15 +145,18 @@ static func build_rows(doc: RbDocument, focus_kind: String, focus_id: int, only_
 				objs.append([p[0], p[1]])
 		objs.sort_custom(func(a: Array, b: Array) -> bool:
 			if a[0] != b[0]:
-				return a[0] == "bone"
+				return int(KIND_ORDER.get(a[0], 9)) < int(KIND_ORDER.get(b[0], 9))
 			return int(a[1]) < int(b[1]))
 	var rows: Array = []
 	for o in objs:
 		if not object_exists(doc, o[0], o[1]):
 			continue
-		rows.append({"t": "head", "kind": o[0], "id": o[1], "name": object_name(doc, o[0], o[1])})
+		var head := {"t": "head", "kind": o[0], "id": o[1], "name": object_name(doc, o[0], o[1])}
+		if o[0] == "pin":
+			head["n"] = pin_info(doc, o[1])[1]
+		rows.append(head)
 		var count := 0
-		for prop in (BONE_PROPS if o[0] == "bone" else LAYER_PROPS):
+		for prop in props_of(o[0]):
 			var tk := RbAnimation.track_key(o[0], o[1], prop)
 			if doc.anim.tracks.has(tk):
 				rows.append({"t": "track", "track": tk, "kind": o[0], "id": o[1], "prop": prop, "label": LABELS[prop]})

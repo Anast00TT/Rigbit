@@ -1372,7 +1372,7 @@ func _update_timeline_visibility() -> void:
 	_update_rail_columns()
 
 
-## Что показывать в таймлайне: кость (инструмент «Поза») или выделенный слой.
+## Что показывать в таймлайне: кость (инструмент «Поза»), пин (инструмент «Пины») или выделенный слой.
 func _sync_timeline_focus() -> void:
 	if timeline == null:
 		return
@@ -1381,6 +1381,9 @@ func _sync_timeline_focus() -> void:
 	if tool == "pose" and doc.rig.get_bone(rig_tools.selected_bone):
 		kind = "bone"
 		id = rig_tools.selected_bone
+	elif tool == "pins" and not doc.rig.find_pin(pin_tools.selected).is_empty():
+		kind = "pin"
+		id = pin_tools.selected
 	elif selected_id != 0 and doc.get_layer(selected_id):
 		kind = "layer"
 		id = selected_id
@@ -1458,7 +1461,19 @@ func _on_timeline_frame(f: int) -> void:
 
 
 func _on_timeline_object(kind: String, id: int) -> void:
-	if kind == "bone":
+	if kind == "param":
+		if not params_sheet.visible:
+			_toggle_params()
+		return
+	if kind == "pin":
+		var info := RbTimelineLogic.pin_info(doc, id)
+		if info[0] == 0:
+			return
+		selected_id = info[0]
+		pin_tools.selected = id
+		tool_buttons["pins"].button_pressed = true
+		_set_tool("pins")
+	elif kind == "bone":
 		rig_tools.selected_bone = id
 		tool_buttons["pose"].button_pressed = true
 		_set_tool("pose")

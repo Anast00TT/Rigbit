@@ -147,6 +147,8 @@ TL_SCALE,Масштаб,Scale
 TL_POS,Позиция,Position
 TL_OPACITY,Прозрачность,Opacity
 TL_VISIBLE,Видимость,Visibility
+TL_VALUE,Значение,Value
+TL_PIN_OF,Пин %d · %s,Pin %d · %s
 TL_FILTER_ON,только выделенное,selected only
 TL_FILTER_OFF,все объекты,all objects
 TL_EMPTY_OBJ,Двигай объект: ключ появится сам,Move the object to add a key

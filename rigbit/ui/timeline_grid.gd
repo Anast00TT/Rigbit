@@ -200,9 +200,17 @@ func _fit_text(font: Font, text: String, max_w: float, fs: int) -> String:
 
 func _head_name(row: Dictionary) -> String:
 	var n: String = row["name"]
-	if n == "" and row["kind"] == "bone":
-		return tr("BONE_N") % int(row["id"])
+	match row["kind"]:
+		"pin":
+			return tr("TL_PIN_OF") % [int(row.get("n", 0)), n]
+		"param":
+			return n if n != "" else tr("PARAM_N") % int(row["id"])
+		"bone":
+			return n if n != "" else tr("BONE_N") % int(row["id"])
 	return n
+
+
+const HEAD_ICONS := {"bone": "bone", "layer": "layers", "param": "sliders", "pin": "pin"}
 
 
 func _chip_rect(font: Font, y: float, rh: float) -> Rect2:
@@ -310,7 +318,7 @@ func _draw_rows(font: Font) -> void:
 			"head":
 				draw_rect(Rect2(0, y, w, rh), C.p2)
 				draw_line(Vector2(0, y + rh - 0.5), Vector2(w, y + rh - 0.5), C.ln, 1.0)
-				draw_texture_rect(RbIcons.tex("bone" if row["kind"] == "bone" else "layers", 18), Rect2(10, y + (rh - 18.0) * 0.5, 18, 18), false, C.tx2)
+				draw_texture_rect(RbIcons.tex(HEAD_ICONS.get(row["kind"], "layers"), 18), Rect2(10, y + (rh - 18.0) * 0.5, 18, 18), false, C.tx2)
 				var name_right := w - 8.0
 				var show_chip := first_head and focus_kind != ""
 				var chip := Rect2()
