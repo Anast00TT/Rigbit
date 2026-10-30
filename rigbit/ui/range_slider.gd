@@ -47,6 +47,7 @@ func _draw() -> void:
 		var c := Vector2(_x(v), cy)
 		draw_circle(c + Vector2(0, 1), R, Color(0, 0, 0, 0.35))
 		draw_circle(c, R, Color.WHITE)
+		draw_arc(c, R, 0.0, TAU, 32, Color(0, 0, 0, 0.22), 1.0, true)  # видно и на светлой теме
 
 
 func _gui_input(e: InputEvent) -> void:
