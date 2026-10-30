@@ -34,6 +34,11 @@ var svgs: Dictionary = {}
 var _next_id: int = 1
 
 
+## Счётчик id не выдаст уже занятый (кости и слои из команд, загруженные из файла).
+func ensure_id(id: int) -> void:
+	_next_id = maxi(_next_id, id + 1)
+
+
 func new_id() -> int:
 	var i := _next_id
 	_next_id += 1

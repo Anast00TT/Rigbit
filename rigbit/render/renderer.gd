@@ -54,7 +54,7 @@ func sync(d: RbDocument, pose: RbEvaluator.Pose) -> void:
 		if ml and pose.layers.has(ml.id) and not ml.is_group():
 			var mp: RbEvaluator.LayerPose = pose.layers[ml.id]
 			n.visible = lp.visible and mp.visible  # спрятанная маска (другой вариант глаза) прячет и обрезаемое
-			n.material = _mask_material(l, ml, lp.world, mp.world)
+			n.material = _mask_material(l, ml, lp.world, mp.skin * mp.world)  # маска там, куда её унесла кость
 		elif not l.effects.is_empty():
 			n.material = _fx_material(l, lp.world)
 		else:

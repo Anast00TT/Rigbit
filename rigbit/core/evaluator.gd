@@ -20,6 +20,9 @@ class LayerPose:
 	var opacity: float = 1.0
 	var visible: bool = true
 	var vertices := PackedVector2Array()  # итоговые вершины сетки (пока = rest)
+	## Перенос слоя главной костью (кость первой вершины, если её вес > 0.5): posed * rest^-1.
+	## Для жёстко привязанных слоёв точный, им пользуется маска-обрезка.
+	var skin := Transform2D.IDENTITY
 
 
 ## Результат: id слоя -> LayerPose, плюс порядок отрисовки.
@@ -73,6 +76,9 @@ func evaluate(doc: RbDocument, _frame: int, posed := true) -> Pose:
 			var lp: LayerPose = pose.layers[id]
 			var world_rest := lp.world * lp.vertices
 			lp.vertices = lp.world.affine_inverse() * RbRig.skin(world_rest, wd, mats)
+			var wb: PackedFloat32Array = wd["w"]
+			if wb.size() > 0 and wb[0] > 0.5:
+				lp.skin = mats.get((wd["bones"] as PackedInt32Array)[0], Transform2D.IDENTITY)
 	# 10. ARAP по пинам: свободный пин = rest-точка + смещение, пин на кости следует за костью
 	for id in pose.order:
 		var pins: Array = doc.rig.pins.get(id, [])

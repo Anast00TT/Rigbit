@@ -294,3 +294,7 @@ EXPORT_ERR_WRITE,Не получилось записать файл,Could not w
 EXPORT_ERR_RENDER,Не получилось отрисовать кадр,Could not render a frame
 SIZE_KB,%d КБ,%d KB
 SIZE_MB,%s МБ,%s MB
+GL2_IMPORTING,Собираю персонажа…,Building the character…
+GL2_DONE,Персонаж готов,Character ready
+GL2_ERR_NO_CHAR,В SVG нет персонажа Gacha Life 2,No Gacha Life 2 character in this SVG
+GL2_ERR_NO_PARTS,Не нашлось ни одной части персонажа,No character parts found

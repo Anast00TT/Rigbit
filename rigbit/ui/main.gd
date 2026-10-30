@@ -158,6 +158,9 @@ func _ready() -> void:
 	_on_window_resized()
 	if _args.has("demo"):
 		_add_demo()
+	if _args.has("gl2"):  # --gl2[=путь]: импорт персонажа Gacha Life 2 (по умолчанию фикстура тестов)
+		var gp := str(_args["gl2"])
+		_import_svg(gp if gp.ends_with(".svg") else "res://tests/fixtures/gl2_claude.svg")
 	if _args.has("demo_rig"):
 		_refresh()
 		_add_demo_rig()
@@ -978,7 +981,7 @@ func _open_path(path: String) -> void:
 # ---------------- импорт ----------------
 
 func _on_import() -> void:
-	var filters := PackedStringArray(["*.psd, *.psb, *.png, *.jpg, *.jpeg, *.webp;%s;image/vnd.adobe.photoshop,application/octet-stream,image/png,image/jpeg,image/webp" % tr("FILTER_IMAGES")])
+	var filters := PackedStringArray(["*.psd, *.psb, *.png, *.jpg, *.jpeg, *.webp, *.svg;%s;image/vnd.adobe.photoshop,application/octet-stream,image/png,image/jpeg,image/webp,image/svg+xml" % tr("FILTER_IMAGES")])
 	if DisplayServer.has_feature(DisplayServer.FEATURE_NATIVE_DIALOG_FILE):
 		DisplayServer.file_dialog_show(tr("MENU_IMPORT"), "", "", false,
 			DisplayServer.FILE_DIALOG_MODE_OPEN_FILE, filters, _on_import_picked)
@@ -1028,6 +1031,9 @@ func _import_path(path: String) -> void:
 	if _is_psd(path):
 		await _import_psd(path)
 		return
+	if _is_svg(path):
+		_import_svg(path)
+		return
 	var img := RbImporter.load_image(path)
 	var nm := path.get_file().get_basename().uri_decode()
 	if nm.is_empty() or nm.is_valid_int():
@@ -1050,6 +1056,62 @@ func _import_image(img: Image, nm: String) -> void:
 	if first:
 		view.fit_canvas()
 		_show_hint("transform", "HINT_TRANSFORM")
+
+
+## SVG узнаём по расширению или по началу файла (content:// путь расширения не имеет).
+func _is_svg(path: String) -> bool:
+	if path.get_extension().to_lower() == "svg":
+		return true
+	var f := FileAccess.open(path, FileAccess.READ)
+	if f == null:
+		return false
+	var head := f.get_buffer(512).get_string_from_utf8()
+	f.close()
+	return head.contains("<svg")
+
+
+## SVG: персонаж Gacha Life 2 из мода = готовый риг одним шагом истории (design/gacha_import.md),
+## любой другой SVG = одна картинка. На непустом холсте персонаж встаёт по центру.
+func _import_svg(path: String) -> void:
+	var text := FileAccess.get_file_as_string(path)
+	if text == "":
+		_toast(tr("IMPORT_ERR_READ"))
+		return
+	if not RbGl2Import.is_gl2(text):
+		var img := Image.new()
+		if img.load_svg_from_string(text, 2.0) != OK:
+			_toast(tr("IMPORT_ERR_READ"))
+			return
+		_import_image(img, path.get_file().get_basename().uri_decode())
+		return
+	_importing = true
+	busy_layer.visible = true
+	_toast(tr("GL2_IMPORTING"), 120.0)
+	await _frames(2)  # надпись успевает нарисоваться
+	var r := RbGl2Import.build(doc, text)
+	_importing = false
+	busy_layer.visible = false
+	if not r.ok:
+		_toast(tr(r.error))
+		return
+	var first := doc.root.is_empty()
+	if not first:
+		var off := ((Vector2(doc.canvas_size) - Vector2(r.canvas)) * 0.5).floor()
+		r.layers[0].position += off  # группа «Персонаж»: дети в её координатах
+		for b in r.bones:
+			if b.parent_id == 0:
+				b.position += off
+	undo.push(RbImportCharacterCommand.new(r, r.canvas if first else Vector2i.ZERO))
+	undo.end_gesture()
+	selected_id = r.parts.get("body", 0)
+	if mode != 0 and not _args.has("mode"):
+		seg_buttons[0].button_pressed = true
+		_set_mode(0)
+	if mode == 0:
+		tool_buttons["bone"].button_pressed = true
+		_set_tool("bone")
+	view.fit_canvas()
+	_toast(tr("GL2_DONE"))
 
 
 ## PSD/PSB: чтение на рабочем потоке, дальше один шаг истории. На пустом документе холст
@@ -3041,6 +3103,22 @@ func _activate_mesh_tool_for_shot() -> void:
 func _auto(kind: String) -> void:
 	await _frames(3)
 	match kind:
+		"gl2pose":  # поза гача-персонажа: рука вверх, присед на IK, зрачки вбок-вверх
+			var by := {}
+			for b: RbBone in doc.rig.bones.values():
+				by[b.name] = b
+			if by.has("Shoulder1"):
+				by["Shoulder1"].pose_angle = -1.1
+				by["Forearm1"].pose_angle = -0.8
+				by["Main_bone"].pose_offset = Vector2(0, 0)
+				by["Body1"].pose_offset = Vector2(0, 60)
+				by["target1"].pose_offset = Vector2(0, 0)
+				by["Head"].pose_angle = 0.15
+				by["Pupil1"].pose_offset = Vector2(10, -12)
+				by["Pupil2"].pose_offset = Vector2(10, -12)
+				doc.notify(&"bones")
+				await _frames(3)
+				print("AUTO gl2pose ok")
 		"export":
 			if _args.has("export_fmt"):  # --export_fmt=png_zip
 				export_sheet.settings = RbExportPlan.defaults(doc, str(_args["export_fmt"]))
