@@ -80,6 +80,7 @@ var rig_tools: RbRigTools
 var pin_tools: RbPinTools
 var form_tools: RbFormTools
 var params_sheet: RbParamsSheet
+var pose_clip := {}  # скопированная поза: {bone_id: [angle, offset, scale]}
 var bone_sheet: RbBoneSheet
 var fx_sheet: RbFxSheet
 var btn_params: Button
@@ -2254,12 +2255,14 @@ func _bone_menu() -> void:
 	var items := [["pencil", "ACT_RENAME", func() -> void: _rename_bone(b)],
 		["lock", "BONE_CONSTRAINTS", _open_bone_sheet]]
 	if mode == 1:
-		items.append(["reset", "BONE_RESET_POSE", func() -> void:
-			for p in [[&"pose_angle", 0.0], [&"pose_offset", Vector2.ZERO], [&"pose_scale", Vector2.ONE]]:
-				var tk := RbAnimation.track_key("bone", b.id, p[0])
-				if b.get_prop(p[0]) != p[1] or doc.anim.tracks.has(tk):
-					undo.push(RbAnimCommands.SetKeyAuto.new(tk, doc.current_frame, p[1], b.get_prop(p[0])))
-					undo.end_gesture()])
+		items.append(["reset", "BONE_RESET_POSE", func() -> void: _apply_pose(RbPoseTools.rest_pose([b.id]))])
+		items.append(["copy", "POSE_COPY", func() -> void:
+			pose_clip = RbPoseTools.snapshot(doc.rig)
+			_toast(tr("POSE_COPIED"))])
+		if not pose_clip.is_empty():
+			items.append(["paste", "POSE_PASTE", func() -> void: _apply_pose(pose_clip)])
+		items.append(["flip", "POSE_MIRROR", func() -> void:
+			_apply_pose(RbPoseTools.mirrored(doc.rig, RbPoseTools.snapshot(doc.rig)))])
 	if b.parent_id != 0:
 		items.append(["back", "BONE_DETACH", func() -> void: undo.push(RbRigCommands.ReparentBone.new(b.id, 0))])
 	items.append(["trash", "BONE_DELETE", func() -> void:
@@ -2267,6 +2270,23 @@ func _bone_menu() -> void:
 		rig_tools.selected_bone = 0
 		_update_selection()])
 	_open_menu(sel_chip, items)
+
+
+## Поставить позу костей ключами на текущем кадре одним шагом истории.
+func _apply_pose(pose: Dictionary) -> void:
+	var e := RbPoseTools.key_entries(doc, pose)
+	if e.is_empty():
+		return
+	var tracks: Array = []
+	var values: Array = []
+	var rests: Array = []
+	for x in e:
+		tracks.append(x[0])
+		values.append(x[1])
+		rests.append(x[2])
+	undo.end_gesture()
+	undo.push(RbAnimCommands.SetKeysAuto.new(tracks, doc.current_frame, values, rests))
+	undo.end_gesture()
 
 
 func _rename_bone(b: RbBone) -> void:
@@ -2806,6 +2826,17 @@ func _activate_mesh_tool_for_shot() -> void:
 func _auto(kind: String) -> void:
 	await _frames(3)
 	match kind:
+		"mirror":
+			var hb := doc.rig.get_bone(rig_tools.selected_bone)
+			var a0 := hb.pose_angle
+			var steps := undo.size()
+			_apply_pose(RbPoseTools.mirrored(doc.rig, RbPoseTools.snapshot(doc.rig)))
+			print("AUTO mirror angle ", a0, " -> ", hb.pose_angle, " undo_added=", undo.size() - steps)
+			pose_clip = RbPoseTools.snapshot(doc.rig)
+			undo.undo()
+			print("AUTO mirror after_undo ", hb.pose_angle)
+			_apply_pose(pose_clip)
+			print("AUTO mirror pasted ", hb.pose_angle)
 		"ik":
 			var head := rig_tools.selected_bone
 			var b := doc.rig.get_bone(head)
@@ -3016,6 +3047,8 @@ func _take_shot() -> void:
 			_layer_action("rename", null)
 		elif _args["menu"] == "toast":
 			_soon()
+		elif _args["menu"] == "bone":
+			_bone_menu()
 		elif _args["menu"] == "constraints":
 			_open_bone_sheet()
 		elif _args["menu"] == "bone_pick":

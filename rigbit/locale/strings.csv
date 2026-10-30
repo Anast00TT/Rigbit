@@ -126,6 +126,10 @@ TOOL_POSE,Поза,Pose
 TOOL_WEIGHTS,Веса,Weights
 BONE_N,Кость %d,Bone %d
 BONE_RESET_POSE,Сбросить позу,Reset pose
+POSE_COPY,Копировать позу,Copy pose
+POSE_PASTE,Вставить позу,Paste pose
+POSE_MIRROR,Отразить позу,Mirror pose
+POSE_COPIED,Поза скопирована,Pose copied
 BONE_DETACH,Отцепить от родителя,Detach from parent
 BONE_DELETE,Удалить кость,Delete bone
 SHEET_TAB_BIND,Кости,Bones
