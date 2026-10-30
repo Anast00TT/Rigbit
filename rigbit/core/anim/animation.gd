@@ -132,6 +132,56 @@ func apply_frame(doc: RbDocument, frame: float) -> void:
 				pin[String(p[2])] = v
 
 
+## Текущие значения свойств, которые apply_frame перезапишет: [[track, value], ...].
+## Чтобы вычислить другой кадр (экспорт, онион скин) и вернуть всё как было.
+func capture(doc: RbDocument) -> Array:
+	var out: Array = []
+	for key in tracks:
+		var p := parse(key)
+		match p[0]:
+			"bone":
+				var b := doc.rig.get_bone(p[1])
+				if b:
+					out.append([key, b.get_prop(p[2])])
+			"layer":
+				var l := doc.get_layer(p[1])
+				if l:
+					out.append([key, l.get_prop(p[2])])
+			"param":
+				var prm := doc.params.get_param(p[1])
+				if prm:
+					out.append([key, prm.value])
+			"pin":
+				var pin := doc.rig.find_pin(p[1])
+				if not pin.is_empty():
+					out.append([key, pin.get(String(p[2]))])
+	return out
+
+
+static func restore(doc: RbDocument, snap: Array) -> void:
+	for e in snap:
+		var key: String = e[0]
+		var v: Variant = e[1]
+		var p := parse(key)
+		match p[0]:
+			"bone":
+				var b := doc.rig.get_bone(p[1])
+				if b:
+					b.set_prop(p[2], v)
+			"layer":
+				var l := doc.get_layer(p[1])
+				if l:
+					l.set_prop(p[2], v)
+			"param":
+				var prm := doc.params.get_param(p[1])
+				if prm:
+					prm.value = float(v)
+			"pin":
+				var pin := doc.rig.find_pin(p[1])
+				if not pin.is_empty():
+					pin[String(p[2])] = v
+
+
 func has_tracks_for(kind: String, id: int) -> bool:
 	var prefix := "%s:%d:" % [kind, id]
 	for key in tracks:

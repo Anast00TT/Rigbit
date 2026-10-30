@@ -72,13 +72,7 @@ func render_frame(frame: int) -> Image:
 		push_error("RbFrameRenderer: сначала setup()")
 		return null
 	_take_low_proc()
-	var snap := _snapshot()
-	var old_frame := doc.current_frame
-	doc.current_frame = frame
-	doc.anim.apply_frame(doc, frame)
-	var pose := _eval.evaluate(doc, frame, true)
-	_restore(snap)
-	doc.current_frame = old_frame
+	var pose := _eval.pose_at(doc, frame)
 	_ren.sync(doc, pose)
 	_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
 	await RenderingServer.frame_post_draw
@@ -135,53 +129,3 @@ func _take_low_proc() -> void:
 		_saved_low_proc = OS.low_processor_usage_mode
 		_low_proc_taken = true
 	OS.low_processor_usage_mode = false  # иначе frame_post_draw может не прийти
-
-
-## Значения дорожек, которые apply_frame перезапишет: вернём их после вычисления,
-## чтобы экспорт не менял то, что видит пользователь (в т.ч. в режиме Риг).
-func _snapshot() -> Array:
-	var out: Array = []
-	for key in doc.anim.tracks:
-		var p := RbAnimation.parse(key)
-		match p[0]:
-			"bone":
-				var b := doc.rig.get_bone(p[1])
-				if b:
-					out.append([key, b.get_prop(p[2])])
-			"layer":
-				var l := doc.get_layer(p[1])
-				if l:
-					out.append([key, l.get_prop(p[2])])
-			"param":
-				var prm := doc.params.get_param(p[1])
-				if prm:
-					out.append([key, prm.value])
-			"pin":
-				var pin := doc.rig.find_pin(p[1])
-				if not pin.is_empty():
-					out.append([key, pin.get(String(p[2]))])
-	return out
-
-
-func _restore(snap: Array) -> void:
-	for e in snap:
-		var key: String = e[0]
-		var v: Variant = e[1]
-		var p := RbAnimation.parse(key)
-		match p[0]:
-			"bone":
-				var b := doc.rig.get_bone(p[1])
-				if b:
-					b.set_prop(p[2], v)
-			"layer":
-				var l := doc.get_layer(p[1])
-				if l:
-					l.set_prop(p[2], v)
-			"param":
-				var prm := doc.params.get_param(p[1])
-				if prm:
-					prm.value = float(v)
-			"pin":
-				var pin := doc.rig.find_pin(p[1])
-				if not pin.is_empty():
-					pin[String(p[2])] = v

@@ -81,6 +81,9 @@ var pin_tools: RbPinTools
 var form_tools: RbFormTools
 var params_sheet: RbParamsSheet
 var pose_clip := {}  # скопированная поза: {bone_id: [angle, offset, scale]}
+var onion_eval := RbEvaluator.new()  # свой вычислитель для призраков, кеши вьюпорта не трогает
+var _onion_key := ""
+var _doc_rev := 0  # счётчик правок документа: призраки пересчитываются только после правки или смены кадра
 var bone_sheet: RbBoneSheet
 var fx_sheet: RbFxSheet
 var btn_params: Button
@@ -121,6 +124,8 @@ func _ready() -> void:
 	settings.load_cfg()
 	if _args.has("lang"):
 		settings.locale = _args["lang"]
+	if _args.has("onion"):  # --onion=N: призраки онион скина ±N кадров
+		settings.onion = int(_args["onion"])
 	TranslationServer.set_locale(settings.locale)
 	_setup_scale()
 	RbTheme.use_palette(_args.get("theme", settings.theme))
@@ -614,6 +619,7 @@ func _on_doc_changed(what: StringName) -> void:
 	if what == &"params" and params_sheet.visible:
 		params_sheet.rebuild.call_deferred(doc)  # список, имена и диапазоны поменялись (значения ползунков идут через &"param_value")
 	_dirty = true
+	_doc_rev += 1
 	_stop_playback()  # воспроизведение документ не трогает, значит любое изменение это правка
 	if not _no_save:
 		save_timer.start()
@@ -632,11 +638,41 @@ func _refresh() -> void:
 	# в Риге ползунки показываются, пока открыта их панель (предпросмотр формы)
 	pose = evaluator.evaluate(doc, 0, mode != 0 or params_sheet.visible)
 	view.renderer.sync(doc, pose)
+	_update_onion()
 	_update_selection()
 	_update_empty_state()
 	timeline.refresh()
 	if params_sheet.visible:
 		params_sheet.sync_values()
+
+
+## Онион скин: только в Анимации, не при проигрывании и не при правке формы.
+func _update_onion() -> void:
+	var n := settings.onion
+	if mode != 1 or n <= 0 or playing or form_tools.active or doc.frame_count < 2:
+		if view.renderer.onion:
+			view.renderer.onion.clear()
+		_onion_key = ""
+		return
+	var key := "%d|%d|%d|%d|%s" % [doc.current_frame, doc.frame_count, n, _doc_rev, loop_play]
+	if key == _onion_key:
+		return
+	_onion_key = key
+	var ghosts: Array = []
+	for g in RbOnion.ghost_frames(doc.current_frame, doc.frame_count, n, loop_play):
+		ghosts.append([onion_eval.pose_at(doc, g[0]), RbOnion.tint(g[1], n)])
+	view.renderer.enable_onion().show_ghosts(doc, ghosts, view.renderer.texture_for)
+
+
+func _onion_menu() -> void:
+	var items := []
+	for n in [0, 1, 2, 3]:
+		var label := tr("ONION_OFF") if n == 0 else tr("ONION_N") % n
+		items.append(["check" if settings.onion == n else "dot_empty", label, func() -> void:
+			settings.onion = n
+			settings.save_cfg()
+			_update_onion()])
+	_open_menu(btn_more, items)
 
 
 func _update_selection() -> void:
@@ -1420,6 +1456,7 @@ func _stop_playback() -> void:
 	set_process(false)
 	OS.low_processor_usage_mode = true
 	_update_play_ui()
+	_update_onion()
 
 
 func _update_play_ui() -> void:
@@ -1849,8 +1886,6 @@ func _open_menu_rect(ar: Rect2, items: Array) -> void:
 		b.icon = RbIcons.tex(it[0])
 		b.text = it[1]
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		b.clip_text = true
-		b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		b.custom_minimum_size = Vector2(240, 48)
 		b.focus_mode = Control.FOCUS_NONE
 		var cb: Callable = it[2]
@@ -1859,6 +1894,12 @@ func _open_menu_rect(ar: Rect2, items: Array) -> void:
 			cb.call())
 		v.add_child(b)
 	var vs := get_viewport_rect().size
+	# меню шире 240 dp под самый длинный пункт, но не шире экрана (тогда уже многоточие)
+	if v.get_combined_minimum_size().x > vs.x - 40.0:
+		for b in v.get_children():
+			(b as Button).clip_text = true
+			(b as Button).text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		v.custom_minimum_size.x = vs.x - 40.0
 	var full := v.get_combined_minimum_size().y + 12.0
 	if full > vs.y - 16.0:
 		var sc := ScrollContainer.new()
@@ -1891,8 +1932,11 @@ func _menu_project() -> void:
 
 
 func _menu_more() -> void:
-	_open_menu(btn_more, [
-		["fit", "MENU_FIT", view.fit_canvas],
+	var items := [["fit", "MENU_FIT", view.fit_canvas]]
+	if mode == 1:
+		items.append(["eye", tr("MENU_ONION") if settings.onion == 0 else tr("MENU_ONION_ON") % settings.onion, _onion_menu])
+	_open_menu(btn_more, items + [
+
 		["gauge", "MENU_BENCH", _run_bench],
 		["gear", "MENU_SETTINGS", _open_settings],
 		["info", "MENU_ABOUT", func() -> void: _dialog("ABOUT_TITLE", tr("ABOUT_TEXT") % VERSION)],

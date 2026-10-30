@@ -8,6 +8,7 @@ var locale := "ru"
 var theme := "dark"
 var hints := true
 var vibration := true
+var onion := 0  # онион скин: призраков в каждую сторону, 0 = выключен
 var last_project := ""
 var dismissed_hints: Array = []
 
@@ -22,6 +23,7 @@ func load_cfg() -> void:
 	theme = cfg.get_value("app", "theme", theme)
 	hints = cfg.get_value("app", "hints", hints)
 	vibration = cfg.get_value("app", "vibration", vibration)
+	onion = cfg.get_value("app", "onion", onion)
 	last_project = cfg.get_value("app", "last_project", last_project)
 	dismissed_hints = cfg.get_value("app", "dismissed_hints", [])
 
@@ -32,6 +34,7 @@ func save_cfg() -> void:
 	cfg.set_value("app", "theme", theme)
 	cfg.set_value("app", "hints", hints)
 	cfg.set_value("app", "vibration", vibration)
+	cfg.set_value("app", "onion", onion)
 	cfg.set_value("app", "last_project", last_project)
 	cfg.set_value("app", "dismissed_hints", dismissed_hints)
 	cfg.save(PATH)

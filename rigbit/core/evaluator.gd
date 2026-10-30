@@ -103,6 +103,19 @@ func evaluate(doc: RbDocument, _frame: int, posed := true) -> Pose:
 	return pose
 
 
+## Поза на другом кадре без следа в документе: значения дорожек и текущий кадр возвращаются как были.
+## Для экспорта и онион скина (у каждого свой вычислитель, чтобы не мешать кешам вьюпорта).
+func pose_at(doc: RbDocument, frame: int) -> Pose:
+	var snap := doc.anim.capture(doc)
+	var old_frame := doc.current_frame
+	doc.current_frame = frame
+	doc.anim.apply_frame(doc, frame)
+	var pose := evaluate(doc, frame, true)
+	RbAnimation.restore(doc, snap)
+	doc.current_frame = old_frame
+	return pose
+
+
 var _arap_cache := {}  # layer id -> [подпись, RbArap]
 var dynamics := RbDynamics.new()
 var _watched: RbDocument

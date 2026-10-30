@@ -254,3 +254,7 @@ FX_SAT,Насыщенность,Saturation
 FX_BRIGHT,Яркость,Brightness
 FX_CONTRAST,Контраст,Contrast
 HINT_FX,Выбери слой и включи эффект. Стрелку света тяни на холсте.,Pick a layer and turn an effect on. Drag the light arrow on the canvas.
+MENU_ONION,Онион скин,Onion skin
+MENU_ONION_ON,Онион скин: ±%d,Onion skin: ±%d
+ONION_OFF,Выключен,Off
+ONION_N,Призраки: ±%d,Ghosts: ±%d

@@ -8,12 +8,30 @@ var _nodes := {}  # layer id -> MeshInstance2D
 var _mesh_sig := {}  # layer id -> хеш вершин
 var _tex := {}  # image_id -> [Image, ImageTexture]
 var _blend_mats := {}
+## Призраки онион скина (только вьюпорт редактора): первым ребёнком, между фоном холста и слоями.
+var onion: RbOnionRenderer
+
+
+func enable_onion() -> RbOnionRenderer:
+	if onion == null:
+		onion = RbOnionRenderer.new()
+		add_child(onion)
+		move_child(onion, 0)
+	return onion
+
+
+func texture_for(image_id: String) -> Texture2D:
+	return _texture_for(image_id)
 
 
 func sync(d: RbDocument, pose: RbEvaluator.Pose) -> void:
 	doc = d
 	queue_redraw()
 	var alive := {}
+	var base := 0
+	if onion:
+		move_child(onion, 0)
+		base = 1
 	for i in pose.order.size():
 		var id: int = pose.order[i]
 		var l := doc.get_layer(id)
@@ -27,13 +45,13 @@ func sync(d: RbDocument, pose: RbEvaluator.Pose) -> void:
 		n.texture = _texture_for(l.image_id)
 		var sig := hash(lp.vertices) ^ hash(l.mesh_indices)
 		if _mesh_sig.get(id, -1) != sig:
-			n.mesh = _build_mesh(lp.vertices, l.mesh_uvs, l.mesh_indices)
+			n.mesh = build_mesh(lp.vertices, l.mesh_uvs, l.mesh_indices)
 			_mesh_sig[id] = sig
 		n.transform = lp.world
 		n.self_modulate = Color(1, 1, 1, lp.opacity)
 		n.visible = lp.visible
 		n.material = _fx_material(l, lp.world) if not l.effects.is_empty() else _blend_material(l.blend_mode)
-		move_child(n, i)
+		move_child(n, i + base)
 		alive[id] = true
 	for id in _nodes.keys():
 		if not alive.has(id):
@@ -46,6 +64,8 @@ func sync(d: RbDocument, pose: RbEvaluator.Pose) -> void:
 
 
 func clear() -> void:
+	if onion:
+		onion.clear()
 	for n in _nodes.values():
 		n.queue_free()
 	_nodes.clear()
@@ -66,7 +86,7 @@ func _texture_for(image_id: String) -> Texture2D:
 	return entry[1]
 
 
-func _build_mesh(v: PackedVector2Array, uv: PackedVector2Array, idx: PackedInt32Array) -> ArrayMesh:
+static func build_mesh(v: PackedVector2Array, uv: PackedVector2Array, idx: PackedInt32Array) -> ArrayMesh:
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = v
