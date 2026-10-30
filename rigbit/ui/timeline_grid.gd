@@ -5,6 +5,7 @@ extends Control
 ##   тап/тянуть по пустому месту и по линейке: плейхед на кадр (на линейке при зуме тянуть = двигать вид);
 ##   тап по ключу: выделить и встать на его кадр; тянуть ключ: сдвиг выделенных (один MoveKeys при отпускании);
 ##   долгое нажатие: вибро и рамка выделения; тянуть по колонке имён: прокрутка строк.
+##   Скраб, сдвиг ключей и рамка у края области кадров сами прокручивают вид.
 ## Два пальца: щипок = зум кадров, сдвиг центра = прокрутка.
 
 signal frame_requested(f: int)
@@ -20,6 +21,8 @@ const SLOP := 10.0
 const LONG_S := 0.45
 const FS := 12
 const PAD := 8.0  # зазор между колонкой имён и нулевым кадром
+const EDGE := 36.0  # полоса автопрокрутки у краёв области кадров
+const EDGE_FPS := 30.0  # потолок скорости автопрокрутки, кадров/с
 
 var doc: RbDocument
 var rows: Array = []
@@ -47,12 +50,14 @@ var _key_ref: Array = []
 var _rect_a := Vector2.ZERO
 var _rect_b := Vector2.ZERO
 var _pair_prev: Array = []
+var _last := Vector2.ZERO  # где сейчас палец одиночного жеста
 var _timer: Timer
 var _chip_on: StyleBoxFlat
 var _chip_off: StyleBoxFlat
 
 
 func _init() -> void:
+	set_process(false)
 	clip_contents = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	focus_mode = Control.FOCUS_NONE
@@ -481,9 +486,15 @@ func _on_drag(e: InputEventScreenDrag) -> void:
 		return
 	_moved += prev.distance_to(e.position)
 	var p := e.position
+	_last = p
 	if _g.ends_with("_wait") and p.distance_to(_down) > SLOP:
 		_timer.stop()
 		_start_drag(p)
+	_drag_to(p, prev)
+	set_process(_g in ["scrub", "keymove", "rect"])
+
+
+func _drag_to(p: Vector2, prev: Vector2) -> void:
 	match _g:
 		"scrub":
 			_scrub_to(p.x)
@@ -496,6 +507,25 @@ func _on_drag(e: InputEventScreenDrag) -> void:
 		"rect":
 			_rect_b = p
 	queue_redraw()
+
+
+## Автопрокрутка: пока палец стоит у края, вид едет, а точка начала жеста едет вместе с содержимым,
+## чтобы сдвиг ключей и рамка считались от того же кадра.
+func _process(delta: float) -> void:
+	if not (_g in ["scrub", "keymove", "rect"]) or _touches.size() != 1:
+		set_process(false)
+		return
+	var v := RbTimelineLogic.edge_speed(_last.x, label_w + PAD, size.x, EDGE, EDGE_FPS)
+	if v == 0.0:
+		return
+	var ns := RbTimelineLogic.clamp_scroll(scroll + v * delta, ppf, _track_w(), doc.frame_count)
+	var ds := ns - scroll
+	if absf(ds) < 0.0001:
+		return
+	scroll = ns
+	_down.x -= ds * ppf
+	_rect_a.x -= ds * ppf
+	_drag_to(_last, _last)
 
 
 func _start_drag(p: Vector2) -> void:

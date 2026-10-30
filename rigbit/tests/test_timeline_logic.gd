@@ -353,3 +353,14 @@ func test_grid_ruler_pan() -> void:
 	t.check(g.scroll > 2.0, "тянуть линейку при зуме двигает вид")
 	t.eq(frames.size(), 0, "плейхед при этом не двигался")
 	g.queue_free()
+
+
+func test_edge_speed() -> void:
+	var v := func(x: float) -> float: return RbTimelineLogic.edge_speed(x, 100.0, 500.0, 40.0, 30.0)
+	t.near(v.call(300.0), 0.0, "середина стоит")
+	t.near(v.call(140.0), 0.0, "граница полосы слева ещё стоит")
+	t.near(v.call(120.0), -15.0, "полпути в полосе: полскорости к началу")
+	t.near(v.call(480.0), 15.0, "полпути в полосе справа: вперёд")
+	t.near(v.call(20.0), -30.0, "за краем не быстрее потолка")
+	t.near(v.call(900.0), 30.0, "за правым краем потолок")
+	t.near(RbTimelineLogic.edge_speed(110.0, 100.0, 200.0, 40.0, 30.0), 0.0, "узкая область не крутится")

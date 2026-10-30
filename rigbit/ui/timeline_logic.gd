@@ -76,6 +76,19 @@ static func scroll_to_show(f: int, scroll: float, ppf: float, view_w: float, cou
 	return clamp_scroll(s, ppf, view_w, count)
 
 
+## Автопрокрутка у краёв: скорость в кадрах/с для пальца в x (координаты экрана).
+## Ноль в середине; в полосе edge у левого (left) или правого (right) края растёт до max_fps,
+## за краем держится на максимуме. Минус = к началу.
+static func edge_speed(x: float, left: float, right: float, edge: float, max_fps: float) -> float:
+	if right - left < edge * 3.0:
+		return 0.0
+	if x < left + edge:
+		return -max_fps * clampf((left + edge - x) / edge, 0.0, 1.0)
+	if x > right - edge:
+		return max_fps * clampf((x - (right - edge)) / edge, 0.0, 1.0)
+	return 0.0
+
+
 # ---------------- строки ----------------
 
 static func object_exists(doc: RbDocument, kind: String, id: int) -> bool:
