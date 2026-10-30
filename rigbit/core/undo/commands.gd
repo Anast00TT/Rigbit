@@ -155,6 +155,31 @@ class SetLayerProp extends RbCommand:
 		return false
 
 
+## Замена картинки целиком (удаление каймы, ластик). Хранит обе версии: пиксели в undo обязательны.
+## Объект Image подменяется, а не правится на месте: рендерер и кеш PNG видят смену по идентичности.
+class SetImage extends RbCommand:
+	var image_id: String
+	var old_image: Image
+	var new_image: Image
+
+	func _init(id: String, old_img: Image, new_img: Image, l := "Пиксели") -> void:
+		label = l
+		image_id = id
+		old_image = old_img
+		new_image = new_img
+
+	func do_it(doc: RbDocument) -> void:
+		doc.images[image_id] = new_image
+		doc.notify(&"image")
+
+	func undo_it(doc: RbDocument) -> void:
+		doc.images[image_id] = old_image
+		doc.notify(&"image")
+
+	func cost_bytes() -> int:
+		return new_image.get_data().size() + old_image.get_data().size()
+
+
 ## Замена сетки слоя целиком (генерация, правка точек). Снимок: v, uv, i, d (плотность).
 ## Живое перетаскивание точки применяет сетку само и кладёт команду с already_done.
 class SetMesh extends RbCommand:

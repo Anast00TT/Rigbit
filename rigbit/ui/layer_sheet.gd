@@ -145,6 +145,10 @@ func _build_layer_tab(l: RbLayer) -> void:
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		grid.add_child(b)
+	if l.image_id != "":
+		var df := RbUi.text_btn("SecondaryButton", "brush", "ACT_DEFRINGE", func() -> void: action.emit("defringe", null), 44)
+		df.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		_body.add_child(df)
 	var del := RbUi.text_btn("DangerButton", "trash", "ACT_DELETE", func() -> void: action.emit("delete", null), 44)
 	_body.add_child(del)
 

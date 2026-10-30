@@ -72,6 +72,9 @@ ACT_DUPLICATE,Копия,Duplicate
 ACT_FLIP,Отразить,Flip
 ACT_GROUP,В группу,Group
 ACT_RESET,Сбросить,Reset
+ACT_DEFRINGE,Убрать кайму,Remove fringe
+DEFRINGE_DONE,Кайма убрана: %d пикс.,Fringe removed: %d px
+DEFRINGE_NONE,Каймы не нашлось,No fringe found
 ACT_DELETE,Удалить слой,Delete layer
 ACT_RENAME,Переименовать,Rename
 ACT_SAVE,Сохранить,Save

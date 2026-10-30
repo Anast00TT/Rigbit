@@ -2194,6 +2194,9 @@ func _place_panel(p: Control) -> void:
 		p.add_theme_stylebox_override("panel", sbx)
 
 
+const DEFRINGE_PX := 2  # «Убрать кайму»: колец по краю, пикселей картинки
+
+
 func _layer_action(act: String, arg: Variant) -> void:
 	var l := doc.get_layer(selected_id)
 	if l == null:
@@ -2237,6 +2240,16 @@ func _layer_action(act: String, arg: Variant) -> void:
 			var idx := doc.sibling_list(l.parent_id).find(l.id) + 1
 			undo.push(RbCommands.AddLayer.new(d, img, idx))
 			selected_id = d.id
+		"defringe":
+			var img: Image = doc.images.get(l.image_id)
+			if img == null:
+				return
+			var r := RbImageOps.defringe(img, DEFRINGE_PX)
+			if int(r[1]) == 0:
+				_toast(tr("DEFRINGE_NONE"))
+				return
+			undo.push(RbCommands.SetImage.new(l.image_id, img, r[0], "Кайма"))
+			_toast(tr("DEFRINGE_DONE") % int(r[1]))
 		"flip":
 			if mode == 1:
 				_key_layer(l, &"scale", Vector2(-l.scale.x, l.scale.y), false)
@@ -2870,6 +2883,15 @@ func _activate_mesh_tool_for_shot() -> void:
 func _auto(kind: String) -> void:
 	await _frames(3)
 	match kind:
+		"defringe":
+			var dl := doc.get_layer(selected_id)
+			var before: Image = doc.images[dl.image_id]
+			var steps0 := undo.size()
+			_layer_action("defringe", null)
+			await _frames(2)
+			print("AUTO defringe replaced=", doc.images[dl.image_id] != before, " undo_added=", undo.size() - steps0)
+			undo.undo()
+			print("AUTO defringe after_undo restored=", doc.images[dl.image_id] == before)
 		"mirror":
 			var hb := doc.rig.get_bone(rig_tools.selected_bone)
 			var a0 := hb.pose_angle
@@ -3133,6 +3155,9 @@ func _take_shot() -> void:
 		for pnl in _panels():
 			if pnl is RbPanel and pnl.visible:
 				pnl.scroll_to(int(_args["scroll"]))
+		if sheet.visible:  # и лист слоя
+			for sc in sheet.find_children("*", "ScrollContainer", true, false):
+				(sc as ScrollContainer).scroll_vertical = int(_args["scroll"])
 		for i in 4:
 			await get_tree().process_frame
 	if _args.has("wait"):  # подождать тосты и таймеры (--wait=секунды)
