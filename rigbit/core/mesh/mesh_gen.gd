@@ -23,6 +23,9 @@ const INNER_MARGIN := 0.55  ## внутренние точки не ближе �
 const SNAP_PX := 0.75  ## add_point: ближе к границе = точка на границе
 const DUP_PX := 0.5  ## ближе = та же точка
 const SEED := 20240611
+const TOL_OUT_K := 0.3  ## допуск упрощения контура наружу, доля шага сетки
+const TOL_IN_K := 0.2  ## и внутрь
+
 
 
 # ---------------------------------------------------------------- публичное API
@@ -100,8 +103,10 @@ static func generate(img: Image, density: float, alpha_threshold := 0.05, paddin
 	var h_min := maxf(4.0, 2.0 * s)
 	var a_on := float(on_cells) * s * s
 	var h0 := maxf(_spacing(a_on, 3.5 * sqrt(a_on), n_target), h_min)
-	var tol_out := maxf(float(s), 0.1 * h0)
-	var tol_in := maxf(0.5 * s, 0.5 * tol_out)
+	# наружу контур может отходить смелее (лишняя прозрачная кромка безвредна): иначе на изгибах
+	# точки края идут втрое чаще внутренних; внутрь строго, от этого зависит запас расширения маски
+	var tol_out := maxf(float(s), TOL_OUT_K * h0)
+	var tol_in := maxf(0.5 * s, 0.5 * maxf(float(s), TOL_IN_K * h0))
 
 	# 3. расширение маски (BitMap.grow_mask в C++), круглое ядро
 	var gimg := Image.create_from_data(gw, gh, false, Image.FORMAT_RGBA8, mask)
