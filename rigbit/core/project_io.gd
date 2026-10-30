@@ -3,6 +3,7 @@ extends RefCounted
 ## Формат проекта .rigbit: zip-контейнер
 ##   document.json  — структура (с format_version)
 ##   images/<id>.png — текстуры слоёв
+##   images/<id>.svg — исходный SVG картинки, если она из вектора (RbDocument.svgs)
 
 const EXT := "rigbit"
 
@@ -25,6 +26,11 @@ static func save(doc: RbDocument, path: String) -> Error:
 			doc.png_cache[key] = cached
 		zip.write_file(cached[1])
 		zip.close_file()
+	for key: String in doc.svgs:
+		if doc.images.has(key):
+			zip.start_file("images/%s.svg" % key)
+			zip.write_file((doc.svgs[key] as String).to_utf8_buffer())
+			zip.close_file()
 	zip.close()
 	# атомарная замена: Android может убить процесс посреди записи
 	var dir := DirAccess.open(path.get_base_dir())
@@ -51,6 +57,8 @@ static func load_doc(path: String) -> RbDocument:
 			var img := Image.new()
 			if img.load_png_from_buffer(zip.read_file(f)) == OK:
 				doc.images[f.get_file().get_basename()] = img
+		elif f.begins_with("images/") and f.ends_with(".svg"):
+			doc.svgs[f.get_file().get_basename()] = zip.read_file(f).get_string_from_utf8()
 	zip.close()
 	return doc
 

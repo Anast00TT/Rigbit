@@ -28,6 +28,9 @@ func shown_frame() -> int:
 var root: Array[int] = []  # корневые слои, снизу вверх
 var images: Dictionary = {}  # image_id -> Image
 var png_cache: Dictionary = {}  # image_id -> [Image, PackedByteArray], чтобы автосохранение не кодировало заново
+## Исходный векторный текст картинки (части персонажа из SVG): image_id -> String.
+## Растр в images остаётся главным; по SVG картинку можно перерастрировать в любом размере.
+var svgs: Dictionary = {}
 var _next_id: int = 1
 
 

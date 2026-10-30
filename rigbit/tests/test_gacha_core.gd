@@ -100,3 +100,24 @@ func test_ik_constraint() -> void:
 	w = rig.world_transforms(true)
 	var dir := ((w[2] as Transform2D) * Vector2(50, 0) - Vector2.ZERO).normalized()
 	t.near(dir.dot(Vector2(530, 570).normalized()), 1.0, "не дотянуться: нога вытянута к цели", 0.01)
+
+
+func test_mask_and_svg_saved() -> void:
+	var doc := RbDocument.new()
+	var a := _layer(doc, "sclera")
+	var b := _layer(doc, "eyeball")
+	b.mask_id = a.id
+	a.image_id = "img_a"
+	b.image_id = "img_b"
+	var img := Image.create(4, 4, false, Image.FORMAT_RGBA8)
+	img.fill(Color.WHITE)
+	doc.images["img_a"] = img
+	doc.images["img_b"] = img.duplicate()
+	doc.svgs["img_a"] = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"4\" height=\"4\"><circle cx=\"2\" cy=\"2\" r=\"2\"/></svg>"
+	var path := "user://test_gacha_core.rigbit"
+	t.eq(RbProjectIO.save(doc, path), OK, "сохранение")
+	var back := RbProjectIO.load_doc(path)
+	t.eq(back.get_layer(b.id).mask_id, a.id, "маска сохраняется")
+	t.eq(back.svgs.get("img_a", ""), doc.svgs["img_a"], "SVG лежит рядом с PNG")
+	t.check(not back.svgs.has("img_b"), "у растровой картинки SVG нет")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))

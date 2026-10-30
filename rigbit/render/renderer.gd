@@ -50,7 +50,15 @@ func sync(d: RbDocument, pose: RbEvaluator.Pose) -> void:
 		n.transform = lp.world
 		n.self_modulate = Color(1, 1, 1, lp.opacity)
 		n.visible = lp.visible
-		n.material = _fx_material(l, lp.world) if not l.effects.is_empty() else _blend_material(l.blend_mode)
+		var ml := doc.get_layer(l.mask_id) if l.mask_id != 0 else null
+		if ml and pose.layers.has(ml.id) and not ml.is_group():
+			var mp: RbEvaluator.LayerPose = pose.layers[ml.id]
+			n.visible = lp.visible and mp.visible  # спрятанная маска (другой вариант глаза) прячет и обрезаемое
+			n.material = _mask_material(l, ml, lp.world, mp.world)
+		elif not l.effects.is_empty():
+			n.material = _fx_material(l, lp.world)
+		else:
+			n.material = _blend_material(l.blend_mode)
 		move_child(n, i + base)
 		alive[id] = true
 	for id in _nodes.keys():
@@ -94,6 +102,26 @@ static func build_mesh(v: PackedVector2Array, uv: PackedVector2Array, idx: Packe
 	arrays[Mesh.ARRAY_INDEX] = idx
 	var m := ArrayMesh.new()
 	m.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return m
+
+
+const MASK_SHADER := preload("res://render/layer_mask.gdshader")
+var _mask_mats := {}  # layer id -> ShaderMaterial
+
+
+## Маска-обрезка (эффекты и режим наложения у обрезаемого слоя при этом не применяются).
+func _mask_material(l: RbLayer, mask: RbLayer, world: Transform2D, mask_world: Transform2D) -> ShaderMaterial:
+	var m: ShaderMaterial = _mask_mats.get(l.id)
+	if m == null:
+		m = ShaderMaterial.new()
+		m.shader = MASK_SHADER
+		_mask_mats[l.id] = m
+	var x := mask_world.affine_inverse() * world
+	m.set_shader_parameter("mask_tex", _texture_for(mask.image_id))
+	m.set_shader_parameter("mask_x", x.x)
+	m.set_shader_parameter("mask_y", x.y)
+	m.set_shader_parameter("mask_o", x.origin)
+	m.set_shader_parameter("mask_size", mask.size)
 	return m
 
 

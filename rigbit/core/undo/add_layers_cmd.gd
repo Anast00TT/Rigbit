@@ -6,11 +6,12 @@ extends RbCommand
 
 var layer_dicts: Array = []  # снимки слоёв, у групп children пустые
 var images: Dictionary = {}  # image_id -> Image
+var svgs: Dictionary = {}  # image_id -> исходный SVG (импорт персонажа из вектора)
 var new_canvas := Vector2i.ZERO
 var old_canvas := Vector2i.ZERO
 
 
-func _init(layers: Array[RbLayer], imgs: Dictionary, canvas_size := Vector2i.ZERO, cmd_label := "Импорт PSD") -> void:
+func _init(layers: Array[RbLayer], imgs: Dictionary, canvas_size := Vector2i.ZERO, cmd_label := "Импорт PSD", svg_texts := {}) -> void:
 	label = cmd_label
 	for l in layers:
 		var d := l.to_dict()
@@ -18,6 +19,7 @@ func _init(layers: Array[RbLayer], imgs: Dictionary, canvas_size := Vector2i.ZER
 			d["children"] = []  # дети допишутся сами при вставке
 		layer_dicts.append(d)
 	images = imgs.duplicate()
+	svgs = svg_texts.duplicate()
 	new_canvas = canvas_size
 
 
@@ -28,6 +30,8 @@ func do_it(doc: RbDocument) -> void:
 		doc.notify(&"canvas")
 	for k in images:
 		doc.images[k] = images[k]
+	for k in svgs:
+		doc.svgs[k] = svgs[k]
 	for d: Dictionary in layer_dicts:
 		doc.insert_layer(RbLayer.from_dict(d), -1)
 
@@ -44,6 +48,7 @@ func undo_it(doc: RbDocument) -> void:
 	for k in images:
 		doc.images.erase(k)
 		doc.png_cache.erase(k)
+		doc.svgs.erase(k)
 	if new_canvas != Vector2i.ZERO:
 		doc.canvas_size = old_canvas
 		doc.notify(&"canvas")
