@@ -2,11 +2,13 @@ class_name RbAnimation
 extends RefCounted
 ## Ключи анимации. Дорожка = одно свойство одного объекта:
 ##   "bone:<id>:pose_angle" / "bone:<id>:pose_offset" / "bone:<id>:pose_scale"
-##   "layer:<id>:position" / rotation / scale / opacity / visible
+##   "layer:<id>:position" / rotation / scale / opacity / visible / switch_index / z (последние три ступенькой)
 ## Модель «текущий кадр записан в объекты»: apply_frame(f) кладёт значения дорожек
 ## в кости и слои, вычислитель читает объекты. Правка в режиме Анимация = ключ на кадре.
 
 const INTERPS := ["linear", "smooth", "ease_in", "ease_out", "step", "bounce"]
+## Свойства, которые всегда меняются ступенькой, какая бы интерполяция ни стояла на ключе
+const STEP_PROPS: Array[StringName] = [&"visible", &"switch_index", &"z"]
 
 ## track_key -> Array ключей [{f: int, v: Variant, i: String}], отсортировано по f
 var tracks: Dictionary = {}
@@ -73,9 +75,15 @@ func sample(key: String, frame: float) -> Variant:
 		var a: Dictionary = ks[i]
 		var b: Dictionary = ks[i + 1]
 		if frame >= float(a["f"]) and frame < float(b["f"]):
+			if _is_step(key):
+				return a["v"]
 			var t := (frame - float(a["f"])) / float(int(b["f"]) - int(a["f"]))
 			return _mix(a["v"], b["v"], ease_t(t, str(a["i"])))
 	return ks[ks.size() - 1]["v"]
+
+
+static func _is_step(key: String) -> bool:
+	return parse(key)[2] in STEP_PROPS
 
 
 static func ease_t(t: float, interp: String) -> float:

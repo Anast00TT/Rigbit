@@ -33,14 +33,15 @@ class Pose:
 ## posed=false: rest-поза скелета (режим Риг, как в Moho).
 func evaluate(doc: RbDocument, _frame: int, posed := true) -> Pose:
 	var pose := Pose.new()
-	_walk(doc, doc.root, Transform2D.IDENTITY, 1.0, true, pose)
-	# 8. мировые трансформы костей
-	pose.bones_rest = doc.rig.world_transforms(false)
 	# 1. значения ползунков уже записаны apply_frame; 2. драйверы; 3. ключевые формы
 	var forms := {}
 	if posed and not doc.params.params.is_empty():
 		doc.params.resolve_drivers()
 		forms = doc.params.blend()
+	_walk(doc, doc.root, Transform2D.IDENTITY, 1.0, true, pose, forms.get("switch", {}))
+	# 8. мировые трансформы костей
+	pose.bones_rest = doc.rig.world_transforms(false)
+	if not forms.is_empty():
 		for lid in forms["verts"]:
 			if pose.layers.has(lid):
 				var lp0: LayerPose = pose.layers[lid]
@@ -148,18 +149,40 @@ func _arap_for(l: RbLayer, pinned: PackedInt32Array) -> RbArap:
 	return e[1]
 
 
-func _walk(doc: RbDocument, ids: Array[int], parent: Transform2D, parent_op: float, parent_vis: bool, pose: Pose) -> void:
-	for id in ids:
+## Обход дерева слоёв. Соседи сортируются по z (устойчиво: при равном z порядок дерева).
+## У свитч-группы виден один ребёнок: switch_index, или выбор из ключевой формы ползунка (switches).
+func _walk(doc: RbDocument, ids: Array[int], parent: Transform2D, parent_op: float, parent_vis: bool, pose: Pose,
+		switches: Dictionary, switch_pick := -1) -> void:
+	for idx in _z_sorted(doc, ids):
+		var id: int = ids[idx]
 		var l := doc.get_layer(id)
-		if l == null:
-			continue
 		var lp := LayerPose.new()
 		lp.world = parent * l.local_transform()
 		lp.opacity = parent_op * l.opacity
-		lp.visible = parent_vis and l.visible
+		lp.visible = parent_vis and l.visible and (switch_pick < 0 or switch_pick == idx)
 		lp.vertices = l.mesh_vertices
 		pose.layers[id] = lp
 		if l.is_group():
-			_walk(doc, l.children, lp.world, lp.opacity, lp.visible, pose)
+			var pick := -1
+			if l.kind == RbLayer.Kind.SWITCH and not l.children.is_empty():
+				pick = clampi(int(switches.get(l.id, l.switch_index)), 0, l.children.size() - 1)
+			_walk(doc, l.children, lp.world, lp.opacity, lp.visible, pose, switches, pick)
 		else:
 			pose.order.append(id)
+
+
+## Индексы ids в порядке отрисовки: по z, при равенстве как в дереве. Пропавшие слои отбрасываются.
+static func _z_sorted(doc: RbDocument, ids: Array[int]) -> Array[int]:
+	var out: Array[int] = []
+	var any_z := false
+	for i in ids.size():
+		var l := doc.get_layer(ids[i])
+		if l:
+			out.append(i)
+			any_z = any_z or l.z != 0
+	if any_z:
+		out.sort_custom(func(a: int, b: int) -> bool:
+			var za := doc.get_layer(ids[a]).z
+			var zb := doc.get_layer(ids[b]).z
+			return za < zb or (za == zb and a < b))
+	return out

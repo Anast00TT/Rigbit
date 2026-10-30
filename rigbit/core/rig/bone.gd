@@ -23,6 +23,7 @@ var pose_scale := Vector2.ONE
 ##   independent: true — не наследует поворот родителя
 ##   copy: {from: id, angle: k, move: k, scale: k} — взять движение другой кости с множителями
 ##   target: id — смотреть на начало другой кости
+##   ik: {target: id} — постоянная IK: конец этой кости тянется к началу кости-цели, родитель гнётся вместе с ней
 ##   dynamics: {spring, damping, torque} — пружинистое запаздывание (кеш по кадрам)
 var constraints: Dictionary = {}
 

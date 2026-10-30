@@ -91,8 +91,45 @@ func world_transforms(posed: bool, extra := {}, form := {}) -> Dictionary:
 			var to: Vector2 = (out[int(c["target"])] as Transform2D).origin - w.origin
 			if to.length() > 0.001:
 				w = Transform2D(to.angle(), w.get_scale(), 0.0, w.origin)
+		if c.has("ik") and b.parent_id != 0 and out.has(b.parent_id):
+			var goal = _ik_goal(int((c["ik"] as Dictionary).get("target", 0)), out, extra)
+			if goal != null:
+				w = _ik_two(b, out, w, goal)
 		out[id] = w
 	return out
+
+
+## Начало кости-цели IK в мире. Цель обычно корневая (ноги к target1/target2): если она
+## ещё не посчитана в этом проходе, считаем её сразу. null = цели нет.
+func _ik_goal(tid: int, out: Dictionary, extra: Dictionary) -> Variant:
+	if out.has(tid):
+		return (out[tid] as Transform2D).origin
+	var t := get_bone(tid)
+	if t == null or t.parent_id != 0:
+		return null
+	return Transform2D(t.angle + t.pose_angle + float(extra.get(tid, 0.0)), t.pose_scale, 0.0, t.position + t.pose_offset).origin
+
+
+## Постоянная IK-цель (констрейн ik: {target}): родитель и сама кость решаются двухкостно,
+## конец кости тянется к цели, сторона сгиба как в текущей позе. Родитель перезаписывается в out;
+## его другие дети, посчитанные раньше этой кости, IK не увидят (у ног и рук их нет).
+func _ik_two(b: RbBone, out: Dictionary, w: Transform2D, goal: Vector2) -> Transform2D:
+	var pid := b.parent_id
+	var pw: Transform2D = out[pid]
+	var p := get_bone(pid)
+	var tip := w * Vector2(b.length, 0)
+	var pts: Array[Vector2] = [pw.origin, w.origin, tip]
+	var lens: Array[float] = [pw.origin.distance_to(w.origin), b.length * w.get_scale().x]
+	if lens[0] < 0.001 or lens[1] < 0.001:
+		return w
+	var np := RbIK._two_bone(pts, lens, goal)
+	# родитель поворачивается так, чтобы его кость смотрела на новый сустав (сохраняя смещение сустава)
+	var joint_local := pw.affine_inverse() * w.origin
+	var turn := (np[1] - np[0]).angle() - (w.origin - pw.origin).angle()
+	var npw := Transform2D(pw.get_rotation() + turn, pw.get_scale(), pw.get_skew(), pw.origin)
+	out[pid] = npw
+	var joint := npw * joint_local
+	return Transform2D((np[2] - np[1]).angle(), w.get_scale(), w.get_skew(), joint)
 
 
 ## Кости с динамикой.

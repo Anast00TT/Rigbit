@@ -155,6 +155,8 @@ TL_POS,Позиция,Position
 TL_OPACITY,Прозрачность,Opacity
 TL_VISIBLE,Видимость,Visibility
 TL_VALUE,Значение,Value
+TL_SWITCH,Вариант,Variant
+TL_Z,Порядок,Order
 TL_PIN_OF,Пин %d · %s,Pin %d · %s
 TL_FILTER_ON,только выделенное,selected only
 TL_FILTER_OFF,все объекты,all objects

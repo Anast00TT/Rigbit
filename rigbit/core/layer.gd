@@ -20,6 +20,12 @@ var scale := Vector2.ONE
 var opacity: float = 1.0
 var visible: bool = true
 var blend_mode: String = "normal"
+## Свитч-группа: индекс видимого ребёнка (рты, глаза, кисти). Анимируется ступенькой.
+var switch_index: int = 0
+## Порядок среди соседей поверх обычного: больше = выше (рука перед телом). Анимируется ступенькой.
+var z: int = 0
+## Маска-обрезка: слой виден только там, где непрозрачен слой mask_id в его текущей позе (0 = нет).
+var mask_id: int = 0
 
 var image_id: String = ""  # ключ в RbDocument.images
 var size := Vector2.ZERO  # размер картинки в пикселях
@@ -55,6 +61,8 @@ func get_prop(prop: StringName) -> Variant:
 
 
 func set_prop(prop: StringName, value: Variant) -> void:
+	if prop == &"switch_index" or prop == &"z":
+		value = roundi(float(value))  # из JSON и дорожек приходит float
 	set(prop, value)
 
 
@@ -65,6 +73,12 @@ func to_dict() -> Dictionary:
 		"opacity": opacity, "visible": visible, "blend": blend_mode,
 		"fx": effects.duplicate(true),
 	}
+	if kind == Kind.SWITCH:
+		d["switch"] = switch_index
+	if z != 0:
+		d["z"] = z
+	if mask_id != 0:
+		d["mask"] = mask_id
 	if is_group():
 		d["children"] = Array(children)
 	else:
@@ -92,6 +106,9 @@ static func from_dict(d: Dictionary) -> RbLayer:
 	l.visible = bool(d.get("visible", true))
 	l.blend_mode = str(d.get("blend", "normal"))
 	l.effects = (d.get("fx", {}) as Dictionary).duplicate(true)
+	l.switch_index = int(d.get("switch", 0))
+	l.z = int(d.get("z", 0))
+	l.mask_id = int(d.get("mask", 0))
 	if l.is_group():
 		for c in d.get("children", []):
 			l.children.append(int(c))

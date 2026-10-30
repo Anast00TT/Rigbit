@@ -13,7 +13,7 @@ const KEY_HALF := 7.0  # ключ рисуется 14 dp
 const HIT_HALF := 14.0  # зона касания ключа: 28 dp по ширине
 
 const BONE_PROPS: Array[StringName] = [&"pose_angle", &"pose_offset", &"pose_scale"]
-const LAYER_PROPS: Array[StringName] = [&"position", &"rotation", &"scale", &"opacity", &"visible"]
+const LAYER_PROPS: Array[StringName] = [&"position", &"rotation", &"scale", &"opacity", &"visible", &"switch_index", &"z"]
 const PARAM_PROPS: Array[StringName] = [&"value"]
 const PIN_PROPS: Array[StringName] = [&"offset"]
 ## Порядок объектов в общем списке: кости, слои, ползунки, пины.
@@ -22,7 +22,7 @@ const LABELS := {
 	&"pose_angle": "TL_ROT", &"pose_offset": "TL_OFFSET", &"pose_scale": "TL_SCALE",
 	&"position": "TL_POS", &"rotation": "TL_ROT", &"scale": "TL_SCALE",
 	&"opacity": "TL_OPACITY", &"visible": "TL_VISIBLE",
-	&"value": "TL_VALUE", &"offset": "TL_OFFSET",
+	&"value": "TL_VALUE", &"offset": "TL_OFFSET", &"switch_index": "TL_SWITCH", &"z": "TL_Z",
 }
 
 
