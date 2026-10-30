@@ -3,7 +3,7 @@ extends SceneTree
 ##   godot --path rigbit --quit-after 900 -s res://tests/export_shot.gd
 ## Пишет build/shots/export_f0.png, export_f12.png, build/export_test.gif (+ варианты) и время этапов.
 
-const OUT := "C:/Users/Anastazja/Desktop/rigbit app/build/"
+var OUT := ProjectSettings.globalize_path("res://").path_join("../build/").simplify_path() + "/"
 
 
 func _initialize() -> void:

@@ -36,5 +36,7 @@ func _initialize() -> void:
 	for i in 6:
 		await process_frame
 	await RenderingServer.frame_post_draw
-	root.get_texture().get_image().save_png("C:/Users/Anastazja/Desktop/rigbit app/build/shots/fx.png")
+	var out := ProjectSettings.globalize_path("res://").path_join("../build/shots").simplify_path()
+	DirAccess.make_dir_recursive_absolute(out)
+	root.get_texture().get_image().save_png(out.path_join("fx.png"))
 	quit()
