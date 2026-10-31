@@ -3,10 +3,10 @@ extends RefCounted
 ## Что именно экспортировать: формат, размер, fps, кадры, фон. Ядро без UI, проверяется тестами.
 ## Настройки: {format: "gif" | "png_zip", long_side: int (0 = как холст), fps: int,
 ##   from: int, to: int (кадры документа включительно), transparent: bool}.
-## MP4/WebM в интерфейсе пока «скоро»: им нужен Android-плагин (design/export_research.md).
+## MP4/WebM идут через RbVideoEncoder; пока на платформе нет кодировщика, они «скоро».
 
-const FORMATS := ["gif", "png_zip"]
-const SOON := ["mp4", "webm"]
+const FORMATS := ["gif", "png_zip", "mp4", "webm"]
+const VIDEO := ["mp4", "webm"]  # через RbVideoEncoder; без кодировщика на платформе = «скоро»
 const SIDES := [256, 512, 1024, 0]  # 0 = размер холста
 const FPS_CHOICES := [12, 24, 30]
 ## Кадры GIF держатся в памяти целиком (общая палитра): дальше этого предела отказываемся
@@ -17,12 +17,17 @@ const GIF_MAX_SIDE := 1024
 static func defaults(doc: RbDocument, format: String) -> Dictionary:
 	return {
 		"format": format,
-		"long_side": 512 if format == "gif" else 0,
+		"long_side": 512 if format == "gif" else (1024 if format in VIDEO else 0),
 		"fps": doc.fps if doc.fps in fps_choices(doc.fps) else 24,
 		"from": 0,
 		"to": maxi(doc.frame_count - 1, 0),
 		"transparent": format == "png_zip",
 	}
+
+
+## Формат виден, но пока не работает на этой платформе (видео без кодировщика).
+static func is_soon(format: String) -> bool:
+	return format in VIDEO and not RbVideoEncoder.available(format)
 
 
 ## Варианты fps: стандартные плюс fps документа, если он другой.
@@ -35,7 +40,14 @@ static func fps_choices(doc_fps: int) -> Array:
 
 
 ## Размер вывода: длинная сторона ровно long_side (и уменьшение, и увеличение), пропорции холста.
-static func out_size(canvas: Vector2i, long_side: int) -> Vector2i:
+static func out_size(canvas: Vector2i, long_side: int, even := false) -> Vector2i:
+	var s := _out_size(canvas, long_side)
+	if even:  # yuv420 у видео: обе стороны чётные
+		s = Vector2i(maxi(2, s.x - (s.x & 1)), maxi(2, s.y - (s.y & 1)))
+	return s
+
+
+static func _out_size(canvas: Vector2i, long_side: int) -> Vector2i:
 	if long_side <= 0:
 		return Vector2i(maxi(canvas.x, 1), maxi(canvas.y, 1))
 	var side := maxi(canvas.x, canvas.y)
@@ -67,8 +79,20 @@ static func duration(from: int, to: int, doc_fps: int) -> float:
 	return float(absi(to - from) + 1) / float(maxi(doc_fps, 1))
 
 
+## Размер вывода для настроек экспорта (видео = чётные стороны).
+static func size_of(doc: RbDocument, s: Dictionary) -> Vector2i:
+	return out_size(doc.canvas_size, int(s["long_side"]), s["format"] in VIDEO)
+
+
 static func ext(format: String) -> String:
-	return "gif" if format == "gif" else "zip"
+	match format:
+		"gif":
+			return "gif"
+		"mp4":
+			return "mp4"
+		"webm":
+			return "webm"
+	return "zip"
 
 
 ## Имя файла: имя проекта без расширения, иначе Rigbit. Небезопасные символы убираются.
@@ -85,7 +109,9 @@ static func problems(doc: RbDocument, s: Dictionary) -> Array:
 	var out: Array = []
 	if doc.root.is_empty():
 		out.append(["EXPORT_ERR_EMPTY"])
-	var size := out_size(doc.canvas_size, int(s["long_side"]))
+	if is_soon(s["format"]):
+		out.append(["EXPORT_ERR_SOON"])
+	var size := size_of(doc, s)
 	var frames := source_frames(int(s["from"]), int(s["to"]), doc.fps, int(s["fps"])).size()
 	if s["format"] == "gif":
 		if maxi(size.x, size.y) > GIF_MAX_SIDE:

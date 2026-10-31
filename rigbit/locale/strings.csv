@@ -300,3 +300,4 @@ GL2_ERR_NO_CHAR,В SVG нет персонажа Gacha Life 2,No Gacha Life 2 ch
 GL2_ERR_NO_PARTS,Не нашлось ни одной части персонажа,No character parts found
 PROP_VARIANT,Вариант,Variant
 Z_KEYED,Порядок на кадре: %d,Order on this frame: %d
+EXPORT_ERR_SOON,Этот формат появится в следующей версии,This format is coming in the next version

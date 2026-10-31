@@ -2,7 +2,7 @@ class_name RbExportSheet
 extends RbPanel
 ## Лист режима «Экспорт» (мокап design/mockups/export.html): настройки, прогресс, готово.
 ## Сам документ не трогает: шлёт сигналы, рендер и сохранение делает главный экран.
-## MP4 и WebM видны, но серые: им нужен Android-плагин.
+## MP4 и WebM видны, но серые, пока на платформе нет видеокодировщика (RbVideoEncoder).
 
 signal export_requested(settings: Dictionary)
 signal cancel_requested
@@ -55,7 +55,7 @@ func rebuild() -> void:
 
 
 func _update_sub() -> void:
-	var sz := RbExportPlan.out_size(doc.canvas_size, int(settings["long_side"]))
+	var sz := RbExportPlan.size_of(doc, settings)
 	var secs := RbExportPlan.duration(int(settings["from"]), int(settings["to"]), doc.fps)
 	set_sub("%d×%d · %d fps · %s" % [sz.x, sz.y, int(settings["fps"]), tr("EXPORT_SECONDS") % _secs(secs)])
 
@@ -79,7 +79,7 @@ func _row(key: String, ctl: Control) -> HBoxContainer:
 func _build_settings() -> void:
 	var fmts := ["gif", "png_zip", "mp4", "webm"]
 	var fmt_seg := RbUi.segments(["GIF", "PNG", "MP4", "WebM"], fmts.find(settings["format"]), func(i: int) -> void:
-		if fmts[i] in RbExportPlan.SOON:
+		if RbExportPlan.is_soon(fmts[i]):
 			notice(tr("EXPORT_SOON"))
 			rebuild.call_deferred()  # вернуть подсветку на текущий формат
 			return
@@ -89,6 +89,8 @@ func _build_settings() -> void:
 		settings["to"] = keep_range[1]
 		rebuild())
 	for i in [2, 3]:
+		if not RbExportPlan.is_soon(fmts[i]):
+			continue
 		var sb: Button = fmt_seg.get_child(0).get_child(i)
 		sb.add_theme_color_override("font_color", RbTheme.C.tx3)
 		sb.add_theme_color_override("font_hover_color", RbTheme.C.tx3)

@@ -65,7 +65,7 @@
 
 ### Только локально (нужен Android: NDK, сборка APK, эмулятор, телефон)
 1. **Проверить на устройстве всё сделанное в облаке** (в облаке нет APK и GPU телефона): экспорт GIF/PNG и «Сохранить» через SAF, импорт .svg из «Файлов» (content://), онион скин и FPS, маску зрачка, гача-персонажа целиком (поза, IK ног, свитчи), автопрокрутку таймлайна пальцем
-2. **MP4** (TikTok, квадрат): MediaCodec через JavaClassWrapper, ~1-2 дня (design/export_research.md, вариант a, запасной b)
+2. **MP4** (TikTok, квадрат): системный MediaCodec через JavaClassWrapper (design/export_research.md, вариант a, запасной b: Kotlin-плагин). Место готово: дописать `rigbit/core/export/android_mp4.gd` (план по шагам внутри) и включить `supported()`; экспорт, кадры, битрейт, «Сохранить» уже подключены через RbVideoEncoder. Проверка: LDPlayer через `tools\emu.ps1`, потом телефон Насти по USB (adb)
 3. **WebM VP9 + альфа** (стикеры Telegram): libvpx + libwebm через GDExtension, NDK r27+, ~4-7 дней (вариант c)
 4. «Поделиться» и запись прямо в галерею (Intent / MediaStore): тот же Android-плагин, что для MP4
 5. Мод GL2: формат v2 (скелет и варианты в SVG), ТЗ п. 3. Мод лежит только у Насти

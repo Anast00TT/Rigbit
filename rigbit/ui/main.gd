@@ -700,9 +700,10 @@ func _run_export(s: Dictionary) -> void:
 	_export_cancel = false
 	_export_block.visible = true
 	export_sheet.show_progress()
-	var size := RbExportPlan.out_size(doc.canvas_size, int(s["long_side"]))
+	var size := RbExportPlan.size_of(doc, s)
 	var src := RbExportPlan.source_frames(int(s["from"]), int(s["to"]), doc.fps, int(s["fps"]))
 	var gif: bool = s["format"] == "gif"
+	var video := RbVideoEncoder.create(s["format"]) if s["format"] in RbExportPlan.VIDEO else null
 	DirAccess.make_dir_recursive_absolute("user://exports")
 	var name := RbExportPlan.file_name(project_path, s["format"])
 	var path := "user://exports/" + name
@@ -712,7 +713,10 @@ func _run_export(s: Dictionary) -> void:
 	var frames: Array = []
 	var seq: RbPngSequence = null
 	var err := ""
-	if not gif:
+	if video:
+		if video.begin(ProjectSettings.globalize_path(path), size, int(s["fps"]), RbVideoEncoder.bitrate_for(size, int(s["fps"]))) != OK:
+			err = "EXPORT_ERR_WRITE"
+	elif not gif:
 		seq = RbPngSequence.new()
 		if seq.open(path) != OK:
 			err = "EXPORT_ERR_WRITE"
@@ -725,7 +729,10 @@ func _run_export(s: Dictionary) -> void:
 		if img == null:
 			err = "EXPORT_ERR_RENDER"
 			break
-		if seq:
+		if video:
+			if video.add_frame(img) != OK:
+				err = "EXPORT_ERR_WRITE"
+		elif seq:
 			if seq.add(img) != OK:
 				err = "EXPORT_ERR_WRITE"
 		else:
@@ -736,6 +743,11 @@ func _run_export(s: Dictionary) -> void:
 	fr.queue_free()
 	if seq:
 		seq.close()
+	if video:
+		if _export_cancel or err != "":
+			video.cancel()
+		elif video.finish() != OK:
+			err = "EXPORT_ERR_WRITE"
 	if _export_cancel or err != "":
 		frames.clear()
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
@@ -771,7 +783,14 @@ func _export_save() -> void:
 	if _export_file == "" or not FileAccess.file_exists(_export_file):
 		return
 	var name := _export_file.get_file()
-	var filt := "*.gif;GIF;image/gif" if name.ends_with(".gif") else "*.zip;ZIP;application/zip"
+	var filt := "*.zip;ZIP;application/zip"
+	match name.get_extension():
+		"gif":
+			filt = "*.gif;GIF;image/gif"
+		"mp4":
+			filt = "*.mp4;MP4;video/mp4"
+		"webm":
+			filt = "*.webm;WebM;video/webm"
 	if _args.has("export_save"):  # отладка: сохранить без диалога
 		_export_copy(str(_args["export_save"]))
 	elif DisplayServer.has_feature(DisplayServer.FEATURE_NATIVE_DIALOG_FILE):

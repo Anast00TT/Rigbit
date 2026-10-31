@@ -40,3 +40,17 @@ func test_names_and_problems() -> void:
 	doc.frame_count = 1000
 	t.check(not RbExportPlan.can_run(RbExportPlan.problems(doc, s)), "тысяча кадров 1024 в GIF не влезет в память")
 	t.eq(RbExportPlan.fps_choices(25), [12, 24, 25, 30], "fps документа добавляется")
+
+
+func test_video_seam() -> void:
+	t.eq(RbExportPlan.out_size(Vector2i(1081, 1921), 0, true), Vector2i(1080, 1920), "видео: стороны чётные")
+	t.eq(RbExportPlan.ext("mp4"), "mp4", "расширение mp4")
+	t.near(float(RbVideoEncoder.bitrate_for(Vector2i(1080, 1920), 30)), 6220800.0, "битрейт как у TikTok", 1.0)
+	var doc := RbDocument.new()
+	doc.root.append(1)
+	var s := RbExportPlan.defaults(doc, "mp4")
+	t.check(not s["transparent"], "у MP4 фон непрозрачный")
+	# на ПК видеокодировщика нет: формат «скоро» и не запускается
+	t.eq(RbVideoEncoder.create("mp4"), null, "кодировщика нет")
+	t.check(RbExportPlan.is_soon("mp4") and not RbExportPlan.can_run(RbExportPlan.problems(doc, s)), "MP4 пока «скоро»")
+	t.check(not RbExportPlan.is_soon("gif"), "GIF работает всегда")
