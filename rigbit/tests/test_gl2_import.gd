@@ -99,6 +99,26 @@ func test_skeleton_from_pivots() -> void:
 	t.check(_bone("Body2").constraints.has("limit"), "у Body2 предел угла")
 
 
+func test_ik_chains() -> void:
+	var r := _built()
+	var rig := RbRig.new()
+	for b: RbBone in r.bones:
+		rig.bones[b.id] = b
+	t.check(_bone("Clavicle1").hidden and _bone("Clavicle2").hidden, "ключицы скрыты")
+	t.check(not _bone("Shoulder1").hidden, "плечо видно")
+	var ids := func(names: Array) -> Array[int]:
+		var out: Array[int] = []
+		for nm in names:
+			out.append(int(r.bone_ids[nm]))
+		return out
+	t.eq(RbIK.chain_for(rig, r.bone_ids["Forearm1"], 2), ids.call(["Shoulder1", "Forearm1"]), "предплечье: плечо + предплечье")
+	t.eq(RbIK.chain_for(rig, r.bone_ids["Shoulder1"], 2), ids.call(["Shoulder1"]), "плечо без ключицы")
+	t.eq(RbIK.chain_for(rig, r.bone_ids["Coccyx"], 2), ids.call(["Coccyx"]), "копчик не тянет корпус")
+	t.eq(RbIK.chain_for(rig, r.bone_ids["leg1_2"], 2), ids.call(["Leg1", "leg1_2"]), "нога: бедро + голень")
+	var copy := RbBone.from_dict(_bone("Clavicle1").to_dict())
+	t.check(copy.hidden and copy.constraints.get("ik_ignore", false), "флаги переживают сохранение")
+
+
 func test_binding() -> void:
 	var r := _built()
 	var hand: Dictionary = r.weights[_layer("hand1").id]

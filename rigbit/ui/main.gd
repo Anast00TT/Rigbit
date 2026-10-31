@@ -2,7 +2,8 @@ extends Control
 ## Главный экран, раскладка «Студия».
 ## Узкий экран (телефон в портрете): тулбар + отдельная строка режимов.
 ## Широкий (телефон в ландшафте, планшет): режимы встраиваются в тулбар, одна строка.
-## Проекты сохраняются сами (как в iLight): в user://projects, через 2 с после изменения и при сворачивании.
+## Проекты сохраняются сами (как в iLight): в Документы/Rigbit или user://projects (RbStorage),
+## через 2 с после изменения и при сворачивании.
 
 const WIDE_DP := 700.0
 const VERSION := "0.0.1"
@@ -21,6 +22,7 @@ var ui_scale := 1.0
 
 var _args := {}
 var _no_save := false
+var _projects_root := RbStorage.INTERNAL  # или Документы/Rigbit (RbStorage)
 var _dirty := false
 var _refresh_queued := false
 var _wide := -1
@@ -150,11 +152,13 @@ func _ready() -> void:
 	save_timer.timeout.connect(_save_now)
 	add_child(save_timer)
 	get_window().size_changed.connect(_on_window_resized)
+	_init_storage()
+	var last := settings.last_project  # запомнить до _set_doc: пустой документ пишет last_project = ""
 	_set_doc(RbDocument.new(), "")
-	if not _no_save and settings.last_project != "" and FileAccess.file_exists(settings.last_project):
-		var d := RbProjectIO.load_doc(settings.last_project)
+	if not _no_save and last != "" and FileAccess.file_exists(last):
+		var d := RbProjectIO.load_doc(last)
 		if d:
-			_set_doc(d, settings.last_project)
+			_set_doc(d, last)
 	_on_window_resized()
 	if _args.has("demo"):
 		_add_demo()
@@ -189,7 +193,13 @@ func _ready() -> void:
 
 
 func _parse_args() -> void:
-	for a in OS.get_cmdline_user_args():
+	var list := OS.get_cmdline_user_args()
+	# На Android аргументы запуска не доходят: debug-сборка берёт их один раз из user://debug_args.txt
+	# (кладётся через adb shell run-as com.rigbit.app, см. PROGRESS.md).
+	if OS.is_debug_build() and FileAccess.file_exists("user://debug_args.txt"):
+		list.append_array(FileAccess.get_file_as_string("user://debug_args.txt").strip_edges().split(" ", false))
+		DirAccess.remove_absolute(ProjectSettings.globalize_path("user://debug_args.txt"))
+	for a in list:
 		if a.begins_with("--"):
 			var kv := a.substr(2).split("=", true, 1)
 			_args[kv[0]] = kv[1] if kv.size() > 1 else "1"
@@ -946,6 +956,12 @@ func _notification(what: int) -> void:
 	match what:
 		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_CLOSE_REQUEST:
 			_save_now()
+		NOTIFICATION_APPLICATION_RESUMED:
+			# вернулись из системного экрана «Доступ ко всем файлам»
+			if not _no_save and _projects_root == RbStorage.INTERNAL and RbStorage.shared_writable():
+				_save_now()
+				_use_shared_storage()
+				_toast(tr("STORAGE_MOVED"))
 		NOTIFICATION_WM_GO_BACK_REQUEST:
 			if overlay_layer and overlay_layer.visible:
 				_close_overlay()
@@ -957,8 +973,39 @@ func _notification(what: int) -> void:
 
 
 func _projects_dir() -> String:
-	DirAccess.make_dir_recursive_absolute("user://projects")
-	return "user://projects"
+	DirAccess.make_dir_recursive_absolute(_projects_root)
+	return _projects_root
+
+
+## Проекты в Документы/Rigbit, если Android даёт туда писать; иначе один раз объясняем и просим доступ.
+func _init_storage() -> void:
+	if _no_save:
+		return
+	if RbStorage.shared_writable():
+		_use_shared_storage()
+	# Писать в Документы Android 11+ даёт и так, но после переустановки старые файлы станут «чужими»
+	# и без «Доступа ко всем файлам» не прочитаются. Поэтому просим, пока разрешения нет.
+	if OS.has_feature("android") and not RbStorage.has_permission() and not settings.storage_asked:
+		_ask_storage.call_deferred()
+
+
+## Переключиться на общую папку и перенести туда проекты из внутренней.
+func _use_shared_storage() -> void:
+	_projects_root = RbStorage.shared_dir()
+	var moved := RbStorage.migrate(RbStorage.INTERNAL, _projects_root, RbProjectIO.EXT)
+	if moved.has(project_path):
+		project_path = moved[project_path]
+	if moved.has(settings.last_project):
+		settings.last_project = moved[settings.last_project]
+		settings.save_cfg()
+
+
+func _ask_storage() -> void:
+	settings.storage_asked = true
+	settings.save_cfg()
+	_dialog("STORAGE_TITLE", tr("STORAGE_TEXT"), null, "STORAGE_ALLOW", func() -> void:
+		_close_overlay()
+		RbStorage.request())
 
 
 func _new_project_path() -> String:
@@ -2129,7 +2176,7 @@ func _open_menu_rect(ar: Rect2, items: Array) -> void:
 		v.custom_minimum_size.x = vs.x - 40.0
 	var full := v.get_combined_minimum_size().y + 12.0
 	if full > vs.y - 16.0:
-		var sc := ScrollContainer.new()
+		var sc := RbTouchScroll.new()
 		sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		sc.add_child(v)
@@ -2222,7 +2269,7 @@ func _open_projects() -> void:
 	if list.is_empty():
 		_dialog("OPEN_TITLE", tr("OPEN_EMPTY"))
 		return
-	var scroll := ScrollContainer.new()
+	var scroll := RbTouchScroll.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.custom_minimum_size.y = minf(list.size() * 50.0, get_viewport_rect().size.y * 0.5)
 	var v := VBoxContainer.new()

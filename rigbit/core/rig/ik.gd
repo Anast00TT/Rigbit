@@ -82,10 +82,13 @@ static func _fabrik(pts: Array[Vector2], lens: Array[float], target: Vector2, it
 
 
 ## Цепочка для перетаскивания кончика кости: кость и её предки, не длиннее max_len.
+## Предок с констрейном ik_ignore цепочку обрывает (как ключица у гачи: рука гнётся без неё).
 static func chain_for(rig: RbRig, bone_id: int, max_len := 2) -> Array[int]:
 	var out: Array[int] = []
 	var b := rig.get_bone(bone_id)
 	while b and out.size() < max_len:
+		if not out.is_empty() and b.constraints.get("ik_ignore", false):
+			break
 		out.push_front(b.id)
 		b = rig.get_bone(b.parent_id)
 	return out

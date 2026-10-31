@@ -11,6 +11,7 @@ var vibration := true
 var onion := 0  # онион скин: призраков в каждую сторону, 0 = выключен
 var last_project := ""
 var dismissed_hints: Array = []
+var storage_asked := false  # уже объясняли и просили «Доступ ко всем файлам»
 
 
 func load_cfg() -> void:
@@ -26,6 +27,7 @@ func load_cfg() -> void:
 	onion = cfg.get_value("app", "onion", onion)
 	last_project = cfg.get_value("app", "last_project", last_project)
 	dismissed_hints = cfg.get_value("app", "dismissed_hints", [])
+	storage_asked = cfg.get_value("app", "storage_asked", storage_asked)
 
 
 func save_cfg() -> void:
@@ -37,4 +39,5 @@ func save_cfg() -> void:
 	cfg.set_value("app", "onion", onion)
 	cfg.set_value("app", "last_project", last_project)
 	cfg.set_value("app", "dismissed_hints", dismissed_hints)
+	cfg.set_value("app", "storage_asked", storage_asked)
 	cfg.save(PATH)

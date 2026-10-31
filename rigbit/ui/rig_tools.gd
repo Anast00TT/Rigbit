@@ -56,6 +56,8 @@ func hit_bone(w: Vector2) -> int:
 	var bw := _bones_world()
 	for id in bw:
 		var b := doc().rig.get_bone(id)
+		if b.hidden:
+			continue
 		var t: Transform2D = bw[id]
 		var d := RbRig._dist_to_segment(w, t.origin, t * Vector2(b.length, 0))
 		if d < best_d:
@@ -144,6 +146,8 @@ func tip_bone(w: Vector2) -> int:
 	var best_d := INF
 	for id in bw:
 		var b := doc().rig.get_bone(id)
+		if b.hidden:
+			continue
 		var t: Transform2D = bw[id]
 		var tip_s: Vector2 = m.view.view * (t * Vector2(b.length, 0))
 		var base_s: Vector2 = m.view.view * t.origin
@@ -386,6 +390,8 @@ func update_overlay() -> void:
 	var dim: bool = m.tool not in ["bone", "pose", "weights"]
 	for id in bw:
 		var b := doc().rig.get_bone(id)
+		if b.hidden:
+			continue
 		var t: Transform2D = bw[id]
 		v.bones_draw.append({"a": t.origin, "b": t * Vector2(b.length, 0), "sel": id == selected_bone and not dim, "dim": dim})
 	if m.tool == "weights":

@@ -7,7 +7,7 @@ TOOL_LAYER,Слой,Layer
 TOOL_HAND,Вид,View
 TOOL_MESH,Сетка,Mesh
 EMPTY_IMPORT,Импортировать персонажа,Import character
-EMPTY_HINT,"PSD, PNG или JPG","PSD, PNG or JPG"
+EMPTY_HINT,"PSD, PNG, JPG или SVG Gacha Life 2","PSD, PNG, JPG or Gacha Life 2 SVG"
 EMPTY_OPEN,Открыть проект,Open project
 EMPTY_DEMO,Пример: лягушка,Sample: frog
 MENU_NEW,Новый проект,New project
@@ -32,6 +32,10 @@ HINT_LAYER,"Тяни слой пальцем. Двумя пальцами: дв�
 OPEN_TITLE,Проекты,Projects
 OPEN_EMPTY,Пока нет сохранённых проектов,No saved projects yet
 PROJECT_N,Проект %d,Project %d
+STORAGE_TITLE,Папка для проектов,Projects folder
+STORAGE_TEXT,"Rigbit будет хранить проекты в «Документы/Rigbit». Так они не пропадут при переустановке, а свои PSD и картинки можно класть туда же. Android попросит разрешить «Доступ ко всем файлам».","Rigbit will keep projects in Documents/Rigbit. They survive reinstalling the app, and you can put your own PSDs and images there too. Android will ask to allow ""All files access""."
+STORAGE_ALLOW,Разрешить,Allow
+STORAGE_MOVED,Проекты теперь в «Документы/Rigbit»,Projects are now in Documents/Rigbit
 BENCH_RUNNING,"Тест идёт, не трогай экран","Test running, don't touch the screen"
 BENCH_TITLE,Тест производительности,Performance test
 BENCH_RESULT,"Средний FPS: %.0f из %.0f

@@ -12,6 +12,9 @@ var parent_id: int = 0  # 0 = корень
 var position := Vector2.ZERO  # начало кости в пространстве родителя (у корневой: координаты холста)
 var angle: float = 0.0  # относительно родителя
 var length: float = 100.0
+## Служебная кость (ключица гачи для флекси-биндинга тела): не рисуется и не ловится пальцем,
+## но веса и иерархия работают как обычно.
+var hidden := false
 
 # поза (дельты к rest; в риге всё нулевое)
 var pose_angle: float = 0.0
@@ -23,6 +26,7 @@ var pose_scale := Vector2.ONE
 ##   independent: true — не наследует поворот родителя
 ##   copy: {from: id, angle: k, move: k, scale: k} — взять движение другой кости с множителями
 ##   target: id — смотреть на начало другой кости
+##   ik_ignore: true — IK-цепочка от дочерних костей на этой кости обрывается, сама она не гнётся
 ##   ik: {target: id} — постоянная IK: конец этой кости тянется к началу кости-цели, родитель гнётся вместе с ней
 ##   dynamics: {spring, damping, torque} — пружинистое запаздывание (кеш по кадрам)
 var constraints: Dictionary = {}
@@ -55,11 +59,14 @@ func set_prop(prop: StringName, value: Variant) -> void:
 
 
 func to_dict() -> Dictionary:
-	return {
+	var d := {
 		"id": id, "name": name, "parent": parent_id,
 		"position": [position.x, position.y], "angle": angle, "length": length,
 		"constraints": constraints.duplicate(true),
 	}
+	if hidden:
+		d["hidden"] = true
+	return d
 
 
 static func from_dict(d: Dictionary) -> RbBone:
@@ -71,5 +78,6 @@ static func from_dict(d: Dictionary) -> RbBone:
 	b.position = Vector2(p[0], p[1])
 	b.angle = float(d.get("angle", 0.0))
 	b.length = float(d.get("length", 100.0))
+	b.hidden = bool(d.get("hidden", false))
 	b.constraints = (d.get("constraints", {}) as Dictionary).duplicate(true)
 	return b

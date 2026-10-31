@@ -39,7 +39,7 @@ func _init(title_key := "") -> void:
 	names.add_child(_sub)
 	head_row.add_child(RbUi.icon_btn("x", func() -> void: closed.emit()))
 	col.add_child(RbUi.hline())
-	scroll = ScrollContainer.new()
+	scroll = RbTouchScroll.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	col.add_child(scroll)

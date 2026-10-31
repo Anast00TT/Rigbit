@@ -27,7 +27,7 @@ func _init(s: RbSettings) -> void:
 	t.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	hr.add_child(t)
 	col.add_child(RbUi.hline())
-	var scroll := ScrollContainer.new()
+	var scroll := RbTouchScroll.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	col.add_child(scroll)

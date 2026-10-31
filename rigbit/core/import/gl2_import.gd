@@ -419,7 +419,9 @@ static func _skeleton(cx: _Ctx) -> void:
 	var k := cx.k
 	_bone(cx, "Main_bone", "", root, root + up * 30.0 * k)
 	var mid := body.lerp(neck, 0.5)
-	_bone(cx, "Body1", "Main_bone", body, mid)
+	# Body1 вне IK: иначе кончик копчика или Body2 тянет за собой весь корпус
+	var b1 := _bone(cx, "Body1", "Main_bone", body, mid)
+	b1.constraints = {"ik_ignore": true}
 	var b2 := _bone(cx, "Body2", "Body1", mid, neck)
 	b2.constraints = {"limit": {"min": deg_to_rad(-10.0), "max": deg_to_rad(10.0)}}
 	var hs := _rect(cx, "headshape")
@@ -454,7 +456,10 @@ static func _skeleton(cx: _Ctx) -> void:
 		var sh := cx.pivot(side[1])
 		var el := cx.pivot(side[2])
 		var wr := cx.pivot(side[3])
-		_bone(cx, "Clavicle" + n2, "Body2", neck, sh)
+		# ключица только гнёт тело (флекси-биндинг): скрыта и неподвижна, IK руки на ней обрывается
+		var cl := _bone(cx, "Clavicle" + n2, "Body2", neck, sh)
+		cl.hidden = true
+		cl.constraints = {"ik_ignore": true}
 		_bone(cx, "Shoulder" + n2, "Clavicle" + n2, sh, el)
 		_bone(cx, "Forearm" + n2, "Shoulder" + n2, el, wr)
 		var hr := _rect(cx, "hand" + n2)

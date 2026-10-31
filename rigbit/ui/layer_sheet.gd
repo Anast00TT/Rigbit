@@ -55,7 +55,7 @@ func _init() -> void:
 	col.add_child(RbUi.hline())
 	_tabs_holder = RbUi.margins(12, 10, 12, 2)
 	col.add_child(_tabs_holder)
-	var scroll := ScrollContainer.new()
+	var scroll := RbTouchScroll.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	col.add_child(scroll)
